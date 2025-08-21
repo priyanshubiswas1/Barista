@@ -1,0 +1,95 @@
+// title
+title Restaurant SaaS Data Model
+
+// define tables
+shop [icon: home, color: orange]{
+  id uuid pk
+  name string
+  owner_name string
+  email string
+  phone string
+  address string
+  active bool default(true)
+  created_at timestamp
+  updated_at timestamp
+}
+
+table [icon: grid, color: blue]{
+  id uuid pk
+  shop_id uuid fk
+  table_number int
+  qr_code_url string
+  active bool default(true)
+  created_at timestamp
+  updated_at timestamp
+}
+
+menu_item [icon: coffee, color: yellow]{
+  id uuid pk
+  shop_id uuid fk
+  name string
+  description string
+  category string
+  price numeric
+  image string
+  is_available bool
+  active bool default(true)
+  created_at timestamp
+  updated_at timestamp
+}
+
+session [icon: users, color: purple]{
+  id uuid pk
+  shop_id uuid fk
+  table_id uuid fk
+  status enum('active','closed')
+  total_amount numeric
+  is_paid bool
+  payment_method string
+  active bool default(true)
+  created_at timestamp
+  updated_at timestamp
+}
+
+order [icon: shopping-cart, color: red]{
+  id uuid pk
+  session_id uuid fk
+  status enum('pending','in_progress','ready','served','cancelled')
+  special_notes string
+  active bool default(true)
+  created_at timestamp
+  updated_at timestamp
+}
+
+order_item [icon: tag, color: pink]{
+  id uuid pk
+  order_id uuid fk
+  menu_item_id uuid fk
+  quantity int
+  price_at_order_time numeric
+  active bool default(true)
+  created_at timestamp
+  updated_at timestamp
+}
+
+payment [icon: credit-card, color: teal]{
+  id uuid pk
+  session_id uuid fk
+  amount numeric
+  payment_method string
+  status enum('pending','completed','failed')
+  transaction_id string
+  active bool default(true)
+  created_at timestamp
+  updated_at timestamp
+}
+
+// define relationships
+table.shop_id > shop.id
+menu_item.shop_id > shop.id
+session.shop_id > shop.id
+session.table_id > table.id
+order.session_id > session.id
+order_item.order_id > order.id
+order_item.menu_item_id > menu_item.id
+payment.session_id - session.id

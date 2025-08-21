@@ -1,0 +1,64 @@
+services:
+  user_db:
+    build:
+      context: ./server/services/auth
+      dockerfile: ./db.dockerfile
+    environment:
+      POSTGRES_DB: user
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: 7866
+    restart: unless-stopped
+  menu_db:
+    build:
+      context: ./server/services/menu
+      dockerfile: ./db.dockerfile
+    environment:
+      POSTGRES_DB: menu
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: 7866
+    restart: unless-stopped
+  order_db:
+    build:
+      context: ./server/services/order
+      dockerfile: ./db.dockerfile
+    environment:
+      POSTGRES_DB: order
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: 7866
+    restart: unless-stopped
+  payment_db:
+    build:
+      context: ./server/services/payment
+      dockerfile: ./db.dockerfile
+    environment:
+      POSTGRES_DB: payment
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: 7866
+    restart: unless-stopped
+  session_db:
+    build:
+      context: ./server/services/session
+      dockerfile: ./db.dockerfile
+    environment:
+      POSTGRES_DB: session
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: 7866
+    restart: unless-stopped
+  shop_db:
+    build:
+      context: ./server/services/shop
+      dockerfile: ./db.dockerfile
+    environment:
+      POSTGRES_DB: shop
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: 7866
+    restart: unless-stopped
+  table_db:
+    build:
+      context: ./server/services/table
+      dockerfile: ./db.dockerfile
+    environment:
+      POSTGRES_DB: table
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: 7866
+    restart: unless-stopped

@@ -1,0 +1,67 @@
+package pkg
+
+type User struct {
+	Name    string `json:"name"`
+	Email   string `json:"email"`
+	Phone   string `json:"phone"`
+	Address string `json:"address"`
+}
+
+type GetUserReq struct {
+	Id string `json:"id"`
+}
+
+type RegisterReq struct {
+	Name     string `json:"name"`
+	Email    string `json:"email"`
+	Phone    string `json:"phone"`
+	Password string `json:"password"`
+	Address  string `json:"address"`
+}
+
+type RegisterRes struct {
+	Token   string `json:"token"`
+	Name    string `json:"name"`
+	Email   string `json:"email"`
+	Phone   string `json:"phone"`
+	Address string `json:"address"`
+}
+
+type LoginReq struct {
+	Email    string `json:"email"`
+	Phone    string `json:"phone"`
+	Password string `json:"password"`
+}
+
+type LoginRes struct {
+	Token   string `json:"token"`
+	Name    string `json:"name"`
+	Email   string `json:"email"`
+	Phone   string `json:"phone"`
+	Address string `json:"address"`
+}
+
+type UpdateUserReq struct {
+	Id       string `json:"id"`
+	Name     string `json:"name"`
+	Email    string `json:"email"`
+	Phone    string `json:"phone"`
+	Password string `json:"password"`
+	Address  string `json:"address"`
+}
+
+type UpdateUserRes struct {
+	Token   string `json:"token"`
+	Name    string `json:"name"`
+	Email   string `json:"email"`
+	Phone   string `json:"phone"`
+	Address string `json:"address"`
+}
+
+type DeleteUserReq struct {
+	Id string `json:"id"`
+}
+
+type DeleteUserRes struct {
+	Success bool `json:"success"`
+}

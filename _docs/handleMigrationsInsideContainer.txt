@@ -1,0 +1,15 @@
+FROM golang:1.18-alpine
+
+WORKDIR /app
+COPY . .
+
+RUN go install github.com/pressly/goose/v3/cmd/goose@latest
+
+ENTRYPOINT ["goose", "up"]
+
+
+
+docker exec -it your_container_name goose up
+
+
+goose -dir ./database/migrations create initialise_db sql

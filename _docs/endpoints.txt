@@ -1,0 +1,32 @@
+Auth
+POST   /api/auth/signup
+POST   /api/auth/login
+
+Shop
+POST   /api/shops              # create shop
+GET    /api/shops/{shopId}     # view shop details
+
+Table
+POST   /api/tables/{shopId}     # create table + generate QR
+GET    /api/tables/{shopId}     # list tables
+GET    /api/tables/{tableId}/session   # get current active session (call this before order, if doesnt exist, then create)
+
+Menu
+POST   /api/menu/{shopId}         # add menu item
+GET    /api/menu/{shopId}          # list menu items
+PUT    /api/menu/{itemId}                # update item
+DELETE /api/menu/{itemId}                # delete item
+
+Session
+POST   /api/sessions             # start session (tableId)
+GET    /api/sessions/{sessionId} # get session info
+PUT    /api/sessions/{sessionId}/close
+
+Order (order then order_items)
+POST   /api/orders/{tableId}         # create order (auto-create session if none exists)
+GET    /api/orders/{tableId}         # list all orders for the current active session
+PUT    /api/orders/{orderId}/status             # update order (accept/reject/complete)
+
+Payments
+POST   /api/sessions/{sessionId}/payments       # record payment
+GET    /api/sessions/{sessionId}/payments       # check payment status

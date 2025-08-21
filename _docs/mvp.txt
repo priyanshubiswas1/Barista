@@ -1,0 +1,195 @@
+Final MVP Scope (Multi-Tenant SaaS)
+1. Authentication & Multi-Tenancy
+
+Shop owners (admins) can sign up / log in.
+
+Each shop’s data is logically isolated (multi-tenant DB design).
+
+Super-admin (our side) has access to manage tenants if required (future consideration).
+
+2. Shop Owner / Admin Features
+
+Configure menu items (CRUD for food/drinks).
+
+Configure tables (each table gets a unique QR code endpoint → customers scan).
+
+View all sessions (sessions = multiple orders until paid).
+
+Track orders (per session → grouped under a table).
+
+Cancel/reject orders (if customer places by mistake or unavailable item).
+
+Mark session as Paid / Unpaid (when payment is settled offline).
+
+See payment info in session:
+
+Session total amount.
+
+Paid/Unpaid status.
+
+Table number.
+
+Orders under session.
+
+3. Customer Features (via QR scan)
+
+Scan QR → open table-specific page (React Native WebView or mobile).
+
+Browse menu items.
+
+Place orders (added into current session for that table).
+
+View their current session (see all placed items until paid).
+
+No login required for customers.
+
+4. Sessions & Orders
+
+Session = all orders for a table until marked “paid.”
+
+Each order belongs to a session (linked to table).
+
+Order status: Placed → Accepted → Served (basic flow).
+
+Orders can be canceled/rejected by admin/cook side only.
+
+5. Payments
+
+For MVP: Payment handled offline (cash/card at restaurant).
+
+Store payment info in session:
+
+Total bill amount.
+
+Paid/Unpaid flag.
+
+Time of settlement (optional).
+
+6. Non-MVP (Phase 2 / Nice-to-Have)
+
+Notifications (new order alerts for admin).
+
+Reporting (sales summary, popular items, table turnover).
+
+Staff logins (waiters/cooks).
+
+Online payments integration.
+
+
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////
+
+
+Customer Side
+
+📱 Scan QR code (per table) → Opens menu for that table.
+
+📋 Browse Menu (categories, items, prices).
+
+🛒 Place Orders (multiple orders per session).
+
+➕ Add more orders to existing session until payment.
+
+💳 Make Payment (online/offline; payment status tracked).
+
+🚪 Session closes when bill is paid.
+
+Shop Owner / Admin Side
+
+🖥️ Admin Dashboard (web):
+
+Manage menu (add/remove/update items & categories).
+
+Manage tables (generate QR codes).
+
+View live sessions/orders (per table).
+
+Cancel/reject orders (from kitchen/admin side).
+
+Mark orders as completed.
+
+Mark session as paid/unpaid manually (if cash).
+
+📊 Basic Tracking:
+
+See total bill for session.
+
+Track payment info (paid/unpaid, amount, method).
+
+Track session by table number.
+
+Data / SaaS Side
+
+🌐 Centralized Data Storage (we host DB, not shop owners).
+
+🏪 Multi-tenant support (each shop has isolated data partition).
+
+🔑 Authentication:
+
+Shop owner login.
+
+Customer sessions linked to table via QR (no login needed).
+
+📦 Data model stores:
+
+Shops.
+
+Tables.
+
+Menu items.
+
+Sessions.
+
+Orders.
+
+Payments.
+
+❓Critical Review – Did We Miss Anything?
+
+QR Management
+
+Yes, we covered: shop owners can generate QR codes for tables ✅.
+
+Session Handling
+
+One session = multiple orders until payment ✅.
+
+Session tied to table ✅.
+
+Session stores payment info (status, method, total, table number) ✅.
+
+Order Handling
+
+Customer places orders ✅.
+
+Admin/cook can cancel/reject ✅.
+
+Orders linked to session ✅.
+
+Mark orders as completed ✅.
+
+Payments
+
+Online/offline both possible ✅.
+
+Admin can mark manual payments ✅.
+
+Store payment info in session ✅.
+
+Roles / Accounts
+
+Only shop owner login (for now). ✅.
+
+Staff accounts deferred ✅.
+
+Non-Core Features (Phase 2):
+
+Notifications ✅ deferred.
+
+Reports ✅ deferred.
+
+Staff logins ✅ deferred.
