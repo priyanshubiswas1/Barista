@@ -3,8 +3,10 @@ package auth
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"net/http"
 
+	"github.com/priyanshubiswas1/barista/apigateway/middleware"
 	"github.com/priyanshubiswas1/barista/apigateway/pkg"
 	auth "github.com/priyanshubiswas1/baristacontracts/gen/auth"
 	"google.golang.org/grpc"
@@ -37,12 +39,13 @@ func NewClient(url string) (IClient, error) {
 }
 
 func (c *Client) GetUserHandler(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
-	req := pkg.GetUserReq{}
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		return err
+	idVal := r.Context().Value(middleware.CtxKeyID)
+	idStr, ok := idVal.(string)
+	if !ok || idStr == "" {
+		return errors.New("missing or invalid user ID in context")
 	}
 	res, err := c.service.GetUser(ctx, &auth.GetRequest{
-		Id: req.Id,
+		Id: idStr,
 	})
 	if err != nil {
 		return err

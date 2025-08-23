@@ -1,4 +1,4 @@
-docker compose up user_db --build -d
 docker-compose up --build
+docker compose up -d --build authservice apigateway               
 
 docker exec -it 5d2afbdf15de psql -U admin -d user

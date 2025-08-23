@@ -13,7 +13,7 @@ import (
 type Service interface {
 	Register(ctx context.Context, user pkg.User) (*pkg.RegisterResponse, error)
 	Login(ctx context.Context, email, phone, password string) (*pkg.LoginResponse, error)
-	GetUser(ctx context.Context) error
+	GetUser(ctx context.Context, id string) (*pkg.User, error)
 	UpdateUser(ctx context.Context) error
 	DeleteUser(ctx context.Context) error
 }
@@ -63,8 +63,8 @@ func (s *authService) Login(ctx context.Context, email, phone, password string) 
 	}, nil
 }
 
-func (s *authService) GetUser(ctx context.Context) error {
-	return nil
+func (s *authService) GetUser(ctx context.Context, id string) (*pkg.User, error) {
+	return s.repository.Getuser(ctx, id)
 }
 
 func (s *authService) UpdateUser(ctx context.Context) error {

@@ -14,7 +14,7 @@ type Repository interface {
 	Close()
 	Register(ctx context.Context, id string, user pkg.User, active bool, createdAt time.Time) error
 	Login(ctx context.Context, email, password string) (string, *pkg.User, error)
-	Getuser(ctx context.Context) error
+	Getuser(ctx context.Context, id string) (*pkg.User, error)
 	UpdateUser(ctx context.Context) error
 	DeleteUser(ctx context.Context) error
 }
@@ -82,7 +82,7 @@ func (r *postgresRepository) Login(ctx context.Context, email, password string) 
 			`
 	res := r.db.QueryRowContext(ctx, query, email)
 	var id string
-	var user pkg.User
+	user := &pkg.User{}
 	if err := res.Scan(&id, &user.Name, &user.Email, &user.Phone, &user.Password, &user.Address); err == sql.ErrNoRows {
 		return "", nil, errors.New("email not found")
 	} else if err != nil {
@@ -91,11 +91,21 @@ func (r *postgresRepository) Login(ctx context.Context, email, password string) 
 	if password != user.Password {
 		return "", nil, errors.New("incorrect password")
 	}
-	return id, &user, nil
+	return id, user, nil
 }
 
-func (r *postgresRepository) Getuser(ctx context.Context) error {
-	return nil
+func (r *postgresRepository) Getuser(ctx context.Context, id string) (*pkg.User, error) {
+	query := `SELECT name,email,password,phone,address
+			FROM users
+			WHERE id=$1`
+	user := &pkg.User{}
+	res := r.db.QueryRowContext(ctx, query, id)
+	if err := res.Scan(&user.Name, &user.Email, &user.Password, &user.Phone, &user.Address); err == sql.ErrNoRows {
+		return nil, errors.New("user not found")
+	} else if err != nil {
+		return nil, err
+	}
+	return user, nil
 }
 
 func (r *postgresRepository) UpdateUser(ctx context.Context) error {

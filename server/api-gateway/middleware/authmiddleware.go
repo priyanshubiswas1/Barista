@@ -12,16 +12,14 @@ import (
 var jwtKey = []byte("key")
 
 type Claims struct {
-	Id       string `json:"id"`
-	Password string `json:"password"`
 	jwt.RegisteredClaims
 }
 
 type contextKey string
 
 const (
-	ctxKeyID       contextKey = "id"
-	ctxKeyPassword contextKey = "password"
+	CtxKeyID       contextKey = "id"
+	CtxKeyPassword contextKey = "password"
 )
 
 func AuthMiddleware(next http.Handler) http.Handler {
@@ -45,8 +43,8 @@ func AuthMiddleware(next http.Handler) http.Handler {
 			http.Error(w, "Invalid token", http.StatusUnauthorized)
 			return
 		}
-		ctx := context.WithValue(r.Context(), ctxKeyID, claims.Id)
-		ctx = context.WithValue(ctx, ctxKeyPassword, claims.Password)
+		ctx := context.WithValue(r.Context(), CtxKeyID, claims.ID)
+		ctx = context.WithValue(ctx, CtxKeyPassword, claims.Subject)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

@@ -84,5 +84,17 @@ func (s *grpcServer) DeleteUser(ctx context.Context, req *auth.DeleteRequest) (*
 	return nil, nil
 }
 func (s *grpcServer) GetUser(ctx context.Context, req *auth.GetRequest) (*auth.GetResponse, error) {
-	return nil, nil
+	res, err := s.service.GetUser(ctx, req.Id)
+	if err != nil {
+		return nil, err
+	}
+	authUser := &auth.User{
+		Name:    res.Name,
+		Email:   res.Email,
+		Phone:   res.Phone,
+		Address: res.Address,
+	}
+	return &auth.GetResponse{
+		User: authUser,
+	}, nil
 }

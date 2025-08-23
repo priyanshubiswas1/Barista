@@ -7,10 +7,6 @@ type User struct {
 	Address string `json:"address"`
 }
 
-type GetUserReq struct {
-	Id string `json:"id"`
-}
-
 type RegisterReq struct {
 	Name     string `json:"name"`
 	Email    string `json:"email"`
