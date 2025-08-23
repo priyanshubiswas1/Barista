@@ -11,11 +11,11 @@ import (
 )
 
 type Service interface {
-	Register(ctx context.Context, user pkg.User) (*pkg.RegisterResponse, error)
+	Register(ctx context.Context, user *pkg.User) (*pkg.RegisterResponse, error)
 	Login(ctx context.Context, email, phone, password string) (*pkg.LoginResponse, error)
 	GetUser(ctx context.Context, id string) (*pkg.User, error)
-	UpdateUser(ctx context.Context) error
-	DeleteUser(ctx context.Context) error
+	UpdateUser(ctx context.Context, id, password string, user *pkg.User) (*pkg.LoginResponse, error)
+	DeleteUser(ctx context.Context, id string) error
 }
 
 type Auth struct {
@@ -29,7 +29,7 @@ func NewService(r Repository) Service {
 	return &authService{r}
 }
 
-func (s *authService) Register(ctx context.Context, user pkg.User) (*pkg.RegisterResponse, error) {
+func (s *authService) Register(ctx context.Context, user *pkg.User) (*pkg.RegisterResponse, error) {
 	createdAt := time.Now()
 	id := uuid.New().String()
 	if err := s.repository.Register(ctx, id, user, true, createdAt); err != nil {
@@ -67,12 +67,24 @@ func (s *authService) GetUser(ctx context.Context, id string) (*pkg.User, error)
 	return s.repository.Getuser(ctx, id)
 }
 
-func (s *authService) UpdateUser(ctx context.Context) error {
-	return nil
+func (s *authService) UpdateUser(ctx context.Context, id, password string, user *pkg.User) (*pkg.LoginResponse, error) {
+	updateUser, err := s.repository.UpdateUser(ctx, id, password, user)
+	if err != nil {
+		return nil, err
+	}
+	tokenString, err := GenerateToken(id, user.Password)
+	if err != nil {
+		log.Println("error generating token")
+		return nil, err
+	}
+	return &pkg.LoginResponse{
+		Token: tokenString,
+		User:  *updateUser,
+	}, nil
 }
 
-func (s *authService) DeleteUser(ctx context.Context) error {
-	return nil
+func (s *authService) DeleteUser(ctx context.Context, id string) error {
+	return s.repository.DeleteUser(ctx, id)
 }
 
 func GenerateToken(id, password string) (string, error) {

@@ -29,7 +29,7 @@ func ListenGRPC(s Service, port string) error {
 }
 
 func (s *grpcServer) RegisterUser(ctx context.Context, req *auth.RegisterRequest) (*auth.RegisterResponse, error) {
-	res, err := s.service.Register(ctx, pkg.User{
+	res, err := s.service.Register(ctx, &pkg.User{
 		Name:     req.User.Name,
 		Email:    req.User.Email,
 		Password: req.Password,
@@ -78,10 +78,31 @@ func (s *grpcServer) LoginUser(ctx context.Context, req *auth.LoginRequest) (*au
 	}, nil
 }
 func (s *grpcServer) UpdateUser(ctx context.Context, req *auth.UpdateRequest) (*auth.UpdateResponse, error) {
-	return nil, nil
+	res, err := s.service.UpdateUser(ctx, req.Id, req.Password, &pkg.User{
+		Name:    req.User.Name,
+		Email:   req.User.Email,
+		Phone:   req.User.Phone,
+		Address: req.User.Address,
+	})
+	if err != nil {
+		return nil, err
+	}
+	authUser := &auth.User{
+		Name:    res.User.Name,
+		Email:   res.User.Email,
+		Phone:   res.User.Phone,
+		Address: res.User.Address,
+	}
+	return &auth.UpdateResponse{
+		User:  authUser,
+		Token: res.Token,
+	}, nil
 }
 func (s *grpcServer) DeleteUser(ctx context.Context, req *auth.DeleteRequest) (*auth.DeleteResponse, error) {
-	return nil, nil
+	if err := s.service.DeleteUser(ctx, req.Id); err != nil {
+		return nil, err
+	}
+	return &auth.DeleteResponse{Success: true}, nil
 }
 func (s *grpcServer) GetUser(ctx context.Context, req *auth.GetRequest) (*auth.GetResponse, error) {
 	res, err := s.service.GetUser(ctx, req.Id)

@@ -12,11 +12,11 @@ import (
 
 type Repository interface {
 	Close()
-	Register(ctx context.Context, id string, user pkg.User, active bool, createdAt time.Time) error
+	Register(ctx context.Context, id string, user *pkg.User, active bool, createdAt time.Time) error
 	Login(ctx context.Context, email, password string) (string, *pkg.User, error)
 	Getuser(ctx context.Context, id string) (*pkg.User, error)
-	UpdateUser(ctx context.Context) error
-	DeleteUser(ctx context.Context) error
+	UpdateUser(ctx context.Context, id, password string, user *pkg.User) (*pkg.User, error)
+	DeleteUser(ctx context.Context, id string) error
 }
 
 type postgresRepository struct {
@@ -44,7 +44,7 @@ func (r *postgresRepository) Ping() error {
 	return r.db.Ping()
 }
 
-func (r *postgresRepository) Register(ctx context.Context, id string, user pkg.User, active bool, createdAt time.Time) error {
+func (r *postgresRepository) Register(ctx context.Context, id string, user *pkg.User, active bool, createdAt time.Time) error {
 	query := `
 			INSERT INTO users
 			(id,name,email,password,phone,address,active,created_at,updated_at) 
@@ -108,10 +108,36 @@ func (r *postgresRepository) Getuser(ctx context.Context, id string) (*pkg.User,
 	return user, nil
 }
 
-func (r *postgresRepository) UpdateUser(ctx context.Context) error {
-	return nil
+func (r *postgresRepository) UpdateUser(ctx context.Context, id, password string, user *pkg.User) (*pkg.User, error) {
+	query := `UPDATE users
+			SET name=$1,email=$2,password=$3,phone=$4,address=$5,updated_at=$6
+			WHERE id=$7
+			RETURNING name, email, password, phone, address
+			`
+	resUser := &pkg.User{}
+	res := r.db.QueryRowContext(ctx, query, user.Name, user.Email, user.Password, user.Phone, user.Address, time.Now(), id)
+	if err := res.Scan(&resUser.Name, &resUser.Email, &resUser.Password, &resUser.Phone, &resUser.Address); err == sql.ErrNoRows {
+		return nil, errors.New("update failed")
+	} else if err != nil {
+		return nil, err
+	}
+	return resUser, nil
 }
 
-func (r *postgresRepository) DeleteUser(ctx context.Context) error {
+func (r *postgresRepository) DeleteUser(ctx context.Context, id string) error {
+	query := `DELETE FROM users
+			WHERE id=$1
+			`
+	res, err := r.db.ExecContext(ctx, query, id)
+	if err != nil {
+		return err
+	}
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rowsAffected < 1 {
+		return errors.New("failed to delete")
+	}
 	return nil
 }
