@@ -3,8 +3,6 @@ services:
     build:
       context: ./server/services/auth
       dockerfile: ./db.dockerfile
-    ports:
-      - 5432:5432
     environment:
       POSTGRES_DB: user
       POSTGRES_USER: admin
@@ -68,6 +66,8 @@ services:
     build:
       context: ./server/api-gateway
       dockerfile: ./app.dockerfile
+    depends_on:
+      - authservice
     ports:
       - 8000:8080
     environment:

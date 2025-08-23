@@ -1,6 +1,9 @@
-.PHONY: up down up-db down-db auth-proto-gen
+.PHONY: up up-build down up-db down-db auth-proto-gen
 up:
 	docker-compose up -d
+
+up-build:
+	docker-compose up --build -d
 
 down:
 	docker-compose down

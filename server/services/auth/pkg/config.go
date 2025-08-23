@@ -6,7 +6,7 @@ import (
 
 type Config struct {
 	Port  string `json:"PORT" default:"8080"`
-	DbUrl string `json:"DB_URL" default:"postgres://admin:7866@localhost:5432/user?sslmode=disable"`
+	DbUrl string `json:"DB_URL" default:"postgres://admin:7866@user_db:5432/user?sslmode=disable"`
 }
 
 func GetConfig() (*Config, error) {
