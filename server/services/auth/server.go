@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net"
 
@@ -28,7 +29,7 @@ func ListenGRPC(s Service, port string) error {
 }
 
 func (s *grpcServer) RegisterUser(ctx context.Context, req *auth.RegisterRequest) (*auth.RegisterResponse, error) {
-	user, err := s.service.Register(ctx, pkg.User{
+	res, err := s.service.Register(ctx, pkg.User{
 		Name:     req.User.Name,
 		Email:    req.User.Email,
 		Password: req.Password,
@@ -48,11 +49,33 @@ func (s *grpcServer) RegisterUser(ctx context.Context, req *auth.RegisterRequest
 
 	return &auth.RegisterResponse{
 		User:  authUser,
-		Token: user.Token,
+		Token: res.Token,
 	}, nil
 }
 func (s *grpcServer) LoginUser(ctx context.Context, req *auth.LoginRequest) (*auth.LoginResponse, error) {
-	return nil, nil
+	var email, phone string
+	switch id := req.Identifier.(type) {
+	case *auth.LoginRequest_Email:
+		email = id.Email
+	case *auth.LoginRequest_Phonenumber:
+		phone = id.Phonenumber
+	default:
+		return nil, errors.New("either email or phone number must be provided")
+	}
+	res, err := s.service.Login(ctx, email, phone, req.Password)
+	if err != nil {
+		return nil, err
+	}
+	authUser := &auth.User{
+		Name:    res.User.Name,
+		Email:   res.User.Email,
+		Phone:   res.User.Phone,
+		Address: res.User.Address,
+	}
+	return &auth.LoginResponse{
+		Token: res.Token,
+		User:  authUser,
+	}, nil
 }
 func (s *grpcServer) UpdateUser(ctx context.Context, req *auth.UpdateRequest) (*auth.UpdateResponse, error) {
 	return nil, nil

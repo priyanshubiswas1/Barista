@@ -8,6 +8,11 @@ type User struct {
 	Address  string `json:"address"`
 }
 
-type UserResponse struct {
+type RegisterResponse struct {
 	Token string `json:"token"`
+}
+
+type LoginResponse struct {
+	Token string `json:"token"`
+	User  User   `json:"user"`
 }

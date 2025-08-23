@@ -13,7 +13,7 @@ import (
 type Repository interface {
 	Close()
 	Register(ctx context.Context, id string, user pkg.User, active bool, createdAt time.Time) error
-	Login(ctx context.Context) error
+	Login(ctx context.Context, email, password string) (string, *pkg.User, error)
 	Getuser(ctx context.Context) error
 	UpdateUser(ctx context.Context) error
 	DeleteUser(ctx context.Context) error
@@ -75,8 +75,23 @@ func (r *postgresRepository) Register(ctx context.Context, id string, user pkg.U
 	return nil
 }
 
-func (r *postgresRepository) Login(ctx context.Context) error {
-	return nil
+func (r *postgresRepository) Login(ctx context.Context, email, password string) (string, *pkg.User, error) {
+	query := `SELECT id,name,email,phone,password,address
+			FROM users
+			WHERE email = $1
+			`
+	res := r.db.QueryRowContext(ctx, query, email)
+	var id string
+	var user pkg.User
+	if err := res.Scan(&id, &user.Name, &user.Email, &user.Phone, &user.Password, &user.Address); err == sql.ErrNoRows {
+		return "", nil, errors.New("email not found")
+	} else if err != nil {
+		return "", nil, err
+	}
+	if password != user.Password {
+		return "", nil, errors.New("incorrect password")
+	}
+	return id, &user, nil
 }
 
 func (r *postgresRepository) Getuser(ctx context.Context) error {

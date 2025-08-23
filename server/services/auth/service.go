@@ -11,8 +11,8 @@ import (
 )
 
 type Service interface {
-	Register(ctx context.Context, user pkg.User) (*pkg.UserResponse, error)
-	Login(ctx context.Context) error
+	Register(ctx context.Context, user pkg.User) (*pkg.RegisterResponse, error)
+	Login(ctx context.Context, email, phone, password string) (*pkg.LoginResponse, error)
 	GetUser(ctx context.Context) error
 	UpdateUser(ctx context.Context) error
 	DeleteUser(ctx context.Context) error
@@ -29,7 +29,7 @@ func NewService(r Repository) Service {
 	return &authService{r}
 }
 
-func (s *authService) Register(ctx context.Context, user pkg.User) (*pkg.UserResponse, error) {
+func (s *authService) Register(ctx context.Context, user pkg.User) (*pkg.RegisterResponse, error) {
 	createdAt := time.Now()
 	id := uuid.New().String()
 	if err := s.repository.Register(ctx, id, user, true, createdAt); err != nil {
@@ -42,13 +42,25 @@ func (s *authService) Register(ctx context.Context, user pkg.User) (*pkg.UserRes
 		return nil, err
 	}
 
-	return &pkg.UserResponse{
+	return &pkg.RegisterResponse{
 		Token: tokenString,
 	}, nil
 }
 
-func (s *authService) Login(ctx context.Context) error {
-	return nil
+func (s *authService) Login(ctx context.Context, email, phone, password string) (*pkg.LoginResponse, error) {
+	id, user, err := s.repository.Login(ctx, email, password)
+	if err != nil {
+		return nil, err
+	}
+	tokenString, err := GenerateToken(id, user.Password)
+	if err != nil {
+		log.Println("error generating token")
+		return nil, err
+	}
+	return &pkg.LoginResponse{
+		Token: tokenString,
+		User:  *user,
+	}, nil
 }
 
 func (s *authService) GetUser(ctx context.Context) error {
