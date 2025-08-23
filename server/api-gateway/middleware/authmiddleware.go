@@ -17,6 +17,13 @@ type Claims struct {
 	jwt.RegisteredClaims
 }
 
+type contextKey string
+
+const (
+	ctxKeyID       contextKey = "id"
+	ctxKeyPassword contextKey = "password"
+)
+
 func AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		authHeader := r.Header.Get("Authorization")
@@ -38,7 +45,8 @@ func AuthMiddleware(next http.Handler) http.Handler {
 			http.Error(w, "Invalid token", http.StatusUnauthorized)
 			return
 		}
-		ctx := context.WithValue(r.Context(), "id", claims.Id)
+		ctx := context.WithValue(r.Context(), ctxKeyID, claims.Id)
+		ctx = context.WithValue(ctx, ctxKeyPassword, claims.Password)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

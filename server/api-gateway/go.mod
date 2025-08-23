@@ -6,13 +6,12 @@ require (
 	github.com/golang-jwt/jwt/v4 v4.5.2
 	github.com/gorilla/mux v1.8.1
 	github.com/joho/godotenv v1.5.1
-	github.com/priyanshubiswas1/barista/contracts v0.0.0
+	github.com/priyanshubiswas1/baristacontracts v1.0.0
 	google.golang.org/grpc v1.75.0
 )
 
-replace github.com/priyanshubiswas1/barista/contracts v0.0.0 => ../../contracts
-
 require (
+	github.com/kelseyhightower/envconfig v1.4.0 // indirect
 	golang.org/x/net v0.41.0 // indirect
 	golang.org/x/sys v0.33.0 // indirect
 	golang.org/x/text v0.26.0 // indirect

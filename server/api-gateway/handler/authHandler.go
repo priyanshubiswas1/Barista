@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/priyanshubiswas1/barista/apigateway/pkg"
-	auth "github.com/priyanshubiswas1/barista/contracts/gen/auth"
+	auth "github.com/priyanshubiswas1/baristacontracts/gen/auth"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )

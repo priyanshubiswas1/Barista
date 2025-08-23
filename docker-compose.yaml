@@ -3,6 +3,8 @@ services:
     build:
       context: ./server/services/auth
       dockerfile: ./db.dockerfile
+    ports:
+      - 5432:5432
     environment:
       POSTGRES_DB: user
       POSTGRES_USER: admin
@@ -62,3 +64,23 @@ services:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: 7866
     restart: unless-stopped
+  apigateway:
+    build:
+      context: ./server/api-gateway
+      dockerfile: ./app.dockerfile
+    ports:
+      - 8000:8080
+    environment:
+      PORT: "8080"
+      AUTH_CLIENT: authservice:8080
+    restart: on-failure
+  authservice:
+    build:
+      context: ./server/services/auth
+      dockerfile: ./app.dockerfile
+    depends_on:
+      - user_db
+    environment:
+      PORT: "8080"
+      DB_URL: "postgres://admin:7866@user_db:5432/user?sslmode=disable"
+    restart: on-failure
