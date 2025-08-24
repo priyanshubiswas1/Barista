@@ -1,6 +1,9 @@
 Auth
-POST   /api/auth/signup
+POST   /api/auth/register
 POST   /api/auth/login
+GET    /api/auth/user
+PUT    /api/auth/user
+DELETE /api/auth/user
 
 Shop
 POST   /api/shops              # create shop

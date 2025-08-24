@@ -31,14 +31,14 @@ func (s *APIServer) ListenServer(port string) error {
 	}
 
 	router := mux.NewRouter()
-	router.HandleFunc("/register", makeHttpHandleFunc(authClient.RegisterHandler)).Methods("POST")
-	router.HandleFunc("/login", makeHttpHandleFunc(authClient.LoginHandler)).Methods("POST")
+	router.HandleFunc("/api/auth/register", makeHttpHandleFunc(authClient.RegisterHandler)).Methods("POST")
+	router.HandleFunc("/api/auth/login", makeHttpHandleFunc(authClient.LoginHandler)).Methods("POST")
 
 	protected := router.PathPrefix("/").Subrouter()
 	protected.Use(middleware.AuthMiddleware)
-	protected.HandleFunc("/user", makeHttpHandleFunc(authClient.GetUserHandler)).Methods("GET")
-	protected.HandleFunc("/user", makeHttpHandleFunc(authClient.UpdateUserHandler)).Methods("PUT")
-	protected.HandleFunc("/user", makeHttpHandleFunc(authClient.DeleteUserHandler)).Methods("DELETE")
+	protected.HandleFunc("/api/auth/user", makeHttpHandleFunc(authClient.GetUserHandler)).Methods("GET")
+	protected.HandleFunc("/api/auth/user", makeHttpHandleFunc(authClient.UpdateUserHandler)).Methods("PUT")
+	protected.HandleFunc("/api/auth/user", makeHttpHandleFunc(authClient.DeleteUserHandler)).Methods("DELETE")
 
 	return http.ListenAndServe(fmt.Sprintf(":%s", port), router)
 }

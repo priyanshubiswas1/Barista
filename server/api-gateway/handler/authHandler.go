@@ -130,9 +130,10 @@ func (c *Client) UpdateUserHandler(ctx context.Context, w http.ResponseWriter, r
 		Address: req.Address,
 	}
 	res, err := c.service.UpdateUser(ctx, &auth.UpdateRequest{
-		Id:       idStr,
-		User:     user,
-		Password: passStr,
+		Id:          idStr,
+		User:        user,
+		Password:    req.Password,
+		Oldpassword: passStr,
 	})
 	if err != nil {
 		return err

@@ -8,6 +8,7 @@ import (
 
 	_ "github.com/lib/pq"
 	"github.com/priyanshubiswas1/authservice/pkg"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type Repository interface {
@@ -88,7 +89,7 @@ func (r *postgresRepository) Login(ctx context.Context, email, password string) 
 	} else if err != nil {
 		return "", nil, err
 	}
-	if password != user.Password {
+	if !VerifyPassword(password, user.Password) {
 		return "", nil, errors.New("incorrect password")
 	}
 	return id, user, nil
@@ -108,14 +109,15 @@ func (r *postgresRepository) Getuser(ctx context.Context, id string) (*pkg.User,
 	return user, nil
 }
 
-func (r *postgresRepository) UpdateUser(ctx context.Context, id, password string, user *pkg.User) (*pkg.User, error) {
+func (r *postgresRepository) UpdateUser(ctx context.Context, id, oldPassword string, user *pkg.User) (*pkg.User, error) {
 	query := `UPDATE users
 			SET name=$1,email=$2,password=$3,phone=$4,address=$5,updated_at=$6
 			WHERE id=$7
+			AND password=$8
 			RETURNING name, email, password, phone, address
 			`
 	resUser := &pkg.User{}
-	res := r.db.QueryRowContext(ctx, query, user.Name, user.Email, user.Password, user.Phone, user.Address, time.Now(), id)
+	res := r.db.QueryRowContext(ctx, query, user.Name, user.Email, user.Password, user.Phone, user.Address, time.Now(), id, oldPassword)
 	if err := res.Scan(&resUser.Name, &resUser.Email, &resUser.Password, &resUser.Phone, &resUser.Address); err == sql.ErrNoRows {
 		return nil, errors.New("update failed")
 	} else if err != nil {
@@ -140,4 +142,9 @@ func (r *postgresRepository) DeleteUser(ctx context.Context, id string) error {
 		return errors.New("failed to delete")
 	}
 	return nil
+}
+
+func VerifyPassword(password, hash string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+	return err == nil
 }

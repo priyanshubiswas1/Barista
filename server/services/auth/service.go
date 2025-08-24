@@ -8,6 +8,7 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/google/uuid"
 	"github.com/priyanshubiswas1/authservice/pkg"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type Service interface {
@@ -32,6 +33,12 @@ func NewService(r Repository) Service {
 func (s *authService) Register(ctx context.Context, user *pkg.User) (*pkg.RegisterResponse, error) {
 	createdAt := time.Now()
 	id := uuid.New().String()
+	hashedPassword, err := HashPassword(user.Password)
+	if err != nil {
+		return nil, err
+	}
+	user.Password = hashedPassword
+
 	if err := s.repository.Register(ctx, id, user, true, createdAt); err != nil {
 		return nil, err
 	}
@@ -68,6 +75,11 @@ func (s *authService) GetUser(ctx context.Context, id string) (*pkg.User, error)
 }
 
 func (s *authService) UpdateUser(ctx context.Context, id, password string, user *pkg.User) (*pkg.LoginResponse, error) {
+	hashedPassword, err := HashPassword(user.Password)
+	if err != nil {
+		return nil, err
+	}
+	user.Password = hashedPassword
 	updateUser, err := s.repository.UpdateUser(ctx, id, password, user)
 	if err != nil {
 		return nil, err
@@ -103,4 +115,9 @@ func GenerateToken(id, password string) (string, error) {
 		return "", err
 	}
 	return signedToken, nil
+}
+
+func HashPassword(password string) (string, error) {
+	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
+	return string(bytes), err
 }

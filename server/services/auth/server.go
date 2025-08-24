@@ -78,11 +78,12 @@ func (s *grpcServer) LoginUser(ctx context.Context, req *auth.LoginRequest) (*au
 	}, nil
 }
 func (s *grpcServer) UpdateUser(ctx context.Context, req *auth.UpdateRequest) (*auth.UpdateResponse, error) {
-	res, err := s.service.UpdateUser(ctx, req.Id, req.Password, &pkg.User{
-		Name:    req.User.Name,
-		Email:   req.User.Email,
-		Phone:   req.User.Phone,
-		Address: req.User.Address,
+	res, err := s.service.UpdateUser(ctx, req.Id, req.Oldpassword, &pkg.User{
+		Name:     req.User.Name,
+		Email:    req.User.Email,
+		Phone:    req.User.Phone,
+		Address:  req.User.Address,
+		Password: req.Password,
 	})
 	if err != nil {
 		return nil, err

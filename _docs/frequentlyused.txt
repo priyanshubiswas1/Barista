@@ -2,3 +2,10 @@ docker-compose up --build
 docker compose up -d --build authservice apigateway               
 
 docker exec -it 5d2afbdf15de psql -U admin -d user
+
+git tag -d v1.0.0
+git push --delete origin v1.0.0
+git tag -a v1.0.0 -m "updated"
+git push origin v1.0.0
+
+go clean -modcache
