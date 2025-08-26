@@ -61,3 +61,38 @@ type DeleteUserReq struct {
 type DeleteUserRes struct {
 	Success bool `json:"success"`
 }
+
+//////////////////////////////////////////////////////////////////////////
+
+type Shop struct {
+	ShopName string `json:"shopName"`
+	ShopId   string `json:"shopId"`
+}
+
+type GetByShopIdRequest struct {
+	ShopId string `json:"shopId"`
+}
+
+type CreateShopReq struct {
+	ShopName string `json:"shopName"`
+}
+
+type CreateShopRes struct {
+	Shop Shop `json:"shop"`
+}
+
+type UpdateShopReq struct {
+	Shop Shop `json:"shop"`
+}
+
+type UpdateShopRes struct {
+	Shop Shop `json:"shop"`
+}
+
+type DeleteShopReq struct {
+	ShopId string `json:"shopId"`
+}
+
+type DeleteShopRes struct {
+	Success bool `json:"success"`
+}

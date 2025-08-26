@@ -16,16 +16,19 @@ type APIFunc func(context.Context, http.ResponseWriter, *http.Request) error
 
 type APIServer struct {
 	authClientUrl string
+	shopClientUrl string
 }
 
-func NewAPIServer(authClient string) (*APIServer, error) {
+func NewAPIServer(authClient, shopClientUrl string) (*APIServer, error) {
 	return &APIServer{
 		authClientUrl: authClient,
+		shopClientUrl: shopClientUrl,
 	}, nil
 }
 
 func (s *APIServer) ListenServer(port string) error {
 	authClient, err := auth.NewClient(s.authClientUrl)
+	// shopClient, err := auth.NewClient(s.shopClientUrl)
 	if err != nil {
 		return err
 	}
@@ -39,6 +42,11 @@ func (s *APIServer) ListenServer(port string) error {
 	protected.HandleFunc("/api/auth/user", makeHttpHandleFunc(authClient.GetUserHandler)).Methods("GET")
 	protected.HandleFunc("/api/auth/user", makeHttpHandleFunc(authClient.UpdateUserHandler)).Methods("PUT")
 	protected.HandleFunc("/api/auth/user", makeHttpHandleFunc(authClient.DeleteUserHandler)).Methods("DELETE")
+	protected.HandleFunc("/api/shop", makeHttpHandleFunc(authClient.GetUserHandler)).Methods("GET")
+	protected.HandleFunc("/api/shops", makeHttpHandleFunc(authClient.GetUserHandler)).Methods("GET")
+	protected.HandleFunc("/api/shop", makeHttpHandleFunc(authClient.UpdateUserHandler)).Methods("POST")
+	protected.HandleFunc("/api/shop", makeHttpHandleFunc(authClient.UpdateUserHandler)).Methods("PUT")
+	protected.HandleFunc("/api/shop", makeHttpHandleFunc(authClient.DeleteUserHandler)).Methods("DELETE")
 
 	return http.ListenAndServe(fmt.Sprintf(":%s", port), router)
 }

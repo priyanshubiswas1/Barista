@@ -1,4 +1,4 @@
-package auth
+package handler
 
 import (
 	"context"
@@ -13,7 +13,7 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-type IClient interface {
+type IAuthClient interface {
 	GetUserHandler(ctx context.Context, w http.ResponseWriter, r *http.Request) error
 	RegisterHandler(ctx context.Context, w http.ResponseWriter, r *http.Request) error
 	LoginHandler(ctx context.Context, w http.ResponseWriter, r *http.Request) error
@@ -21,24 +21,24 @@ type IClient interface {
 	DeleteUserHandler(ctx context.Context, w http.ResponseWriter, r *http.Request) error
 }
 
-type Client struct {
+type AuthClient struct {
 	client  *grpc.ClientConn
 	service auth.AuthServiceClient
 }
 
-func NewClient(url string) (IClient, error) {
+func NewClient(url string) (IAuthClient, error) {
 	client, err := grpc.NewClient(url, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, err
 	}
 
-	return &Client{
+	return &AuthClient{
 		client:  client,
 		service: auth.NewAuthServiceClient(client),
 	}, nil
 }
 
-func (c *Client) GetUserHandler(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+func (c *AuthClient) GetUserHandler(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 	idVal := r.Context().Value(middleware.CtxKeyID)
 	idStr, ok := idVal.(string)
 	if !ok || idStr == "" {
@@ -50,7 +50,7 @@ func (c *Client) GetUserHandler(ctx context.Context, w http.ResponseWriter, r *h
 	if err != nil {
 		return err
 	}
-	return writeJSON(w, http.StatusOK, &pkg.User{
+	return pkg.WriteJSON(w, http.StatusOK, &pkg.User{
 		Name:    res.User.Name,
 		Email:   res.User.Email,
 		Phone:   res.User.Phone,
@@ -58,7 +58,7 @@ func (c *Client) GetUserHandler(ctx context.Context, w http.ResponseWriter, r *h
 	})
 }
 
-func (c *Client) RegisterHandler(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+func (c *AuthClient) RegisterHandler(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 	req := pkg.RegisterReq{}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return err
@@ -76,7 +76,7 @@ func (c *Client) RegisterHandler(ctx context.Context, w http.ResponseWriter, r *
 	if err != nil {
 		return err
 	}
-	return writeJSON(w, http.StatusOK, &pkg.RegisterRes{
+	return pkg.WriteJSON(w, http.StatusOK, &pkg.RegisterRes{
 		Token:   res.Token,
 		Name:    res.User.Name,
 		Email:   res.User.Email,
@@ -85,7 +85,7 @@ func (c *Client) RegisterHandler(ctx context.Context, w http.ResponseWriter, r *
 	})
 }
 
-func (c *Client) LoginHandler(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+func (c *AuthClient) LoginHandler(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 	req := pkg.LoginReq{}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return err
@@ -99,7 +99,7 @@ func (c *Client) LoginHandler(ctx context.Context, w http.ResponseWriter, r *htt
 	if err != nil {
 		return err
 	}
-	return writeJSON(w, http.StatusOK, &pkg.LoginRes{
+	return pkg.WriteJSON(w, http.StatusOK, &pkg.LoginRes{
 		Token:   res.Token,
 		Name:    res.User.Name,
 		Email:   res.User.Email,
@@ -108,7 +108,7 @@ func (c *Client) LoginHandler(ctx context.Context, w http.ResponseWriter, r *htt
 	})
 }
 
-func (c *Client) UpdateUserHandler(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+func (c *AuthClient) UpdateUserHandler(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 	idVal := r.Context().Value(middleware.CtxKeyID)
 	idStr, ok := idVal.(string)
 	if !ok || idStr == "" {
@@ -138,7 +138,7 @@ func (c *Client) UpdateUserHandler(ctx context.Context, w http.ResponseWriter, r
 	if err != nil {
 		return err
 	}
-	return writeJSON(w, http.StatusOK, &pkg.UpdateUserRes{
+	return pkg.WriteJSON(w, http.StatusOK, &pkg.UpdateUserRes{
 		Token:   res.Token,
 		Name:    res.User.Name,
 		Email:   res.User.Email,
@@ -147,24 +147,25 @@ func (c *Client) UpdateUserHandler(ctx context.Context, w http.ResponseWriter, r
 	})
 }
 
-func (c *Client) DeleteUserHandler(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+func (c *AuthClient) DeleteUserHandler(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 	idVal := r.Context().Value(middleware.CtxKeyID)
 	idStr, ok := idVal.(string)
 	if !ok || idStr == "" {
 		return errors.New("missing or invalid user ID in context")
 	}
+	passVal := r.Context().Value(middleware.CtxKeyPassword)
+	passStr, ok := passVal.(string)
+	if !ok || idStr == "" {
+		return errors.New("missing or invalid password in context")
+	}
 	res, err := c.service.DeleteUser(ctx, &auth.DeleteRequest{
-		Id: idStr,
+		Id:       idStr,
+		Password: passStr,
 	})
 	if err != nil {
 		return err
 	}
-	return writeJSON(w, http.StatusOK, &pkg.DeleteUserRes{
+	return pkg.WriteJSON(w, http.StatusOK, &pkg.DeleteUserRes{
 		Success: res.Success,
 	})
-}
-
-func writeJSON(w http.ResponseWriter, s int, data any) error {
-	w.WriteHeader(s)
-	return json.NewEncoder(w).Encode(data)
 }
