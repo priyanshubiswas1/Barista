@@ -21,4 +21,10 @@ auth-proto-gen:
     --proto_path=./contracts/protos \
     auth.proto
 
+shop-proto-gen:
+	protoc \
+	--go_out=./contracts/gen/shop --go_opt=paths=source_relative \
+    --go-grpc_out=./contracts/gen/shop --go-grpc_opt=paths=source_relative \
+    --proto_path=./contracts/protos \
+    shop.proto
 

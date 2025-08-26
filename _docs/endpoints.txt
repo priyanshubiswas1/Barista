@@ -8,6 +8,9 @@ DELETE /api/auth/user
 Shop
 POST   /api/shops              # create shop
 GET    /api/shops/{shopId}     # view shop details
+GET    /api/shops              # get shops by owner id
+PUT    /api/shops              # update shop name
+DELETE /api/shops              # delete shop
 
 Table
 POST   /api/tables/{shopId}     # create table + generate QR
