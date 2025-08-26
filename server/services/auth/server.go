@@ -100,7 +100,7 @@ func (s *grpcServer) UpdateUser(ctx context.Context, req *auth.UpdateRequest) (*
 	}, nil
 }
 func (s *grpcServer) DeleteUser(ctx context.Context, req *auth.DeleteRequest) (*auth.DeleteResponse, error) {
-	if err := s.service.DeleteUser(ctx, req.Id); err != nil {
+	if err := s.service.DeleteUser(ctx, req.Id, req.Password); err != nil {
 		return nil, err
 	}
 	return &auth.DeleteResponse{Success: true}, nil

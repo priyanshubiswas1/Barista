@@ -55,6 +55,7 @@ message UpdateResponse{
 
 message DeleteRequest{
     string id = 1;
+    string password = 2;
 }
 
 message DeleteResponse{

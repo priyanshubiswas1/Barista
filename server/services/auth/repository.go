@@ -17,7 +17,7 @@ type Repository interface {
 	Login(ctx context.Context, email, password string) (string, *pkg.User, error)
 	Getuser(ctx context.Context, id string) (*pkg.User, error)
 	UpdateUser(ctx context.Context, id, password string, user *pkg.User) (*pkg.User, error)
-	DeleteUser(ctx context.Context, id string) error
+	DeleteUser(ctx context.Context, id, password string) error
 }
 
 type postgresRepository struct {
@@ -126,11 +126,12 @@ func (r *postgresRepository) UpdateUser(ctx context.Context, id, oldPassword str
 	return resUser, nil
 }
 
-func (r *postgresRepository) DeleteUser(ctx context.Context, id string) error {
+func (r *postgresRepository) DeleteUser(ctx context.Context, id, password string) error {
 	query := `DELETE FROM users
 			WHERE id=$1
+			AND password=$2
 			`
-	res, err := r.db.ExecContext(ctx, query, id)
+	res, err := r.db.ExecContext(ctx, query, id, password)
 	if err != nil {
 		return err
 	}

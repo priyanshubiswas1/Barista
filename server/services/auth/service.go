@@ -16,7 +16,7 @@ type Service interface {
 	Login(ctx context.Context, email, phone, password string) (*pkg.LoginResponse, error)
 	GetUser(ctx context.Context, id string) (*pkg.User, error)
 	UpdateUser(ctx context.Context, id, password string, user *pkg.User) (*pkg.LoginResponse, error)
-	DeleteUser(ctx context.Context, id string) error
+	DeleteUser(ctx context.Context, id, password string) error
 }
 
 type Auth struct {
@@ -95,8 +95,8 @@ func (s *authService) UpdateUser(ctx context.Context, id, password string, user 
 	}, nil
 }
 
-func (s *authService) DeleteUser(ctx context.Context, id string) error {
-	return s.repository.DeleteUser(ctx, id)
+func (s *authService) DeleteUser(ctx context.Context, id, password string) error {
+	return s.repository.DeleteUser(ctx, id, password)
 }
 
 func GenerateToken(id, password string) (string, error) {
