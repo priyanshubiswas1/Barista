@@ -137,7 +137,7 @@ func (c *ShopClient) UpdateShopHandler(ctx context.Context, w http.ResponseWrite
 		Password: passStr,
 	}
 	req := &pkg.UpdateShopReq{}
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&req.Shop); err != nil {
 		return err
 	}
 	shopReqBody := &shop.Shop{

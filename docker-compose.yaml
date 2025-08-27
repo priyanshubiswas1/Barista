@@ -73,6 +73,7 @@ services:
     environment:
       PORT: "8080"
       AUTH_CLIENT: authservice:8080
+      SHOP_CLIENT: shopservice:8080
     restart: on-failure
   authservice:
     build:
@@ -83,4 +84,14 @@ services:
     environment:
       PORT: "8080"
       DB_URL: "postgres://admin:7866@user_db:5432/user?sslmode=disable"
+    restart: on-failure
+  shopservice:
+    build:
+      context: ./server/services/shop
+      dockerfile: ./app.dockerfile
+    depends_on:
+      - shop_db
+    environment:
+      PORT: "8080"
+      DB_URL: "postgres://admin:7866@shop_db:5432/shop?sslmode=disable"
     restart: on-failure
