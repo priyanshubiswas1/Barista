@@ -55,7 +55,7 @@ func (c *ShopClient) GetShopsHandler(ctx context.Context, w http.ResponseWriter,
 		Password: passStr,
 	}
 	res, err := c.service.GetShopByOwnerId(ctx, &shop.GetByOwnerIdRequest{
-		Token: token,
+		OwnerId: token.OwnerId,
 	})
 	if err != nil {
 		return err
@@ -106,7 +106,7 @@ func (c *ShopClient) CreateShopHandler(ctx context.Context, w http.ResponseWrite
 		return err
 	}
 	res, err := c.service.RegisterShop(ctx, &shop.CreateRequest{
-		Token:    token,
+		OwnerId:  token.OwnerId,
 		ShopName: req.ShopName,
 	})
 	if err != nil {
@@ -145,8 +145,8 @@ func (c *ShopClient) UpdateShopHandler(ctx context.Context, w http.ResponseWrite
 		ShopName: req.Shop.ShopName,
 	}
 	res, err := c.service.UpdateShop(ctx, &shop.UpdateRequest{
-		Token: token,
-		Shop:  shopReqBody,
+		OwnerId: token.OwnerId,
+		Shop:    shopReqBody,
 	})
 	if err != nil {
 		return err
@@ -180,8 +180,8 @@ func (c *ShopClient) DeleteShopHandler(ctx context.Context, w http.ResponseWrite
 		return err
 	}
 	res, err := c.service.DeleteShop(ctx, &shop.DeleteRequest{
-		Token:  token,
-		ShopId: req.ShopId,
+		OwnerId: token.OwnerId,
+		ShopId:  req.ShopId,
 	})
 	if err != nil {
 		return err

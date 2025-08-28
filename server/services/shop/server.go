@@ -28,7 +28,7 @@ func ListenGRPC(service IService, port string) error {
 }
 
 func (s *gRPCserver) GetShopByOwnerId(ctx context.Context, req *shop.GetByOwnerIdRequest) (*shop.GetByOwnerIdResponse, error) {
-	shops, err := s.service.GetByOwnerId(ctx, req.Token.OwnerId)
+	shops, err := s.service.GetByOwnerId(ctx, req.OwnerId)
 	if err != nil {
 		return nil, err
 	}
@@ -58,7 +58,7 @@ func (s *gRPCserver) GetShopById(ctx context.Context, req *shop.GetByShopIdReque
 }
 
 func (s *gRPCserver) RegisterShop(ctx context.Context, req *shop.CreateRequest) (*shop.CreateResponse, error) {
-	id, err := s.service.CreateShop(ctx, req.Token.OwnerId, req.ShopName)
+	id, err := s.service.CreateShop(ctx, req.OwnerId, req.ShopName)
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +70,7 @@ func (s *gRPCserver) RegisterShop(ctx context.Context, req *shop.CreateRequest) 
 	}, nil
 }
 func (s *gRPCserver) UpdateShop(ctx context.Context, req *shop.UpdateRequest) (*shop.UpdateResponse, error) {
-	if err := s.service.UpdateShop(ctx, req.Token.OwnerId, &pkg.Shop{
+	if err := s.service.UpdateShop(ctx, req.OwnerId, &pkg.Shop{
 		ShopId:   req.Shop.ShopId,
 		ShopName: req.Shop.ShopName,
 	}); err != nil {
@@ -84,7 +84,7 @@ func (s *gRPCserver) UpdateShop(ctx context.Context, req *shop.UpdateRequest) (*
 	}, nil
 }
 func (s *gRPCserver) DeleteShop(ctx context.Context, req *shop.DeleteRequest) (*shop.DeleteResponse, error) {
-	if err := s.service.DeleteShop(ctx, req.Token.OwnerId, req.ShopId); err != nil {
+	if err := s.service.DeleteShop(ctx, req.OwnerId, req.ShopId); err != nil {
 		return &shop.DeleteResponse{
 			Success: false,
 		}, err
