@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/priyanshubiswas1/shopservice/pkg"
+	"github.com/priyanshubiswas1/barista/shopservice/pkg"
 )
 
 type IService interface {

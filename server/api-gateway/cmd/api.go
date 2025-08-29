@@ -51,12 +51,22 @@ func (s *APIServer) ListenServer(port string) error {
 	protected.HandleFunc("/api/shop", makeHttpHandleFunc(shopClient.UpdateShopHandler)).Methods("PUT")
 	protected.HandleFunc("/api/shop", makeHttpHandleFunc(shopClient.DeleteShopHandler)).Methods("DELETE")
 
+	protected.HandleFunc("/api/menu", makeHttpHandleFunc(shopClient.GetShopByIdHandler)).Methods("POST")
+	protected.HandleFunc("/api/menus/{shopId}", makeHttpHandleFunc(shopClient.GetShopsHandler)).Methods("GET")
+	protected.HandleFunc("/api/menu/{menuId}", makeHttpHandleFunc(shopClient.CreateShopHandler)).Methods("DELETE")
+	protected.HandleFunc("/api/menu-item/{menuId}", makeHttpHandleFunc(shopClient.UpdateShopHandler)).Methods("POST")
+	protected.HandleFunc("/api/menu-item/{menuId}", makeHttpHandleFunc(shopClient.DeleteShopHandler)).Methods("GET")
+	protected.HandleFunc("/api/menu-item/{menu-itemId}", makeHttpHandleFunc(shopClient.DeleteShopHandler)).Methods("GET")
+	protected.HandleFunc("/api/menu-item/{menu-itemId}", makeHttpHandleFunc(shopClient.DeleteShopHandler)).Methods("PUT")
+	protected.HandleFunc("/api/menu-item/{menu-itemId}", makeHttpHandleFunc(shopClient.DeleteShopHandler)).Methods("DELETE")
+	protected.HandleFunc("/api/menu-item/{menuId}", makeHttpHandleFunc(shopClient.DeleteShopHandler)).Methods("DELETE")
+
 	return http.ListenAndServe(fmt.Sprintf(":%s", port), router)
 }
 
 func makeHttpHandleFunc(apiFunc APIFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
+		ctx, cancel := context.WithTimeout(r.Context(), 10*time.Second)
 		defer cancel()
 		if err := apiFunc(ctx, w, r); err != nil {
 			writeJSON(w, http.StatusBadRequest, map[string]any{"error": err.Error()})

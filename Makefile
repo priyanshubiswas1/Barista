@@ -28,3 +28,10 @@ shop-proto-gen:
     --proto_path=./contracts/protos \
     shop.proto
 
+menu-proto-gen:
+	protoc \
+	--go_out=./contracts/gen/menu --go_opt=paths=source_relative \
+    --go-grpc_out=./contracts/gen/menu --go-grpc_opt=paths=source_relative \
+    --proto_path=./contracts/protos \
+    menu.proto
+

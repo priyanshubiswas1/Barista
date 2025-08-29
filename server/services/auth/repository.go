@@ -7,7 +7,7 @@ import (
 	"time"
 
 	_ "github.com/lib/pq"
-	"github.com/priyanshubiswas1/authservice/pkg"
+	"github.com/priyanshubiswas1/barista/authservice/pkg"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -110,14 +110,22 @@ func (r *postgresRepository) Getuser(ctx context.Context, id string) (*pkg.User,
 }
 
 func (r *postgresRepository) UpdateUser(ctx context.Context, id, oldPassword string, user *pkg.User) (*pkg.User, error) {
+	row := r.db.QueryRowContext(ctx, `SELECT password FROM users WHERE id = $1`, id)
+	var hashedPassword string
+	if err := row.Scan(&hashedPassword); err != nil {
+		return nil, errors.New("user not found")
+	}
+	if !VerifyPassword(oldPassword, hashedPassword) {
+		return nil, errors.New("incorrect password")
+	}
+
 	query := `UPDATE users
 			SET name=$1,email=$2,password=$3,phone=$4,address=$5,updated_at=$6
 			WHERE id=$7
-			AND password=$8
 			RETURNING name, email, password, phone, address
 			`
 	resUser := &pkg.User{}
-	res := r.db.QueryRowContext(ctx, query, user.Name, user.Email, user.Password, user.Phone, user.Address, time.Now(), id, oldPassword)
+	res := r.db.QueryRowContext(ctx, query, user.Name, user.Email, user.Password, user.Phone, user.Address, time.Now(), id)
 	if err := res.Scan(&resUser.Name, &resUser.Email, &resUser.Password, &resUser.Phone, &resUser.Address); err == sql.ErrNoRows {
 		return nil, errors.New("update failed")
 	} else if err != nil {
@@ -127,11 +135,19 @@ func (r *postgresRepository) UpdateUser(ctx context.Context, id, oldPassword str
 }
 
 func (r *postgresRepository) DeleteUser(ctx context.Context, id, password string) error {
+	row := r.db.QueryRowContext(ctx, `SELECT password FROM users WHERE id = $1`, id)
+	var hashedPassword string
+	if err := row.Scan(&hashedPassword); err != nil {
+		return errors.New("user not found")
+	}
+	if !VerifyPassword(password, hashedPassword) {
+		return errors.New("incorrect password")
+	}
+
 	query := `DELETE FROM users
 			WHERE id=$1
-			AND password=$2
 			`
-	res, err := r.db.ExecContext(ctx, query, id, password)
+	res, err := r.db.ExecContext(ctx, query, id)
 	if err != nil {
 		return err
 	}

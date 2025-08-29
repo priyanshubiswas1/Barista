@@ -38,12 +38,13 @@ type LoginRes struct {
 }
 
 type UpdateUserReq struct {
-	Id       string `json:"id"`
-	Name     string `json:"name"`
-	Email    string `json:"email"`
-	Phone    string `json:"phone"`
-	Password string `json:"password"`
-	Address  string `json:"address"`
+	Id          string `json:"id"`
+	Name        string `json:"name"`
+	Email       string `json:"email"`
+	Phone       string `json:"phone"`
+	OldPassword string `json:"oldPassword"`
+	Password    string `json:"password"`
+	Address     string `json:"address"`
 }
 
 type UpdateUserRes struct {
@@ -55,7 +56,7 @@ type UpdateUserRes struct {
 }
 
 type DeleteUserReq struct {
-	Id string `json:"id"`
+	Password string `json:"password"`
 }
 
 type DeleteUserRes struct {

@@ -114,11 +114,6 @@ func (c *AuthClient) UpdateUserHandler(ctx context.Context, w http.ResponseWrite
 	if !ok || idStr == "" {
 		return errors.New("missing or invalid user ID in context")
 	}
-	passVal := r.Context().Value(middleware.CtxKeyPassword)
-	passStr, ok := passVal.(string)
-	if !ok || idStr == "" {
-		return errors.New("missing or invalid password in context")
-	}
 	req := pkg.UpdateUserReq{}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return err
@@ -133,7 +128,7 @@ func (c *AuthClient) UpdateUserHandler(ctx context.Context, w http.ResponseWrite
 		Id:          idStr,
 		User:        user,
 		Password:    req.Password,
-		Oldpassword: passStr,
+		Oldpassword: req.OldPassword,
 	})
 	if err != nil {
 		return err
@@ -153,14 +148,13 @@ func (c *AuthClient) DeleteUserHandler(ctx context.Context, w http.ResponseWrite
 	if !ok || idStr == "" {
 		return errors.New("missing or invalid user ID in context")
 	}
-	passVal := r.Context().Value(middleware.CtxKeyPassword)
-	passStr, ok := passVal.(string)
-	if !ok || idStr == "" {
-		return errors.New("missing or invalid password in context")
+	req := pkg.DeleteUserReq{}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		return err
 	}
 	res, err := c.service.DeleteUser(ctx, &auth.DeleteRequest{
 		Id:       idStr,
-		Password: passStr,
+		Password: req.Password,
 	})
 	if err != nil {
 		return err

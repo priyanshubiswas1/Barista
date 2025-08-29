@@ -1,4 +1,4 @@
-module github.com/priyanshubiswas1/authservice
+module github.com/priyanshubiswas1/barista/authservice
 
 go 1.24.3
 
@@ -7,7 +7,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/lib/pq v1.10.9
-	github.com/priyanshubiswas1/baristacontracts v1.0.8
+	github.com/priyanshubiswas1/baristacontracts v1.1.1
 	github.com/tinrab/retry v1.0.0
 	golang.org/x/crypto v0.41.0
 	google.golang.org/grpc v1.75.0

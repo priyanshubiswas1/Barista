@@ -7,7 +7,7 @@ import (
 	"time"
 
 	_ "github.com/lib/pq"
-	"github.com/priyanshubiswas1/shopservice/pkg"
+	"github.com/priyanshubiswas1/barista/shopservice/pkg"
 )
 
 type IRepository interface {

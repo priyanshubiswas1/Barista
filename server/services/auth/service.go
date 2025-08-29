@@ -7,7 +7,7 @@ import (
 
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/google/uuid"
-	"github.com/priyanshubiswas1/authservice/pkg"
+	"github.com/priyanshubiswas1/barista/authservice/pkg"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -43,7 +43,7 @@ func (s *authService) Register(ctx context.Context, user *pkg.User) (*pkg.Regist
 		return nil, err
 	}
 
-	tokenString, err := GenerateToken(id, user.Password)
+	tokenString, err := GenerateToken(id)
 	if err != nil {
 		log.Println("error generating token")
 		return nil, err
@@ -59,7 +59,7 @@ func (s *authService) Login(ctx context.Context, email, phone, password string) 
 	if err != nil {
 		return nil, err
 	}
-	tokenString, err := GenerateToken(id, user.Password)
+	tokenString, err := GenerateToken(id)
 	if err != nil {
 		log.Println("error generating token")
 		return nil, err
@@ -74,17 +74,17 @@ func (s *authService) GetUser(ctx context.Context, id string) (*pkg.User, error)
 	return s.repository.Getuser(ctx, id)
 }
 
-func (s *authService) UpdateUser(ctx context.Context, id, password string, user *pkg.User) (*pkg.LoginResponse, error) {
+func (s *authService) UpdateUser(ctx context.Context, id, oldPassword string, user *pkg.User) (*pkg.LoginResponse, error) {
 	hashedPassword, err := HashPassword(user.Password)
 	if err != nil {
 		return nil, err
 	}
 	user.Password = hashedPassword
-	updateUser, err := s.repository.UpdateUser(ctx, id, password, user)
+	updateUser, err := s.repository.UpdateUser(ctx, id, oldPassword, user)
 	if err != nil {
 		return nil, err
 	}
-	tokenString, err := GenerateToken(id, user.Password)
+	tokenString, err := GenerateToken(id)
 	if err != nil {
 		log.Println("error generating token")
 		return nil, err
@@ -99,13 +99,12 @@ func (s *authService) DeleteUser(ctx context.Context, id, password string) error
 	return s.repository.DeleteUser(ctx, id, password)
 }
 
-func GenerateToken(id, password string) (string, error) {
+func GenerateToken(id string) (string, error) {
 	expiration := time.Now().Add(24 * time.Hour)
 
 	claims := &jwt.RegisteredClaims{
 		ExpiresAt: jwt.NewNumericDate(expiration),
 		IssuedAt:  jwt.NewNumericDate(time.Now()),
-		Subject:   password,
 		ID:        id,
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"net"
 
+	"github.com/priyanshubiswas1/barista/shopservice/pkg"
 	shop "github.com/priyanshubiswas1/baristacontracts/gen/shop"
-	"github.com/priyanshubiswas1/shopservice/pkg"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )

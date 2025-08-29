@@ -18,8 +18,7 @@ type Claims struct {
 type contextKey string
 
 const (
-	CtxKeyID       contextKey = "id"
-	CtxKeyPassword contextKey = "password"
+	CtxKeyID contextKey = "id"
 )
 
 func AuthMiddleware(next http.Handler) http.Handler {
@@ -44,7 +43,6 @@ func AuthMiddleware(next http.Handler) http.Handler {
 			return
 		}
 		ctx := context.WithValue(r.Context(), CtxKeyID, claims.ID)
-		ctx = context.WithValue(ctx, CtxKeyPassword, claims.Subject)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

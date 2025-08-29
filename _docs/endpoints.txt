@@ -12,20 +12,27 @@ GET    /api/shops              # get shops by owner id
 PUT    /api/shops              # update shop name
 DELETE /api/shops              # delete shop
 
+Menu
+POST   /api/menu                  # add menu
+GET    /api/menus/{shopId}        # list menus 
+DELETE /api/menu/{menuId}         # delete menu
+
+Menu Items
+POST   /api/menu-item/{menuId}         # add menu item
+GET    /api/menu-item/{menuId}         # list menu items 
+GET    /api/menu-item/{menu-itemId}    # list menu item
+PUT    /api/menu-item/{menu-itemId}    # update menu item
+DELETE /api/menu-item/{menu-itemId}    # delete menu item
+DELETE /api/menu-item/{menuId}         # delete menu items
+
 Table
-POST   /api/tables/{shopId}     # create table + generate QR
-GET    /api/tables/{shopId}     # list tables
+POST   /api/tables                     # create table + generate QR
+GET    /api/tables/{shopId}            # list tables
 GET    /api/tables/{tableId}/session   # get current active session (call this before order, if doesnt exist, then create)
 
-Menu
-POST   /api/menu/{shopId}         # add menu item
-GET    /api/menu/{shopId}          # list menu items
-PUT    /api/menu/{itemId}                # update item
-DELETE /api/menu/{itemId}                # delete item
-
 Session
-POST   /api/sessions             # start session (tableId)
-GET    /api/sessions/{sessionId} # get session info
+POST   /api/sessions                    # start session (tableId)
+GET    /api/sessions/{sessionId}        # get session info
 PUT    /api/sessions/{sessionId}/close
 
 Order (order then order_items)

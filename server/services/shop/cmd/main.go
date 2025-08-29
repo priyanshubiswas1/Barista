@@ -4,8 +4,8 @@ import (
 	"log"
 	"time"
 
-	shop "github.com/priyanshubiswas1/shopservice"
-	"github.com/priyanshubiswas1/shopservice/pkg"
+	shop "github.com/priyanshubiswas1/barista/shopservice"
+	"github.com/priyanshubiswas1/barista/shopservice/pkg"
 	"github.com/tinrab/retry"
 )
 

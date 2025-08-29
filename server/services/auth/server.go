@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/priyanshubiswas1/authservice/pkg"
+	"github.com/priyanshubiswas1/barista/authservice/pkg"
 	auth "github.com/priyanshubiswas1/baristacontracts/gen/auth"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"

@@ -45,17 +45,8 @@ func (c *ShopClient) GetShopsHandler(ctx context.Context, w http.ResponseWriter,
 	if !ok || idStr == "" {
 		return errors.New("missing or invalid user ID in context")
 	}
-	passVal := r.Context().Value(middleware.CtxKeyPassword)
-	passStr, ok := passVal.(string)
-	if !ok || passStr == "" {
-		return errors.New("missing or invalid user password in context")
-	}
-	token := &shop.Token{
-		OwnerId:  idStr,
-		Password: passStr,
-	}
 	res, err := c.service.GetShopByOwnerId(ctx, &shop.GetByOwnerIdRequest{
-		OwnerId: token.OwnerId,
+		OwnerId: idStr,
 	})
 	if err != nil {
 		return err
@@ -92,21 +83,12 @@ func (c *ShopClient) CreateShopHandler(ctx context.Context, w http.ResponseWrite
 	if !ok || idStr == "" {
 		return errors.New("missing or invalid user ID in context")
 	}
-	passVal := r.Context().Value(middleware.CtxKeyPassword)
-	passStr, ok := passVal.(string)
-	if !ok || passStr == "" {
-		return errors.New("missing or invalid user password in context")
-	}
-	token := &shop.Token{
-		OwnerId:  idStr,
-		Password: passStr,
-	}
 	req := &pkg.CreateShopReq{}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return err
 	}
 	res, err := c.service.RegisterShop(ctx, &shop.CreateRequest{
-		OwnerId:  token.OwnerId,
+		OwnerId:  idStr,
 		ShopName: req.ShopName,
 	})
 	if err != nil {
@@ -127,15 +109,6 @@ func (c *ShopClient) UpdateShopHandler(ctx context.Context, w http.ResponseWrite
 	if !ok || idStr == "" {
 		return errors.New("missing or invalid user ID in context")
 	}
-	passVal := r.Context().Value(middleware.CtxKeyPassword)
-	passStr, ok := passVal.(string)
-	if !ok || idStr == "" {
-		return errors.New("missing or invalid password in context")
-	}
-	token := &shop.Token{
-		OwnerId:  idStr,
-		Password: passStr,
-	}
 	req := &pkg.UpdateShopReq{}
 	if err := json.NewDecoder(r.Body).Decode(&req.Shop); err != nil {
 		return err
@@ -145,7 +118,7 @@ func (c *ShopClient) UpdateShopHandler(ctx context.Context, w http.ResponseWrite
 		ShopName: req.Shop.ShopName,
 	}
 	res, err := c.service.UpdateShop(ctx, &shop.UpdateRequest{
-		OwnerId: token.OwnerId,
+		OwnerId: idStr,
 		Shop:    shopReqBody,
 	})
 	if err != nil {
@@ -166,21 +139,12 @@ func (c *ShopClient) DeleteShopHandler(ctx context.Context, w http.ResponseWrite
 	if !ok || idStr == "" {
 		return errors.New("missing or invalid user ID in context")
 	}
-	passVal := r.Context().Value(middleware.CtxKeyPassword)
-	passStr, ok := passVal.(string)
-	if !ok || idStr == "" {
-		return errors.New("missing or invalid password in context")
-	}
-	token := &shop.Token{
-		OwnerId:  idStr,
-		Password: passStr,
-	}
 	req := &pkg.DeleteShopReq{}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return err
 	}
 	res, err := c.service.DeleteShop(ctx, &shop.DeleteRequest{
-		OwnerId: token.OwnerId,
+		OwnerId: idStr,
 		ShopId:  req.ShopId,
 	})
 	if err != nil {

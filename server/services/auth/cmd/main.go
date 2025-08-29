@@ -4,8 +4,8 @@ import (
 	"log"
 	"time"
 
-	auth "github.com/priyanshubiswas1/authservice"
-	"github.com/priyanshubiswas1/authservice/pkg"
+	auth "github.com/priyanshubiswas1/barista/authservice"
+	"github.com/priyanshubiswas1/barista/authservice/pkg"
 	"github.com/tinrab/retry"
 )
 
