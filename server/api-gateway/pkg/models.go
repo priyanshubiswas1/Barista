@@ -97,3 +97,76 @@ type DeleteShopReq struct {
 type DeleteShopRes struct {
 	Success bool `json:"success"`
 }
+
+//////////////////////////////////////////////////////////////////////////
+
+type Menu struct {
+	MenuId string `json:"menuId"`
+	ShopId string `json:"shopId"`
+	Name   string `json:"name"`
+}
+
+type MenuItem struct {
+	MenuItemId  string  `json:"menuItemId"`
+	MenuId      string  `json:"menuId"`
+	ItemName    string  `json:"itemName"`
+	Description string  `json:"description"`
+	Category    string  `json:"category"`
+	Price       float32 `json:"price"`
+	Image       string  `json:"image"`
+	Available   bool    `json:"available"`
+}
+
+type CreateMenuRequest struct {
+	ShopId string `json:"shopId"`
+	Name   string `json:"name"`
+}
+
+type CreateMenuResponse struct {
+	Menu Menu `json:"menu"`
+}
+
+type GetMenusResponse struct {
+	Menus []Menu `json:"menus"`
+}
+
+type DeleteMenuResponse struct {
+	Success bool `json:"success"`
+}
+
+type CreateMenuItemRequest struct {
+	ItemName    string  `json:"itemName"`
+	Description string  `json:"description"`
+	Category    string  `json:"category"`
+	Price       float32 `json:"price"`
+	Image       string  `json:"image"`
+	Available   bool    `json:"available"`
+}
+
+type CreateMenuItemResponse struct {
+	MenuItem MenuItem `json:"menuItem"`
+}
+
+type GetMenuItemsResponse struct {
+	MenuItems []MenuItem `json:"menuItems"`
+}
+
+type GetMenuItemResponse struct {
+	MenuItem MenuItem `json:"menuItem"`
+}
+
+type UpdateMenuItemRequest struct {
+	MenuItem MenuItem `json:"menuItem"`
+}
+
+type UpdateMenuItemResponse struct {
+	Success bool `json:"success"`
+}
+
+type DeleteMenuItemsResponse struct {
+	Success bool `json:"success"`
+}
+
+type DeleteMenuItemResponse struct {
+	Success bool `json:"success"`
+}

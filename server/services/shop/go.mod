@@ -6,7 +6,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/lib/pq v1.10.9
-	github.com/priyanshubiswas1/baristacontracts v1.1.1
+	github.com/priyanshubiswas1/baristacontracts v1.1.3
 	google.golang.org/grpc v1.75.0
 )
 

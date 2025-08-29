@@ -17,12 +17,14 @@ type APIFunc func(context.Context, http.ResponseWriter, *http.Request) error
 type APIServer struct {
 	authClientUrl string
 	shopClientUrl string
+	menuClientUrl string
 }
 
-func NewAPIServer(authClient, shopClientUrl string) (*APIServer, error) {
+func NewAPIServer(authClient, shopClientUrl, menuClientUrl string) (*APIServer, error) {
 	return &APIServer{
 		authClientUrl: authClient,
 		shopClientUrl: shopClientUrl,
+		menuClientUrl: shopClientUrl,
 	}, nil
 }
 
@@ -32,6 +34,10 @@ func (s *APIServer) ListenServer(port string) error {
 		return err
 	}
 	shopClient, err := handler.NewShop(s.shopClientUrl)
+	if err != nil {
+		return err
+	}
+	menuClient, err := handler.NewMenu(s.menuClientUrl)
 	if err != nil {
 		return err
 	}
@@ -51,15 +57,15 @@ func (s *APIServer) ListenServer(port string) error {
 	protected.HandleFunc("/api/shop", makeHttpHandleFunc(shopClient.UpdateShopHandler)).Methods("PUT")
 	protected.HandleFunc("/api/shop", makeHttpHandleFunc(shopClient.DeleteShopHandler)).Methods("DELETE")
 
-	protected.HandleFunc("/api/menu", makeHttpHandleFunc(shopClient.GetShopByIdHandler)).Methods("POST")
-	protected.HandleFunc("/api/menus/{shopId}", makeHttpHandleFunc(shopClient.GetShopsHandler)).Methods("GET")
-	protected.HandleFunc("/api/menu/{menuId}", makeHttpHandleFunc(shopClient.CreateShopHandler)).Methods("DELETE")
-	protected.HandleFunc("/api/menu-item/{menuId}", makeHttpHandleFunc(shopClient.UpdateShopHandler)).Methods("POST")
-	protected.HandleFunc("/api/menu-item/{menuId}", makeHttpHandleFunc(shopClient.DeleteShopHandler)).Methods("GET")
-	protected.HandleFunc("/api/menu-item/{menu-itemId}", makeHttpHandleFunc(shopClient.DeleteShopHandler)).Methods("GET")
-	protected.HandleFunc("/api/menu-item/{menu-itemId}", makeHttpHandleFunc(shopClient.DeleteShopHandler)).Methods("PUT")
-	protected.HandleFunc("/api/menu-item/{menu-itemId}", makeHttpHandleFunc(shopClient.DeleteShopHandler)).Methods("DELETE")
-	protected.HandleFunc("/api/menu-item/{menuId}", makeHttpHandleFunc(shopClient.DeleteShopHandler)).Methods("DELETE")
+	protected.HandleFunc("/api/menu", makeHttpHandleFunc(menuClient.CreateMenu)).Methods("POST")
+	protected.HandleFunc("/api/menus/{shopId}", makeHttpHandleFunc(menuClient.GetMenus)).Methods("GET")
+	protected.HandleFunc("/api/menu/{menuId}", makeHttpHandleFunc(menuClient.DeleteMenu)).Methods("DELETE")
+	protected.HandleFunc("/api/menu-item/{menuId}", makeHttpHandleFunc(menuClient.CreateMenuItem)).Methods("POST")
+	protected.HandleFunc("/api/menu-item/{menuId}", makeHttpHandleFunc(menuClient.GetMenuItems)).Methods("GET")
+	protected.HandleFunc("/api/menu-item/{menu-itemId}", makeHttpHandleFunc(menuClient.GetMenuItem)).Methods("GET")
+	protected.HandleFunc("/api/menu-item", makeHttpHandleFunc(menuClient.UpdateMenuItem)).Methods("PUT")
+	protected.HandleFunc("/api/menu-item/{menu-itemId}", makeHttpHandleFunc(menuClient.DeleteMenuItem)).Methods("DELETE")
+	protected.HandleFunc("/api/menu-item/{menuId}", makeHttpHandleFunc(menuClient.DeleteMenuItems)).Methods("DELETE")
 
 	return http.ListenAndServe(fmt.Sprintf(":%s", port), router)
 }
