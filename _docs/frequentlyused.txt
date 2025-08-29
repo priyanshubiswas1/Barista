@@ -9,3 +9,5 @@ git tag -a v1.0.0 -m "updated"
 git push origin v1.0.0
 
 go clean -modcache
+
+docker builder prune

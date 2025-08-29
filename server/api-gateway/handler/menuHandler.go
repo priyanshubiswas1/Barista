@@ -190,20 +190,26 @@ func (c *MenuClient) GetMenuItem(ctx context.Context, w http.ResponseWriter, r *
 }
 
 func (c *MenuClient) UpdateMenuItem(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
-	req := pkg.UpdateMenuItemRequest{}
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+	vars := mux.Vars(r)
+	menuItemId := vars["menu-itemId"]
+
+	menuItem := pkg.MenuItem{}
+	if err := json.NewDecoder(r.Body).Decode(&menuItem); err != nil {
 		return err
 	}
+
+	menuItem.MenuItemId = menuItemId
+
 	res, err := c.service.UpdateMenuItem(ctx, &menu.UpdateMenuItemRequest{
 		MenuItem: &menu.MenuItem{
-			MenuItemId:  req.MenuItem.MenuItemId,
-			MenuId:      req.MenuItem.MenuId,
-			Name:        req.MenuItem.ItemName,
-			Description: req.MenuItem.Description,
-			Category:    req.MenuItem.Category,
-			Price:       req.MenuItem.Price,
-			Image:       req.MenuItem.Image,
-			IsAvailable: req.MenuItem.Available,
+			MenuItemId:  menuItem.MenuItemId,
+			MenuId:      menuItem.MenuId,
+			Name:        menuItem.ItemName,
+			Description: menuItem.Description,
+			Category:    menuItem.Category,
+			Price:       menuItem.Price,
+			Image:       menuItem.Image,
+			IsAvailable: menuItem.Available,
 		},
 	})
 	if err != nil {

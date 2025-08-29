@@ -16,10 +16,10 @@ Menu
 POST   /api/menu                  # add menu
 GET    /api/menus/{shopId}        # list menus 
 DELETE /api/menu/{menuId}         # delete menu
+GET    /api/menu/{menuId}         # list menu items 
 
 Menu Items
 POST   /api/menu-item/{menuId}         # add menu item
-GET    /api/menu-item/{menuId}         # list menu items 
 GET    /api/menu-item/{menu-itemId}    # list menu item
 PUT    /api/menu-item/{menu-itemId}    # update menu item
 DELETE /api/menu-item/{menu-itemId}    # delete menu item

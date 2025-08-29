@@ -24,7 +24,7 @@ func NewAPIServer(authClient, shopClientUrl, menuClientUrl string) (*APIServer, 
 	return &APIServer{
 		authClientUrl: authClient,
 		shopClientUrl: shopClientUrl,
-		menuClientUrl: shopClientUrl,
+		menuClientUrl: menuClientUrl,
 	}, nil
 }
 
@@ -58,14 +58,14 @@ func (s *APIServer) ListenServer(port string) error {
 	protected.HandleFunc("/api/shop", makeHttpHandleFunc(shopClient.DeleteShopHandler)).Methods("DELETE")
 
 	protected.HandleFunc("/api/menu", makeHttpHandleFunc(menuClient.CreateMenu)).Methods("POST")
-	protected.HandleFunc("/api/menus/{shopId}", makeHttpHandleFunc(menuClient.GetMenus)).Methods("GET")
+	protected.HandleFunc("/api/menus/{shopid}", makeHttpHandleFunc(menuClient.GetMenus)).Methods("GET")
 	protected.HandleFunc("/api/menu/{menuId}", makeHttpHandleFunc(menuClient.DeleteMenu)).Methods("DELETE")
+	protected.HandleFunc("/api/menu/{menuId}", makeHttpHandleFunc(menuClient.GetMenuItems)).Methods("GET")
+	protected.HandleFunc("/api/menu/{menuId}/items", makeHttpHandleFunc(menuClient.DeleteMenuItems)).Methods("DELETE")
 	protected.HandleFunc("/api/menu-item/{menuId}", makeHttpHandleFunc(menuClient.CreateMenuItem)).Methods("POST")
-	protected.HandleFunc("/api/menu-item/{menuId}", makeHttpHandleFunc(menuClient.GetMenuItems)).Methods("GET")
 	protected.HandleFunc("/api/menu-item/{menu-itemId}", makeHttpHandleFunc(menuClient.GetMenuItem)).Methods("GET")
-	protected.HandleFunc("/api/menu-item", makeHttpHandleFunc(menuClient.UpdateMenuItem)).Methods("PUT")
+	protected.HandleFunc("/api/menu-item/{menu-itemId}", makeHttpHandleFunc(menuClient.UpdateMenuItem)).Methods("PUT")
 	protected.HandleFunc("/api/menu-item/{menu-itemId}", makeHttpHandleFunc(menuClient.DeleteMenuItem)).Methods("DELETE")
-	protected.HandleFunc("/api/menu-item/{menuId}", makeHttpHandleFunc(menuClient.DeleteMenuItems)).Methods("DELETE")
 
 	return http.ListenAndServe(fmt.Sprintf(":%s", port), router)
 }
