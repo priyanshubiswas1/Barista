@@ -60,8 +60,18 @@ func (s *gRPCserver) GetMenus(ctx context.Context, req *menuPb.GetMenusRequest) 
 	}, nil
 }
 
+func (s *gRPCserver) SetMenu(ctx context.Context, req *menuPb.SetMenuRequest) (*menuPb.SetMenuResponse, error) {
+	res, err := s.service.SetMenu(ctx, req.MenuId)
+	if err != nil {
+		return nil, err
+	}
+	return &menuPb.SetMenuResponse{
+		Success: res,
+	}, nil
+}
+
 func (s *gRPCserver) DeleteMenu(ctx context.Context, req *menuPb.DeleteMenuRequest) (*menuPb.DeleteMenuResponse, error) {
-	res, err := s.service.DeleteMenus(ctx, req.MenuId)
+	res, err := s.service.DeleteMenu(ctx, req.MenuId)
 	if err != nil {
 		return nil, err
 	}
@@ -70,9 +80,10 @@ func (s *gRPCserver) DeleteMenu(ctx context.Context, req *menuPb.DeleteMenuReque
 	}, nil
 }
 
-func (s *gRPCserver) CreateMenuItem(ctx context.Context, req *menuPb.CreateMenuItemRequest) (*menuPb.CreateMenuItemResponse, error) {
-	id, err := s.service.CreateMenuItem(ctx, pkg.MenuItem{
-		MenuId:      req.MenuId,
+func (s *gRPCserver) CreateItem(ctx context.Context, req *menuPb.CreateItemRequest) (*menuPb.CreateItemResponse, error) {
+	id, err := s.service.CreateItem(ctx, pkg.Item{
+		ItemId:      "",
+		ShopId:      req.ShopId,
 		Name:        req.Name,
 		Description: req.Description,
 		Category:    req.Category,
@@ -83,10 +94,10 @@ func (s *gRPCserver) CreateMenuItem(ctx context.Context, req *menuPb.CreateMenuI
 	if err != nil {
 		return nil, err
 	}
-	return &menuPb.CreateMenuItemResponse{
-		MenuItem: &menuPb.MenuItem{
-			MenuItemId:  id,
-			MenuId:      req.MenuId,
+	return &menuPb.CreateItemResponse{
+		Item: &menuPb.Item{
+			ItemId:      id,
+			ShopId:      req.ShopId,
 			Name:        req.Name,
 			Description: req.Description,
 			Category:    req.Category,
@@ -97,70 +108,121 @@ func (s *gRPCserver) CreateMenuItem(ctx context.Context, req *menuPb.CreateMenuI
 	}, nil
 }
 
-func (s *gRPCserver) GetMenuItems(ctx context.Context, req *menuPb.GetMenuItemsRequest) (*menuPb.GetMenuItemsResponse, error) {
-	pkgMenuItems, err := s.service.GetMenuItems(ctx, req.MenuId)
+func (s *gRPCserver) GetItem(ctx context.Context, req *menuPb.GetItemRequest) (*menuPb.GetItemResponse, error) {
+	item, err := s.service.GetItem(ctx, req.ItemId)
 	if err != nil {
 		return nil, err
 	}
-	menuItems := []*menuPb.MenuItem{}
-	for _, pkgMenuItem := range pkgMenuItems {
-		menuItem := menuPb.MenuItem{
-			MenuItemId:  pkgMenuItem.MenuItemId,
-			MenuId:      pkgMenuItem.MenuId,
-			Name:        pkgMenuItem.Name,
-			Description: pkgMenuItem.Description,
-			Category:    pkgMenuItem.Category,
-			Price:       pkgMenuItem.Price,
-			Image:       pkgMenuItem.Image,
-			IsAvailable: pkgMenuItem.IsAvailable,
-		}
-		menuItems = append(menuItems, &menuItem)
-	}
-	return &menuPb.GetMenuItemsResponse{
-		MenuItems: menuItems,
-	}, nil
-}
-
-func (s *gRPCserver) GetMenuItem(ctx context.Context, req *menuPb.GetMenuItemRequest) (*menuPb.GetMenuItemResponse, error) {
-	pkgMenuItem, err := s.service.GetMenuItem(ctx, req.MenuItemId)
-	if err != nil {
-		return nil, err
-	}
-	return &menuPb.GetMenuItemResponse{
-		MenuItem: &menuPb.MenuItem{
-			MenuItemId:  pkgMenuItem.MenuItemId,
-			MenuId:      pkgMenuItem.MenuId,
-			Name:        pkgMenuItem.Name,
-			Description: pkgMenuItem.Description,
-			Category:    pkgMenuItem.Category,
-			Price:       pkgMenuItem.Price,
-			Image:       pkgMenuItem.Image,
-			IsAvailable: pkgMenuItem.IsAvailable,
+	return &menuPb.GetItemResponse{
+		Item: &menuPb.Item{
+			ItemId:      item.ItemId,
+			ShopId:      item.ShopId,
+			Name:        item.Name,
+			Description: item.Description,
+			Category:    item.Category,
+			Price:       item.Price,
+			Image:       item.Image,
+			IsAvailable: item.IsAvailable,
 		},
 	}, nil
 }
 
-func (s *gRPCserver) UpdateMenuItem(ctx context.Context, req *menuPb.UpdateMenuItemRequest) (*menuPb.UpdateMenuItemResponse, error) {
-	res, err := s.service.UpdateMenuItem(ctx, pkg.MenuItem{
-		MenuItemId:  req.MenuItem.MenuItemId,
-		MenuId:      req.MenuItem.MenuId,
-		Name:        req.MenuItem.Name,
-		Description: req.MenuItem.Description,
-		Category:    req.MenuItem.Category,
-		Price:       req.MenuItem.Price,
-		Image:       req.MenuItem.Image,
-		IsAvailable: req.MenuItem.IsAvailable,
+func (s *gRPCserver) GetItems(ctx context.Context, req *menuPb.GetItemsRequest) (*menuPb.GetItemsResponse, error) {
+	pkgItems, err := s.service.GetItems(ctx, req.ShopId)
+	if err != nil {
+		return nil, err
+	}
+	items := []*menuPb.Item{}
+	for _, item := range pkgItems {
+		items = append(items, &menuPb.Item{
+			ItemId:      item.ItemId,
+			ShopId:      item.ShopId,
+			Name:        item.Name,
+			Description: item.Description,
+			Category:    item.Category,
+			Price:       item.Price,
+			Image:       item.Image,
+			IsAvailable: item.IsAvailable,
+		})
+	}
+	return &menuPb.GetItemsResponse{
+		Items: items,
+	}, nil
+}
+
+func (s *gRPCserver) UpdateItem(ctx context.Context, req *menuPb.UpdateItemRequest) (*menuPb.UpdateItemResponse, error) {
+	res, err := s.service.UpdateItem(ctx, pkg.Item{
+		ItemId:      req.Item.ItemId,
+		ShopId:      req.Item.ShopId,
+		Name:        req.Item.Name,
+		Description: req.Item.Description,
+		Category:    req.Item.Category,
+		Price:       req.Item.Price,
+		Image:       req.Item.Image,
+		IsAvailable: req.Item.IsAvailable,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return &menuPb.UpdateMenuItemResponse{
+	return &menuPb.UpdateItemResponse{
 		Success: res,
 	}, nil
 }
 
+func (s *gRPCserver) DeleteItem(ctx context.Context, req *menuPb.DeleteItemRequest) (*menuPb.DeleteItemResponse, error) {
+	res, err := s.service.DeleteItem(ctx, req.ItemId)
+	if err != nil {
+		return nil, err
+	}
+	return &menuPb.DeleteItemResponse{
+		Success: res,
+	}, nil
+}
+
+func (s *gRPCserver) CreateMenuItem(ctx context.Context, req *menuPb.CreateMenuItemRequest) (*menuPb.CreateMenuItemResponse, error) {
+	menuItem, err := s.service.CreateMenuItem(ctx, pkg.MenuItem{
+		Id:     "",
+		MenuId: req.MenuId,
+		ItemId: req.ItemId,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &menuPb.CreateMenuItemResponse{
+		MenuItem: &menuPb.MenuItem{
+			MenuItemId: menuItem.Id,
+			MenuId:     menuItem.MenuId,
+			ItemId:     menuItem.ItemId,
+		},
+	}, nil
+}
+
+func (s *gRPCserver) GetMenuItems(ctx context.Context, req *menuPb.GetMenuItemsRequest) (*menuPb.GetMenuItemsResponse, error) {
+	pkgItems, err := s.service.GetMenuItems(ctx, req.MenuId)
+	if err != nil {
+		return nil, err
+	}
+	items := []*menuPb.Item{}
+	for _, pkgItem := range pkgItems {
+		item := menuPb.Item{
+			ItemId:      pkgItem.ItemId,
+			ShopId:      pkgItem.ShopId,
+			Name:        pkgItem.Name,
+			Description: pkgItem.Description,
+			Category:    pkgItem.Category,
+			Price:       pkgItem.Price,
+			Image:       pkgItem.Image,
+			IsAvailable: pkgItem.IsAvailable,
+		}
+		items = append(items, &item)
+	}
+	return &menuPb.GetMenuItemsResponse{
+		Items: items,
+	}, nil
+}
+
 func (s *gRPCserver) DeleteMenuItem(ctx context.Context, req *menuPb.DeleteMenuItemRequest) (*menuPb.DeleteMenuItemResponse, error) {
-	res, err := s.service.DeleteMenuItem(ctx, req.MenuItemId)
+	res, err := s.service.DeleteMenuItem(ctx, req.MenuId, req.ItemId)
 	if err != nil {
 		return nil, err
 	}

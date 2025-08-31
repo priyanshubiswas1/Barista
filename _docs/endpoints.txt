@@ -14,16 +14,36 @@ DELETE /api/shops              # delete shop
 
 Menu
 POST   /api/menu                  # add menu
+POST   /api/menu/{menuId}         # set menu
+GET    /api/menus/{shopId}        # list menus 
+DELETE /api/menu/{menuId}         # delete menu
+
+Items
+POST   /api/item             # add item
+GET    /api/item/{itemId}    # list item
+GET    /api/item/{shopId}    # list items
+PUT    /api/item/{itemId}    # update item
+DELETE /api/item/{itemId}    # delete item
+
+Menu Items
+POST   /api/menu-item             # add menu item (itemid and menuid in the req body)
+GET    /api/menu-item/{menuId}    # list menu items
+DELETE /api/menu-item             # delete menu item   (itemid and menuid in the req body)
+DELETE /api/menu-item/{menuId}    # delete menu items
+
+
+Menu (ORG)
+POST   /api/menu                  # add menu
 GET    /api/menus/{shopId}        # list menus 
 DELETE /api/menu/{menuId}         # delete menu
 GET    /api/menu/{menuId}         # list menu items 
-
-Menu Items
+Menu Items (ORG)
 POST   /api/menu-item/{menuId}         # add menu item
 GET    /api/menu-item/{menu-itemId}    # list menu item
 PUT    /api/menu-item/{menu-itemId}    # update menu item
 DELETE /api/menu-item/{menu-itemId}    # delete menu item
 DELETE /api/menu-item/{menuId}         # delete menu items
+
 
 Table
 POST   /api/tables                     # create table + generate QR

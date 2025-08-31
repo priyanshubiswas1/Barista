@@ -48,24 +48,37 @@ func (s *APIServer) ListenServer(port string) error {
 
 	protected := router.PathPrefix("/").Subrouter()
 	protected.Use(middleware.AuthMiddleware)
+
+	//USER
 	protected.HandleFunc("/api/auth/user", makeHttpHandleFunc(authClient.GetUserHandler)).Methods("GET")
 	protected.HandleFunc("/api/auth/user", makeHttpHandleFunc(authClient.UpdateUserHandler)).Methods("PUT")
 	protected.HandleFunc("/api/auth/user", makeHttpHandleFunc(authClient.DeleteUserHandler)).Methods("DELETE")
+
+	//SHOP
 	protected.HandleFunc("/api/shop/{shopid}", makeHttpHandleFunc(shopClient.GetShopByIdHandler)).Methods("GET")
 	protected.HandleFunc("/api/shops", makeHttpHandleFunc(shopClient.GetShopsHandler)).Methods("GET")
 	protected.HandleFunc("/api/shop", makeHttpHandleFunc(shopClient.CreateShopHandler)).Methods("POST")
 	protected.HandleFunc("/api/shop", makeHttpHandleFunc(shopClient.UpdateShopHandler)).Methods("PUT")
 	protected.HandleFunc("/api/shop", makeHttpHandleFunc(shopClient.DeleteShopHandler)).Methods("DELETE")
 
+	//MENU
 	protected.HandleFunc("/api/menu", makeHttpHandleFunc(menuClient.CreateMenu)).Methods("POST")
 	protected.HandleFunc("/api/menus/{shopid}", makeHttpHandleFunc(menuClient.GetMenus)).Methods("GET")
-	protected.HandleFunc("/api/menu/{menuId}", makeHttpHandleFunc(menuClient.DeleteMenu)).Methods("DELETE")
-	protected.HandleFunc("/api/menu/{menuId}", makeHttpHandleFunc(menuClient.GetMenuItems)).Methods("GET")
-	protected.HandleFunc("/api/menu/{menuId}/items", makeHttpHandleFunc(menuClient.DeleteMenuItems)).Methods("DELETE")
-	protected.HandleFunc("/api/menu-item/{menuId}", makeHttpHandleFunc(menuClient.CreateMenuItem)).Methods("POST")
-	protected.HandleFunc("/api/menu-item/{menu-itemId}", makeHttpHandleFunc(menuClient.GetMenuItem)).Methods("GET")
-	protected.HandleFunc("/api/menu-item/{menu-itemId}", makeHttpHandleFunc(menuClient.UpdateMenuItem)).Methods("PUT")
-	protected.HandleFunc("/api/menu-item/{menu-itemId}", makeHttpHandleFunc(menuClient.DeleteMenuItem)).Methods("DELETE")
+	protected.HandleFunc("/api/menu/{menuid}", makeHttpHandleFunc(menuClient.SetMenu)).Methods("PUT")
+	protected.HandleFunc("/api/menu/{menuid}", makeHttpHandleFunc(menuClient.DeleteMenu)).Methods("DELETE")
+
+	//ITEMS
+	protected.HandleFunc("/api/item", makeHttpHandleFunc(menuClient.CreateItem)).Methods("POST")
+	protected.HandleFunc("/api/item/{itemid}", makeHttpHandleFunc(menuClient.GetItem)).Methods("GET")
+	protected.HandleFunc("/api/items/{shopid}", makeHttpHandleFunc(menuClient.GetItems)).Methods("GET")
+	protected.HandleFunc("/api/item/{itemid}", makeHttpHandleFunc(menuClient.UpdateItem)).Methods("PUT")
+	protected.HandleFunc("/api/item/{itemid}", makeHttpHandleFunc(menuClient.DeleteItem)).Methods("DELETE")
+
+	//MENU-ITEMS
+	protected.HandleFunc("/api/menu-item", makeHttpHandleFunc(menuClient.CreateMenuItem)).Methods("POST")
+	protected.HandleFunc("/api/menu-item/{menuid}", makeHttpHandleFunc(menuClient.GetMenuItems)).Methods("GET")
+	protected.HandleFunc("/api/menu-item", makeHttpHandleFunc(menuClient.DeleteMenuItem)).Methods("DELETE")
+	protected.HandleFunc("/api/menu-item/{menuid}", makeHttpHandleFunc(menuClient.DeleteMenuItems)).Methods("DELETE")
 
 	return http.ListenAndServe(fmt.Sprintf(":%s", port), router)
 }

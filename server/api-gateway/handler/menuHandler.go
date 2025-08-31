@@ -13,13 +13,22 @@ import (
 )
 
 type IMenuClient interface {
+	//MENU
 	CreateMenu(ctx context.Context, w http.ResponseWriter, r *http.Request) error
 	GetMenus(ctx context.Context, w http.ResponseWriter, r *http.Request) error
+	SetMenu(ctx context.Context, w http.ResponseWriter, r *http.Request) error
 	DeleteMenu(ctx context.Context, w http.ResponseWriter, r *http.Request) error
+
+	//ITEMS
+	CreateItem(ctx context.Context, w http.ResponseWriter, r *http.Request) error
+	GetItem(ctx context.Context, w http.ResponseWriter, r *http.Request) error
+	GetItems(ctx context.Context, w http.ResponseWriter, r *http.Request) error
+	UpdateItem(ctx context.Context, w http.ResponseWriter, r *http.Request) error
+	DeleteItem(ctx context.Context, w http.ResponseWriter, r *http.Request) error
+
+	//MENU-ITEMS
 	CreateMenuItem(ctx context.Context, w http.ResponseWriter, r *http.Request) error
 	GetMenuItems(ctx context.Context, w http.ResponseWriter, r *http.Request) error
-	GetMenuItem(ctx context.Context, w http.ResponseWriter, r *http.Request) error
-	UpdateMenuItem(ctx context.Context, w http.ResponseWriter, r *http.Request) error
 	DeleteMenuItem(ctx context.Context, w http.ResponseWriter, r *http.Request) error
 	DeleteMenuItems(ctx context.Context, w http.ResponseWriter, r *http.Request) error
 }
@@ -87,9 +96,25 @@ func (c *MenuClient) GetMenus(ctx context.Context, w http.ResponseWriter, r *htt
 	})
 }
 
+func (c *MenuClient) SetMenu(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+	vars := mux.Vars(r)
+	menuId := vars["menuid"]
+
+	res, err := c.service.SetMenu(ctx, &menu.SetMenuRequest{
+		MenuId: menuId,
+	})
+	if err != nil {
+		return err
+	}
+
+	return pkg.WriteJSON(w, http.StatusOK, pkg.SetMenuResponse{
+		Success: res.Success,
+	})
+}
+
 func (c *MenuClient) DeleteMenu(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 	vars := mux.Vars(r)
-	menuId := vars["menuId"]
+	menuId := vars["menuid"]
 
 	res, err := c.service.DeleteMenu(ctx, &menu.DeleteMenuRequest{
 		MenuId: menuId,
@@ -102,17 +127,14 @@ func (c *MenuClient) DeleteMenu(ctx context.Context, w http.ResponseWriter, r *h
 	})
 }
 
-func (c *MenuClient) CreateMenuItem(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
-	vars := mux.Vars(r)
-	menuId := vars["menuId"]
-
-	req := pkg.CreateMenuItemRequest{}
+func (c *MenuClient) CreateItem(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+	req := pkg.CreateItemRequest{}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return err
 	}
-	res, err := c.service.CreateMenuItem(ctx, &menu.CreateMenuItemRequest{
-		MenuId:      menuId,
+	res, err := c.service.CreateItem(ctx, &menu.CreateItemRequest{
 		Name:        req.ItemName,
+		ShopId:      req.ShopId,
 		Description: req.Description,
 		Category:    req.Category,
 		Price:       req.Price,
@@ -122,23 +144,143 @@ func (c *MenuClient) CreateMenuItem(ctx context.Context, w http.ResponseWriter, 
 	if err != nil {
 		return err
 	}
+	return pkg.WriteJSON(w, http.StatusOK, pkg.CreateItemResponse{
+		Item: pkg.Item{
+			ItemId:      res.Item.ItemId,
+			ShopId:      res.Item.ShopId,
+			ItemName:    res.Item.Name,
+			Description: res.Item.Description,
+			Category:    res.Item.Category,
+			Price:       res.Item.Price,
+			Image:       res.Item.Image,
+			Available:   res.Item.IsAvailable,
+		},
+	})
+}
+
+func (c *MenuClient) GetItem(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+	vars := mux.Vars(r)
+	itemId := vars["itemid"]
+
+	res, err := c.service.GetItem(ctx, &menu.GetItemRequest{
+		ItemId: itemId,
+	})
+	if err != nil {
+		return err
+	}
+	return pkg.WriteJSON(w, http.StatusOK, pkg.GetItemResponse{
+		Item: pkg.Item{
+			ItemId:      res.Item.ItemId,
+			ShopId:      res.Item.ShopId,
+			ItemName:    res.Item.Name,
+			Description: res.Item.Description,
+			Category:    res.Item.Category,
+			Price:       res.Item.Price,
+			Image:       res.Item.Image,
+			Available:   res.Item.IsAvailable,
+		},
+	})
+}
+
+func (c *MenuClient) GetItems(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+	vars := mux.Vars(r)
+	shopId := vars["shopid"]
+
+	res, err := c.service.GetItems(ctx, &menu.GetItemsRequest{
+		ShopId: shopId,
+	})
+	if err != nil {
+		return err
+	}
+	items := []pkg.Item{}
+	for _, it := range res.Items {
+		item := pkg.Item{
+			ItemId:      it.ItemId,
+			ShopId:      it.ShopId,
+			ItemName:    it.Name,
+			Description: it.Description,
+			Category:    it.Category,
+			Price:       it.Price,
+			Image:       it.Image,
+			Available:   it.IsAvailable,
+		}
+		items = append(items, item)
+	}
+	return pkg.WriteJSON(w, http.StatusOK, pkg.GetItemsResponse{
+		Items: items,
+	})
+}
+
+func (c *MenuClient) UpdateItem(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+	vars := mux.Vars(r)
+	itemid := vars["itemid"]
+
+	item := pkg.Item{}
+	if err := json.NewDecoder(r.Body).Decode(&item); err != nil {
+		return err
+	}
+
+	item.ItemId = itemid
+
+	res, err := c.service.UpdateItem(ctx, &menu.UpdateItemRequest{
+		Item: &menu.Item{
+			ItemId:      item.ItemId,
+			ShopId:      item.ShopId,
+			Name:        item.ItemName,
+			Description: item.Description,
+			Category:    item.Category,
+			Price:       item.Price,
+			Image:       item.Image,
+			IsAvailable: item.Available,
+		},
+	})
+	if err != nil {
+		return err
+	}
+	return pkg.WriteJSON(w, http.StatusOK, pkg.UpdateItemResponse{
+		Success: res.Success,
+	})
+}
+
+func (c *MenuClient) DeleteItem(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+	vars := mux.Vars(r)
+	itemId := vars["itemid"]
+
+	res, err := c.service.DeleteItem(ctx, &menu.DeleteItemRequest{
+		ItemId: itemId,
+	})
+	if err != nil {
+		return err
+	}
+	return pkg.WriteJSON(w, http.StatusOK, pkg.DeleteItemResponse{
+		Success: res.Success,
+	})
+}
+
+func (c *MenuClient) CreateMenuItem(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+	req := pkg.CreateMenuItemRequest{}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		return err
+	}
+	res, err := c.service.CreateMenuItem(ctx, &menu.CreateMenuItemRequest{
+		MenuId: req.MenuId,
+		ItemId: req.ItemId,
+	})
+	if err != nil {
+		return err
+	}
 	return pkg.WriteJSON(w, http.StatusOK, pkg.CreateMenuItemResponse{
 		MenuItem: pkg.MenuItem{
-			MenuItemId:  res.MenuItem.MenuItemId,
-			MenuId:      res.MenuItem.MenuId,
-			ItemName:    res.MenuItem.Name,
-			Description: res.MenuItem.Description,
-			Category:    res.MenuItem.Category,
-			Price:       res.MenuItem.Price,
-			Image:       res.MenuItem.Image,
-			Available:   res.MenuItem.IsAvailable,
+			MenuItemId: res.MenuItem.MenuItemId,
+			MenuId:     res.MenuItem.MenuId,
+			ItemId:     res.MenuItem.ItemId,
 		},
 	})
 }
 
 func (c *MenuClient) GetMenuItems(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 	vars := mux.Vars(r)
-	menuId := vars["menuId"]
+	menuId := vars["menuid"]
 
 	res, err := c.service.GetMenuItems(ctx, &menu.GetMenuItemsRequest{
 		MenuId: menuId,
@@ -146,11 +288,11 @@ func (c *MenuClient) GetMenuItems(ctx context.Context, w http.ResponseWriter, r 
 	if err != nil {
 		return err
 	}
-	menuItems := []pkg.MenuItem{}
-	for _, i := range res.MenuItems {
-		menuItem := pkg.MenuItem{
-			MenuItemId:  i.MenuItemId,
-			MenuId:      i.MenuId,
+	items := []pkg.Item{}
+	for _, i := range res.Items {
+		item := pkg.Item{
+			ItemId:      i.ItemId,
+			ShopId:      i.ShopId,
 			ItemName:    i.Name,
 			Description: i.Description,
 			Category:    i.Category,
@@ -158,74 +300,21 @@ func (c *MenuClient) GetMenuItems(ctx context.Context, w http.ResponseWriter, r 
 			Image:       i.Image,
 			Available:   i.IsAvailable,
 		}
-		menuItems = append(menuItems, menuItem)
+		items = append(items, item)
 	}
 	return pkg.WriteJSON(w, http.StatusOK, pkg.GetMenuItemsResponse{
-		MenuItems: menuItems,
-	})
-}
-
-func (c *MenuClient) GetMenuItem(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
-	vars := mux.Vars(r)
-	menuItemId := vars["menu-itemId"]
-
-	res, err := c.service.GetMenuItem(ctx, &menu.GetMenuItemRequest{
-		MenuItemId: menuItemId,
-	})
-	if err != nil {
-		return err
-	}
-	return pkg.WriteJSON(w, http.StatusOK, pkg.GetMenuItemResponse{
-		MenuItem: pkg.MenuItem{
-			MenuItemId:  res.MenuItem.MenuItemId,
-			MenuId:      res.MenuItem.MenuId,
-			ItemName:    res.MenuItem.Name,
-			Description: res.MenuItem.Description,
-			Category:    res.MenuItem.Category,
-			Price:       res.MenuItem.Price,
-			Image:       res.MenuItem.Image,
-			Available:   res.MenuItem.IsAvailable,
-		},
-	})
-}
-
-func (c *MenuClient) UpdateMenuItem(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
-	vars := mux.Vars(r)
-	menuItemId := vars["menu-itemId"]
-
-	menuItem := pkg.MenuItem{}
-	if err := json.NewDecoder(r.Body).Decode(&menuItem); err != nil {
-		return err
-	}
-
-	menuItem.MenuItemId = menuItemId
-
-	res, err := c.service.UpdateMenuItem(ctx, &menu.UpdateMenuItemRequest{
-		MenuItem: &menu.MenuItem{
-			MenuItemId:  menuItem.MenuItemId,
-			MenuId:      menuItem.MenuId,
-			Name:        menuItem.ItemName,
-			Description: menuItem.Description,
-			Category:    menuItem.Category,
-			Price:       menuItem.Price,
-			Image:       menuItem.Image,
-			IsAvailable: menuItem.Available,
-		},
-	})
-	if err != nil {
-		return err
-	}
-	return pkg.WriteJSON(w, http.StatusOK, pkg.UpdateMenuItemResponse{
-		Success: res.Success,
+		Items: items,
 	})
 }
 
 func (c *MenuClient) DeleteMenuItem(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
-	vars := mux.Vars(r)
-	menuItemId := vars["menu-itemId"]
-
+	req := pkg.DeleteMenuItemRequest{}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		return err
+	}
 	res, err := c.service.DeleteMenuItem(ctx, &menu.DeleteMenuItemRequest{
-		MenuItemId: menuItemId,
+		MenuId: req.MenuId,
+		ItemId: req.ItemId,
 	})
 	if err != nil {
 		return err
@@ -237,7 +326,7 @@ func (c *MenuClient) DeleteMenuItem(ctx context.Context, w http.ResponseWriter, 
 
 func (c *MenuClient) DeleteMenuItems(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 	vars := mux.Vars(r)
-	menuId := vars["menuId"]
+	menuId := vars["menuid"]
 
 	res, err := c.service.DeleteMenuItems(ctx, &menu.DeleteMenuItemsRequest{
 		MenuId: menuId,

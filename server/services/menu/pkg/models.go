@@ -6,13 +6,19 @@ type Menu struct {
 	Name   string `json:"name"`
 }
 
-type MenuItem struct {
-	MenuItemId  string  `json:"menuItemId"`
-	MenuId      string  `json:"menuId"`
+type Item struct {
+	ItemId      string  `json:"menuItemId"`
+	ShopId      string  `json:"shopId"`
 	Name        string  `json:"name"`
 	Description string  `json:"description"`
 	Category    string  `json:"category"`
 	Price       float32 `json:"price"`
 	Image       string  `json:"image"`
 	IsAvailable bool    `json:"isAvailable"`
+}
+
+type MenuItem struct {
+	Id     string `json:"id"`
+	MenuId string `json:"menuId"`
+	ItemId string `json:"ItemId"`
 }
