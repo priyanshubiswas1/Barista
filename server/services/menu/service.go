@@ -14,15 +14,18 @@ type IService interface {
 	GetMenus(ctx context.Context, shopId string) ([]pkg.Menu, error)
 	SetMenu(ctx context.Context, menuId string) (bool, error)
 	DeleteMenu(ctx context.Context, menuId string) (bool, error)
-	CreateItem(ctx context.Context, item pkg.Item) (string, error)
+	CreateItem(ctx context.Context, item pkg.ItemRequest) (pkg.Item, error)
 	GetItem(ctx context.Context, itemId string) (*pkg.Item, error)
 	GetItems(ctx context.Context, shopId string) ([]pkg.Item, error)
-	UpdateItem(ctx context.Context, item pkg.Item) (bool, error)
+	UpdateItem(ctx context.Context, item pkg.ItemRequest) (bool, error)
 	DeleteItem(ctx context.Context, itemId string) (bool, error)
 	CreateMenuItem(ctx context.Context, menuItem pkg.MenuItem) (pkg.MenuItem, error)
 	GetMenuItems(ctx context.Context, menuId string) ([]pkg.Item, error)
 	DeleteMenuItem(ctx context.Context, menuId, itemId string) (bool, error)
 	DeleteMenuItems(ctx context.Context, menuId string) (bool, error)
+	CreateCategory(ctx context.Context, category pkg.Category) (pkg.Category, error)
+	GetCategories(ctx context.Context, shopId string) ([]pkg.Category, error)
+	DeleteCategory(ctx context.Context, id, shopId string) (bool, error)
 }
 
 type service struct {
@@ -73,13 +76,26 @@ func (s *service) DeleteMenu(ctx context.Context, menuId string) (bool, error) {
 	return s.repository.DeleteMenu(ctx, menuId)
 }
 
-func (s *service) CreateItem(ctx context.Context, item pkg.Item) (string, error) {
+func (s *service) CreateItem(ctx context.Context, item pkg.ItemRequest) (pkg.Item, error) {
+	categoryName, err := s.repository.GetCategoryName(ctx, item.CategoryId, item.ShopId)
+	if err != nil {
+		return pkg.Item{}, err
+	}
 	item.ItemId = uuid.New().String()
 	if err := s.repository.CreateItem(ctx, item.ItemId, item.ShopId, item.Name, item.Description,
-		item.Category, item.Price, item.Image, item.IsAvailable, true, time.Now()); err != nil {
-		return "", err
+		item.CategoryId, item.Price, item.Image, item.IsAvailable, true, time.Now()); err != nil {
+		return pkg.Item{}, err
 	}
-	return item.ItemId, nil
+	return pkg.Item{
+		ItemId:      item.ItemId,
+		ShopId:      item.ShopId,
+		Name:        item.Name,
+		Description: item.Description,
+		Category:    categoryName,
+		Price:       item.Price,
+		Image:       item.Image,
+		IsAvailable: item.IsAvailable,
+	}, nil
 }
 
 func (s *service) GetItem(ctx context.Context, itemId string) (*pkg.Item, error) {
@@ -106,14 +122,17 @@ func (s *service) GetItems(ctx context.Context, shopId string) ([]pkg.Item, erro
 	return s.repository.GetItems(ctx, shopId)
 }
 
-func (s *service) UpdateItem(ctx context.Context, item pkg.Item) (bool, error) {
+func (s *service) UpdateItem(ctx context.Context, item pkg.ItemRequest) (bool, error) {
 	if item.ItemId == "" {
 		return false, errors.New("item ID is required")
 	}
 	if _, err := uuid.Parse(item.ItemId); err != nil {
 		return false, errors.New("invalid item ID format")
 	}
-	return s.repository.UpdateItem(ctx, item.ItemId, item.ShopId, item.Name, item.Description, item.Category, item.Price, item.Image, item.IsAvailable, true, time.Now())
+	if _, err := s.repository.GetCategoryName(ctx, item.CategoryId, item.ShopId); err != nil {
+		return false, err
+	}
+	return s.repository.UpdateItem(ctx, item.ItemId, item.ShopId, item.Name, item.Description, item.CategoryId, item.Price, item.Image, item.IsAvailable, true, time.Now())
 }
 
 func (s *service) DeleteItem(ctx context.Context, itemId string) (bool, error) {
@@ -145,4 +164,24 @@ func (s *service) DeleteMenuItem(ctx context.Context, menuId, itemId string) (bo
 
 func (s *service) DeleteMenuItems(ctx context.Context, menuId string) (bool, error) {
 	return s.repository.DeleteMenuItems(ctx, menuId)
+}
+
+func (s *service) CreateCategory(ctx context.Context, category pkg.Category) (pkg.Category, error) {
+	category.Id = uuid.New().String()
+	if err := s.repository.CreateCategory(ctx, category.Id, category.ShopId, category.Name); err != nil {
+		return pkg.Category{}, nil
+	}
+	return pkg.Category{
+		Id:     category.Id,
+		ShopId: category.ShopId,
+		Name:   category.Name,
+	}, nil
+}
+
+func (s *service) GetCategories(ctx context.Context, shopId string) ([]pkg.Category, error) {
+	return s.repository.GetCategories(ctx, shopId)
+}
+
+func (s *service) DeleteCategory(ctx context.Context, id, shopId string) (bool, error) {
+	return s.repository.DeleteCategory(ctx, id, shopId)
 }

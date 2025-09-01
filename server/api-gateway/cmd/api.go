@@ -80,6 +80,11 @@ func (s *APIServer) ListenServer(port string) error {
 	protected.HandleFunc("/api/menu-item", makeHttpHandleFunc(menuClient.DeleteMenuItem)).Methods("DELETE")
 	protected.HandleFunc("/api/menu-item/{menuid}", makeHttpHandleFunc(menuClient.DeleteMenuItems)).Methods("DELETE")
 
+	//CATEGORIES
+	protected.HandleFunc("/api/category", makeHttpHandleFunc(menuClient.CreateCategory)).Methods("POST")
+	protected.HandleFunc("/api/category/{shopid}", makeHttpHandleFunc(menuClient.GetCategories)).Methods("GET")
+	protected.HandleFunc("/api/category/", makeHttpHandleFunc(menuClient.DeleteCategory)).Methods("DELETE")
+
 	return http.ListenAndServe(fmt.Sprintf(":%s", port), router)
 }
 

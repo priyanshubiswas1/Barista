@@ -31,19 +31,10 @@ GET    /api/menu-item/{menuId}    # list menu items
 DELETE /api/menu-item             # delete menu item   (itemid and menuid in the req body)
 DELETE /api/menu-item/{menuId}    # delete menu items
 
-
-Menu (ORG)
-POST   /api/menu                  # add menu
-GET    /api/menus/{shopId}        # list menus 
-DELETE /api/menu/{menuId}         # delete menu
-GET    /api/menu/{menuId}         # list menu items 
-Menu Items (ORG)
-POST   /api/menu-item/{menuId}         # add menu item
-GET    /api/menu-item/{menu-itemId}    # list menu item
-PUT    /api/menu-item/{menu-itemId}    # update menu item
-DELETE /api/menu-item/{menu-itemId}    # delete menu item
-DELETE /api/menu-item/{menuId}         # delete menu items
-
+Category
+POST   /api/category            # add category
+GET    /api/category            # list categories
+DELETE /api/category            # delete category
 
 Table
 POST   /api/tables                     # create table + generate QR

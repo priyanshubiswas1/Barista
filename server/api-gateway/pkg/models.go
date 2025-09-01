@@ -124,7 +124,7 @@ type CreateItemRequest struct {
 	ItemName    string  `json:"name"`
 	ShopId      string  `json:"shopId"`
 	Description string  `json:"description"`
-	Category    string  `json:"category"`
+	CategoryId  string  `json:"categoryId"`
 	Price       float32 `json:"price"`
 	Image       string  `json:"image"`
 	Available   bool    `json:"available"`
@@ -139,7 +139,14 @@ type GetItemsResponse struct {
 	Items []Item `json:"items"`
 }
 type UpdateItemRequest struct {
-	Item Item `json:"item"`
+	ItemId      string  `json:"itemId"`
+	ShopId      string  `json:"shopId"`
+	ItemName    string  `json:"itemName"`
+	Description string  `json:"description"`
+	CategoryId  string  `json:"categoryId"`
+	Price       float32 `json:"price"`
+	Image       string  `json:"image"`
+	Available   bool    `json:"available"`
 }
 type UpdateItemResponse struct {
 	Success bool `json:"success"`
@@ -165,5 +172,32 @@ type DeleteMenuItemResponse struct {
 	Success bool `json:"success"`
 }
 type DeleteMenuItemsResponse struct {
+	Success bool `json:"success"`
+}
+
+//CATEGORY
+type Category struct {
+	CategoryId string `json:"categoryId"`
+	ShopId     string `json:"shopId"`
+	Name       string `json:"name"`
+}
+type CreateCategoryRequest struct {
+	ShopId string `json:"shopId"`
+	Name   string `json:"name"`
+}
+type CreateCategoryResponse struct {
+	Category Category `json:"category"`
+}
+type GetCategoriesRequest struct {
+	ShopId string `json:"shopId"`
+}
+type GetCategoriesResponse struct {
+	Categories []Category `json:"categories"`
+}
+type DeleteCategoryRequest struct {
+	CategoryId string `json:"categoryId"`
+	ShopId     string `json:"shopId"`
+}
+type DeleteCategoryResponse struct {
 	Success bool `json:"success"`
 }

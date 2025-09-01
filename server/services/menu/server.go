@@ -81,12 +81,12 @@ func (s *gRPCserver) DeleteMenu(ctx context.Context, req *menuPb.DeleteMenuReque
 }
 
 func (s *gRPCserver) CreateItem(ctx context.Context, req *menuPb.CreateItemRequest) (*menuPb.CreateItemResponse, error) {
-	id, err := s.service.CreateItem(ctx, pkg.Item{
+	item, err := s.service.CreateItem(ctx, pkg.ItemRequest{
 		ItemId:      "",
 		ShopId:      req.ShopId,
 		Name:        req.Name,
 		Description: req.Description,
-		Category:    req.Category,
+		CategoryId:  req.CategoryId,
 		Price:       req.Price,
 		Image:       req.Image,
 		IsAvailable: req.IsAvailable,
@@ -96,14 +96,14 @@ func (s *gRPCserver) CreateItem(ctx context.Context, req *menuPb.CreateItemReque
 	}
 	return &menuPb.CreateItemResponse{
 		Item: &menuPb.Item{
-			ItemId:      id,
-			ShopId:      req.ShopId,
-			Name:        req.Name,
-			Description: req.Description,
-			Category:    req.Category,
-			Price:       req.Price,
-			Image:       req.Image,
-			IsAvailable: req.IsAvailable,
+			ItemId:      item.ItemId,
+			ShopId:      item.ShopId,
+			Name:        item.Name,
+			Description: item.Description,
+			Category:    item.Category,
+			Price:       item.Price,
+			Image:       item.Image,
+			IsAvailable: item.IsAvailable,
 		},
 	}, nil
 }
@@ -151,15 +151,15 @@ func (s *gRPCserver) GetItems(ctx context.Context, req *menuPb.GetItemsRequest) 
 }
 
 func (s *gRPCserver) UpdateItem(ctx context.Context, req *menuPb.UpdateItemRequest) (*menuPb.UpdateItemResponse, error) {
-	res, err := s.service.UpdateItem(ctx, pkg.Item{
-		ItemId:      req.Item.ItemId,
-		ShopId:      req.Item.ShopId,
-		Name:        req.Item.Name,
-		Description: req.Item.Description,
-		Category:    req.Item.Category,
-		Price:       req.Item.Price,
-		Image:       req.Item.Image,
-		IsAvailable: req.Item.IsAvailable,
+	res, err := s.service.UpdateItem(ctx, pkg.ItemRequest{
+		ItemId:      req.ItemId,
+		ShopId:      req.ShopId,
+		Name:        req.Name,
+		Description: req.Description,
+		CategoryId:  req.CategoryId,
+		Price:       req.Price,
+		Image:       req.Image,
+		IsAvailable: req.IsAvailable,
 	})
 	if err != nil {
 		return nil, err
@@ -237,6 +237,51 @@ func (s *gRPCserver) DeleteMenuItems(ctx context.Context, req *menuPb.DeleteMenu
 		return nil, err
 	}
 	return &menuPb.DeleteMenuItemsResponse{
+		Success: res,
+	}, nil
+}
+
+func (s *gRPCserver) CreateCategory(ctx context.Context, req *menuPb.CreateCategoryRequest) (*menuPb.CreateCategoryResponse, error) {
+	category, err := s.service.CreateCategory(ctx, pkg.Category{
+		ShopId: req.ShopId,
+		Name:   req.Name,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &menuPb.CreateCategoryResponse{
+		Category: &menuPb.Category{
+			Id:     category.Id,
+			ShopId: category.ShopId,
+			Name:   category.Name,
+		},
+	}, nil
+}
+
+func (s *gRPCserver) GetCategory(ctx context.Context, req *menuPb.GetCategoryRequest) (*menuPb.GetCategoryResponse, error) {
+	pkgCategories, err := s.service.GetCategories(ctx, req.ShopId)
+	if err != nil {
+		return nil, err
+	}
+	categories := []*menuPb.Category{}
+	for _, c := range pkgCategories {
+		categories = append(categories, &menuPb.Category{
+			Id:     c.Id,
+			ShopId: c.ShopId,
+			Name:   c.Name,
+		})
+	}
+	return &menuPb.GetCategoryResponse{
+		Categories: categories,
+	}, nil
+}
+
+func (s *gRPCserver) DeleteCategory(ctx context.Context, req *menuPb.DeleteCategoryRequest) (*menuPb.DeleteCategoryResponse, error) {
+	res, err := s.service.DeleteCategory(ctx, req.Id, req.ShopId)
+	if err != nil {
+		return nil, err
+	}
+	return &menuPb.DeleteCategoryResponse{
 		Success: res,
 	}, nil
 }

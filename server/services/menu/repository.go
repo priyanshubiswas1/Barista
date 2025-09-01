@@ -15,15 +15,19 @@ type IRepository interface {
 	GetMenus(ctx context.Context, shopId string) ([]pkg.Menu, error)
 	SetMenu(ctx context.Context, menuId string) (bool, error)
 	DeleteMenu(ctx context.Context, menuId string) (bool, error)
-	CreateItem(ctx context.Context, itemId, shopId, name, description, category string, price float32, image string, isAvailable, active bool, createdAt time.Time) error
+	CreateItem(ctx context.Context, itemId, shopId, name, description, categoryId string, price float32, image string, isAvailable, active bool, createdAt time.Time) error
 	GetItem(ctx context.Context, itemId string) (pkg.Item, error)
 	GetItems(ctx context.Context, menuId string) ([]pkg.Item, error)
-	UpdateItem(ctx context.Context, itemId, shopId, name, description, category string, price float32, image string, isAvailable, active bool, updatedAt time.Time) (bool, error)
+	UpdateItem(ctx context.Context, itemId, shopId, name, description, categoryId string, price float32, image string, isAvailable, active bool, updatedAt time.Time) (bool, error)
 	DeleteItem(ctx context.Context, itemId string) (bool, error)
 	CreateMenuItem(ctx context.Context, id, menuId, itemId string) (pkg.MenuItem, error)
 	GetMenuItems(ctx context.Context, menuId string) ([]pkg.Item, error)
 	DeleteMenuItem(ctx context.Context, menuId, itemId string) (bool, error)
 	DeleteMenuItems(ctx context.Context, menuId string) (bool, error)
+	GetCategoryName(ctx context.Context, categoryId, shopId string) (string, error)
+	CreateCategory(ctx context.Context, id, shopId, name string) error
+	GetCategories(ctx context.Context, shopId string) ([]pkg.Category, error)
+	DeleteCategory(ctx context.Context, id, shopId string) (bool, error)
 	Close()
 }
 
@@ -62,7 +66,7 @@ func (r *postgresRepository) CreateMenu(ctx context.Context, id, shopId, name st
 	if err != nil {
 		return err
 	}
-	if rowsAffected < 1 {
+	if rowsAffected == 0 {
 		return errors.New("failed to insert")
 	}
 	return nil
@@ -122,19 +126,18 @@ func (r *postgresRepository) DeleteMenu(ctx context.Context, menuId string) (boo
 	if err != nil {
 		return false, err
 	}
-	if rowsAffected < 1 {
+	if rowsAffected == 0 {
 		return false, errors.New("failed to delete")
 	}
 	return true, nil
 }
 
-func (r *postgresRepository) CreateItem(ctx context.Context, itemId, shopId, name, description, category string, price float32, image string, isAvailable, active bool, createdAt time.Time) error {
-
+func (r *postgresRepository) CreateItem(ctx context.Context, itemId, shopId, name, description, categoryId string, price float32, image string, isAvailable, active bool, createdAt time.Time) error {
 	query := `INSERT INTO item
-			(id,shop_id,name,description,category,price,image,is_available,active,created_at,updated_at)
+			(id,shop_id,name,description,category_id,price,image,is_available,active,created_at,updated_at)
 			VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
 			`
-	res, err := r.db.ExecContext(ctx, query, itemId, shopId, name, description, category, price, image, isAvailable, active, createdAt, createdAt)
+	res, err := r.db.ExecContext(ctx, query, itemId, shopId, name, description, categoryId, price, image, isAvailable, active, createdAt, createdAt)
 	if err != nil {
 		return err
 	}
@@ -142,16 +145,28 @@ func (r *postgresRepository) CreateItem(ctx context.Context, itemId, shopId, nam
 	if err != nil {
 		return err
 	}
-	if rowsAffected < 1 {
+	if rowsAffected == 0 {
 		return errors.New("failed to insert")
 	}
 	return nil
 }
 
 func (r *postgresRepository) GetItem(ctx context.Context, itemId string) (pkg.Item, error) {
-	query := `SELECT id,shop_id,name,description,category,price,image,is_available
-			FROM item
-			WHERE id = $1
+	query := `SELECT 
+				item.id,
+				item.shop_id,
+				item.name,
+				item.description,
+				category.name AS category_name,
+				item.price,
+				item.image,
+				item.is_available
+			FROM 
+				item
+			LEFT JOIN 
+				category ON item.category_id = category.id
+			WHERE 
+				item.id = $1
 			`
 	res := r.db.QueryRowContext(ctx, query, itemId)
 	item := pkg.Item{}
@@ -165,9 +180,21 @@ func (r *postgresRepository) GetItem(ctx context.Context, itemId string) (pkg.It
 }
 
 func (r *postgresRepository) GetItems(ctx context.Context, shopId string) ([]pkg.Item, error) {
-	query := `SELECT id,shop_id,name,description,category,price,image,is_available
-			FROM item
-			WHERE shop_id = $1
+	query := `SELECT 
+				item.id,
+				item.shop_id,
+				item.name,
+				item.description,
+				category.name AS category_name,
+				item.price,
+				item.image,
+				item.is_available
+			FROM 
+				item
+			LEFT JOIN 
+				category ON item.category_id = category.id
+			WHERE 
+				item.shop_id = $1
 			`
 	rows, err := r.db.QueryContext(ctx, query, shopId)
 	if err != nil {
@@ -188,12 +215,12 @@ func (r *postgresRepository) GetItems(ctx context.Context, shopId string) ([]pkg
 	return items, nil
 }
 
-func (r *postgresRepository) UpdateItem(ctx context.Context, itemId, shopId, name, description, category string, price float32, image string, isAvailable, active bool, updatedAt time.Time) (bool, error) {
+func (r *postgresRepository) UpdateItem(ctx context.Context, itemId, shopId, name, description, categoryId string, price float32, image string, isAvailable, active bool, updatedAt time.Time) (bool, error) {
 	query := `UPDATE item
-			SET shop_id=$1,name=$2,description=$3,category=$4,price=$5,image=$6,is_available=$7,active=$8,updated_at=$9
+			SET shop_id=$1,name=$2,description=$3,category_id=$4,price=$5,image=$6,is_available=$7,active=$8,updated_at=$9
 			WHERE id = $10
 			`
-	res, err := r.db.ExecContext(ctx, query, shopId, name, description, category, price, image, isAvailable, active, updatedAt, itemId)
+	res, err := r.db.ExecContext(ctx, query, shopId, name, description, categoryId, price, image, isAvailable, active, updatedAt, itemId)
 	if err != nil {
 		return false, err
 	}
@@ -201,7 +228,7 @@ func (r *postgresRepository) UpdateItem(ctx context.Context, itemId, shopId, nam
 	if err != nil {
 		return false, err
 	}
-	if rowsAffected < 1 {
+	if rowsAffected == 0 {
 		return false, errors.New("failed to update")
 	}
 	return true, nil
@@ -219,7 +246,7 @@ func (r *postgresRepository) DeleteItem(ctx context.Context, itemId string) (boo
 	if err != nil {
 		return false, err
 	}
-	if rowsAffected < 1 {
+	if rowsAffected == 0 {
 		return false, errors.New("failed to delete")
 	}
 	return true, nil
@@ -241,11 +268,24 @@ func (r *postgresRepository) CreateMenuItem(ctx context.Context, id, menuId, ite
 }
 
 func (r *postgresRepository) GetMenuItems(ctx context.Context, menuId string) ([]pkg.Item, error) {
-	query := `SELECT i.id, i.shop_id, i.name, i.description, i.category, i.price, i.image, i.is_available
-			FROM item i
-			JOIN menu_item mi ON i.id = mi.item_id
-			WHERE mi.menu_id = $1
-			AND i.active = true;
+	query := `SELECT 
+				i.id, 
+				i.shop_id, 
+				i.name, 
+				i.description, 
+				category.name AS category_name, 
+				i.price, 
+				i.image, 
+				i.is_available
+			FROM 
+				item i
+			JOIN 
+				menu_item mi ON i.id = mi.item_id
+			LEFT JOIN 
+				category ON i.category_id = category.id
+			WHERE 
+				mi.menu_id = $1
+				AND i.active = true
 			`
 	rows, err := r.db.QueryContext(ctx, query, menuId)
 	if err != nil {
@@ -289,7 +329,7 @@ func (r *postgresRepository) DeleteMenuItem(ctx context.Context, menuId, itemId 
 	if err != nil {
 		return false, err
 	}
-	if rowsAffected < 1 {
+	if rowsAffected == 0 {
 		return false, errors.New("failed to delete")
 	}
 	return true, nil
@@ -308,7 +348,88 @@ func (r *postgresRepository) DeleteMenuItems(ctx context.Context, menuId string)
 	if err != nil {
 		return false, err
 	}
-	if rowsAffected < 1 {
+	if rowsAffected == 0 {
+		return false, errors.New("failed to delete")
+	}
+	return true, nil
+}
+
+func (r *postgresRepository) GetCategoryName(ctx context.Context, categoryId, shopId string) (string, error) {
+	catQuery := `SELECT name FROM category 
+				WHERE id = $1 AND shop_id = $2
+				`
+	var categoryName string
+	err := r.db.QueryRowContext(ctx, catQuery, categoryId, shopId).Scan(&categoryName)
+	if err == sql.ErrNoRows {
+		return "", errors.New("category not found")
+	}
+	if err != nil {
+		return "", err
+	}
+	return categoryName, nil
+}
+
+func (r *postgresRepository) CreateCategory(ctx context.Context, id, shopId, name string) error {
+	query := `INSERT INTO category
+			(id,shop_id,name)
+			VALUES ($1,$2,$3)
+			`
+	rows, err := r.db.ExecContext(ctx, query, id, shopId, name)
+	if err != nil {
+		return err
+	}
+	rowsAffected, err := rows.RowsAffected()
+	if err != nil {
+		return err
+	} else if rowsAffected == 0 {
+		return errors.New("failed to insert")
+	}
+	return nil
+}
+
+func (r *postgresRepository) GetCategories(ctx context.Context, shopId string) ([]pkg.Category, error) {
+	query := `SELECT id,shop_id,name
+			FROM category
+			WHERE shop_id = $1
+			`
+	rows, err := r.db.QueryContext(ctx, query, shopId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	categories := []pkg.Category{}
+	for rows.Next() {
+		category := pkg.Category{}
+		err := rows.Scan(
+			&category.Id,
+			&category.ShopId,
+			&category.Name,
+		)
+		if err != nil {
+			return nil, err
+		}
+		categories = append(categories, category)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return categories, nil
+}
+
+func (r *postgresRepository) DeleteCategory(ctx context.Context, id, shopId string) (bool, error) {
+	query := `DELETE FROM category
+			WHERE id=$1 AND shop_id = $2 
+			`
+
+	res, err := r.db.ExecContext(ctx, query, id, shopId)
+	if err != nil {
+		return false, err
+	}
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		return false, err
+	}
+	if rowsAffected == 0 {
 		return false, errors.New("failed to delete")
 	}
 	return true, nil
