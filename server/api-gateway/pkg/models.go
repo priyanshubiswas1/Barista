@@ -201,3 +201,44 @@ type DeleteCategoryRequest struct {
 type DeleteCategoryResponse struct {
 	Success bool `json:"success"`
 }
+
+//TABLES
+type Table struct {
+	Id          string `json:"tableId"`
+	ShopId      string `json:"shopId"`
+	TableNumber string `json:"tableNumber"`
+	QrUrl       string `json:"qrUrl"`
+}
+type CreateTableRequest struct {
+	ShopId      string `json:"shopId"`
+	TableNumber string `json:"tableNumber"`
+}
+type CreateTableResponse struct {
+	Table Table `json:"table"`
+}
+type GetTablesRequest struct {
+	ShopId string `json:"shopId"`
+}
+type GetTablesResponse struct {
+	Tables []Table `json:"tables"`
+}
+type GetTableRequest struct {
+	Id     string `json:"tableId"`
+	ShopId string `json:"shopId"`
+}
+type GetTableResponse struct {
+	Table Table `json:"table"`
+}
+type UpdateTableRequest struct {
+	Table Table `json:"table"`
+}
+type UpdateTableResponse struct {
+	Success bool `json:"success"`
+}
+type DeleteTableRequest struct {
+	Id     string `json:"tableId"`
+	ShopId string `json:"shopId"`
+}
+type DeleteTableResponse struct {
+	Success bool `json:"success"`
+}

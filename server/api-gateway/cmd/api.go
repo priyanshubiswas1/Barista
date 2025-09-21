@@ -15,16 +15,18 @@ import (
 type APIFunc func(context.Context, http.ResponseWriter, *http.Request) error
 
 type APIServer struct {
-	authClientUrl string
-	shopClientUrl string
-	menuClientUrl string
+	authClientUrl  string
+	shopClientUrl  string
+	menuClientUrl  string
+	tableClientUrl string
 }
 
-func NewAPIServer(authClient, shopClientUrl, menuClientUrl string) (*APIServer, error) {
+func NewAPIServer(authClient, shopClientUrl, menuClientUrl, tableClientUrl string) (*APIServer, error) {
 	return &APIServer{
-		authClientUrl: authClient,
-		shopClientUrl: shopClientUrl,
-		menuClientUrl: menuClientUrl,
+		authClientUrl:  authClient,
+		shopClientUrl:  shopClientUrl,
+		menuClientUrl:  menuClientUrl,
+		tableClientUrl: tableClientUrl,
 	}, nil
 }
 
@@ -38,6 +40,10 @@ func (s *APIServer) ListenServer(port string) error {
 		return err
 	}
 	menuClient, err := handler.NewMenu(s.menuClientUrl)
+	if err != nil {
+		return err
+	}
+	tableClient, err := handler.NewTable(s.tableClientUrl)
 	if err != nil {
 		return err
 	}
@@ -84,6 +90,13 @@ func (s *APIServer) ListenServer(port string) error {
 	protected.HandleFunc("/api/category", makeHttpHandleFunc(menuClient.CreateCategory)).Methods("POST")
 	protected.HandleFunc("/api/category/{shopid}", makeHttpHandleFunc(menuClient.GetCategories)).Methods("GET")
 	protected.HandleFunc("/api/category/", makeHttpHandleFunc(menuClient.DeleteCategory)).Methods("DELETE")
+
+	//TABLES
+	protected.HandleFunc("/api/table", makeHttpHandleFunc(tableClient.CreateTable)).Methods("POST")
+	protected.HandleFunc("/api/tables/{shopid}", makeHttpHandleFunc(tableClient.GetTables)).Methods("GET")
+	protected.HandleFunc("/api/table/{tableid}", makeHttpHandleFunc(tableClient.GetTable)).Methods("GET")
+	protected.HandleFunc("/api/table", makeHttpHandleFunc(tableClient.UpdateTable)).Methods("PUT")
+	protected.HandleFunc("/api/table", makeHttpHandleFunc(tableClient.DeleteTable)).Methods("DELETE")
 
 	return http.ListenAndServe(fmt.Sprintf(":%s", port), router)
 }

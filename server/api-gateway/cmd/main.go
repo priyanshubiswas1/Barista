@@ -13,11 +13,11 @@ func main() {
 	}
 	log.Println("config loaded")
 
-	server, err := NewAPIServer(cfg.AuthClient, cfg.ShopClient, cfg.MenuClient)
+	server, err := NewAPIServer(cfg.AuthClient, cfg.ShopClient, cfg.MenuClient, cfg.TableClient)
 	if err != nil {
 		log.Fatal("failed to create server")
 	}
-	log.Println("server created: ", server.authClientUrl, server.shopClientUrl, server.menuClientUrl)
+	log.Println("server created: ", server.authClientUrl, server.shopClientUrl, server.menuClientUrl, server.tableClientUrl)
 
 	if err = server.ListenServer(cfg.Port); err != nil {
 		log.Fatal("error while listening to port : ", err)

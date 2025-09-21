@@ -35,3 +35,10 @@ menu-proto-gen:
     --proto_path=./contracts/protos \
     menu.proto
 
+table-proto-gen:
+	protoc \
+	--go_out=./contracts/gen/table --go_opt=paths=source_relative \
+    --go-grpc_out=./contracts/gen/table --go-grpc_opt=paths=source_relative \
+    --proto_path=./contracts/protos \
+    table.proto
+

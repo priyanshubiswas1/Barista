@@ -37,13 +37,16 @@ GET    /api/category            # list categories
 DELETE /api/category            # delete category
 
 Table
-POST   /api/tables                     # create table + generate QR
+POST   /api/table                      # create table + generate QR
 GET    /api/tables/{shopId}            # list tables
-GET    /api/tables/{tableId}/session   # get current active session (call this before order, if doesnt exist, then create)
+GET    /api/table/{tableId}            # list table
+PUT    /api/table                      # update table number
+DELETE /api/table                      # delete table
 
 Session
-POST   /api/sessions                    # start session (tableId)
-GET    /api/sessions/{sessionId}        # get session info
+GET    /api/sessions?shopId={shopId}&tableId={tableId}          # get current active session (call this before order, if doesnt exist, then create)
+POST   /api/sessions                                            # start session (tableId)
+GET    /api/sessions/{sessionId}                                # get session info
 PUT    /api/sessions/{sessionId}/close
 
 Order (order then order_items)

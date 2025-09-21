@@ -3,6 +3,7 @@ CREATE TABLE session (
     id UUID PRIMARY KEY,
     shop_id UUID NOT NULL,
     table_id UUID NOT NULL,
+    otp NUMBER NOT NULL,
     status session_status NOT NULL DEFAULT 'active',
     total_amount NUMERIC(10,2) DEFAULT 0,
     is_paid BOOLEAN DEFAULT FALSE,

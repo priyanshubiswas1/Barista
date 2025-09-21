@@ -70,6 +70,7 @@ services:
       - authservice
       - shopservice
       - menuservice
+      - tableservice
     ports:
       - 8000:8080
     environment:
@@ -77,6 +78,15 @@ services:
       AUTH_CLIENT: authservice:8080
       SHOP_CLIENT: shopservice:8080
       MENU_CLIENT: menuservice:8080
+      TABLE_CLIENT: tableservice:8080
+    restart: on-failure
+  rabbitmqservice:
+    build:
+      context: ./server/services/rabbitmq
+      dockerfile: ./app.dockerfile
+    ports:
+      - "5672:5672"
+      - "15672:15672"
     restart: on-failure
   authservice:
     build:
@@ -107,4 +117,24 @@ services:
     environment:
       PORT: "8080"
       DB_URL: "postgres://admin:7866@menu_db:5432/menu?sslmode=disable"
+    restart: on-failure
+  tableservice:
+    build:
+      context: ./server/services/table
+      dockerfile: ./app.dockerfile
+    depends_on:
+      - table_db
+    environment:
+      PORT: "8080"
+      DB_URL: "postgres://admin:7866@table_db:5432/table?sslmode=disable"
+      RMQHost: rabbitmqservice:5672
+    restart: on-failure
+  qrgenservice:
+    build:
+      context: ./server/services/qrgen
+      dockerfile: ./app.dockerfile
+    depends_on:
+      - rabbitmqservice
+    environment:
+      RMQHost: rabbitmqservice:5672
     restart: on-failure
