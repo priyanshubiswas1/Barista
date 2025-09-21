@@ -66,7 +66,7 @@ func main() {
 			wg.Add(1)
 			go func(msg amqp091.Delivery) {
 				defer wg.Done()
-				log.Println("Received message:", msg.MessageId)
+				log.Println("Received message:", msg.CorrelationId)
 
 				// Process the message (acknowledge and send response)
 				if err := msg.Ack(false); err != nil {
@@ -74,11 +74,14 @@ func main() {
 					return
 				}
 
+				//Generate QR
+				qrCode := internal.GenerateQR(string(msg.Body))
+
 				// Send the message back after processing
 				if err := rmqPubClient.Send("gen_qr_event", msg.ReplyTo, amqp091.Publishing{
 					ContentType:   "text/plain",
 					DeliveryMode:  amqp091.Transient,
-					Body:          []byte("1234"),
+					Body:          qrCode,
 					CorrelationId: msg.CorrelationId,
 				}); err != nil {
 					log.Fatal("failed to send generated QR: ", err)

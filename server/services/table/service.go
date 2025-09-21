@@ -2,8 +2,11 @@ package table
 
 import (
 	"context"
+	"encoding/base64"
+	"errors"
 	"fmt"
 	"log"
+	"strings"
 	"sync"
 	"time"
 
@@ -80,6 +83,8 @@ func (s *service) CreateTable(ctx context.Context, shopId, tableNumber string) (
 	}
 
 	var wg sync.WaitGroup
+	var qr []byte
+
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
@@ -87,7 +92,12 @@ func (s *service) CreateTable(ctx context.Context, shopId, tableNumber string) (
 			if msg.CorrelationId != correlationID {
 				continue // not our message
 			}
-			log.Printf("Generated QR %s", msg.Body)
+			if strings.HasPrefix(string(msg.Body), "error:") {
+				log.Printf("Failed to generate QR: %s", msg.Body)
+			} else {
+				log.Printf("Generated QR %s", msg.Body)
+				qr = msg.Body
+			}
 			if err := rmqConsumeClient.DeleteQueue(consumeQueue.Name, false, false); err != nil {
 				log.Println("Failed to delete queue: ", err)
 			}
@@ -95,19 +105,22 @@ func (s *service) CreateTable(ctx context.Context, shopId, tableNumber string) (
 		}
 	}()
 	wg.Wait()
-	log.Println("gen qr received successfully")
 
+	if strings.HasPrefix(string(qr), "error:") {
+		return pkg.Table{}, errors.New(string(qr))
+	}
+	encodedQRCode := base64.StdEncoding.EncodeToString(qr)
 	id := uuid.New().String()
-	qr := "testurl"
 	createdAt := time.Now()
-	if err := s.repository.CreateTable(ctx, id, shopId, tableNumber, qr, true, createdAt); err != nil {
+
+	if err := s.repository.CreateTable(ctx, id, shopId, tableNumber, encodedQRCode, true, createdAt); err != nil {
 		return pkg.Table{}, err
 	}
 	return pkg.Table{
 		TableId:     id,
 		ShopId:      shopId,
 		TableNumber: tableNumber,
-		QR:          qr,
+		QR:          encodedQRCode,
 	}, nil
 }
 
