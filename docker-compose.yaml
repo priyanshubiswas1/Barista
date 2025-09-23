@@ -71,6 +71,7 @@ services:
       - shopservice
       - menuservice
       - tableservice
+      - sessionservice
     ports:
       - 8000:8080
     environment:
@@ -79,6 +80,7 @@ services:
       SHOP_CLIENT: shopservice:8080
       MENU_CLIENT: menuservice:8080
       TABLE_CLIENT: tableservice:8080
+      SESSION_CLIENT: sessionservice:8080
     restart: on-failure
   rabbitmqservice:
     build:
@@ -88,6 +90,10 @@ services:
       - "5672:5672"
       - "15672:15672"
     restart: on-failure
+  redis:
+      image: redis:8.2.1-alpine
+      container_name: redis
+      restart: unless-stopped
   authservice:
     build:
       context: ./server/services/auth
@@ -137,4 +143,15 @@ services:
       - rabbitmqservice
     environment:
       RMQHost: rabbitmqservice:5672
+    restart: on-failure
+  sessionservice:
+    build:
+      context: ./server/services/session
+      dockerfile: ./app.dockerfile
+    depends_on:
+      - session_db
+    environment:
+      PORT: "8080"
+      DB_URL: "postgres://admin:7866@session_db:5432/session?sslmode=disable"
+      REDIS_URL: redis:6379
     restart: on-failure

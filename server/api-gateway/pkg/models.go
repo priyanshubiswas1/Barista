@@ -242,3 +242,67 @@ type DeleteTableRequest struct {
 type DeleteTableResponse struct {
 	Success bool `json:"success"`
 }
+
+//SESSIONS
+type Session struct {
+	Id            string  `json:"sessionId"`
+	ShopId        string  `json:"shopId"`
+	TableId       string  `json:"tableId"`
+	Otp           string  `json:"otp"`
+	Status        string  `json:"status"`
+	Amount        float32 `json:"amount"`
+	IsPaid        bool    `json:"isPaid"`
+	PaymentMethod string  `json:"paymentMethod"`
+	PhoneNumber   int32   `json:"phoneNumber"`
+	Active        bool    `json:"active"`
+}
+
+type GetAllSessionsResponse struct {
+	Sessions []Session `json:"sessions"`
+}
+type GetActiveSessionResponse struct {
+	Session Session `json:"session"`
+}
+type GetSessionRequest struct {
+	Id string `json:"sessionId"`
+}
+type GetSessionResponse struct {
+	Session Session `json:"session"`
+}
+type SendSessionOTPRequest struct {
+	ShopId      string `json:"shopId"`
+	TableId     string `json:"tableId"`
+	PhoneNumber int32  `json:"phoneNumber"`
+}
+type SendSessionOTPResponse struct {
+	Success bool `json:"success"`
+}
+type CreateSessionRequest struct {
+	ShopId        string  `json:"shopId"`
+	TableId       string  `json:"tableId"`
+	Otp           string  `json:"otp"`
+	Status        string  `json:"status"`
+	Amount        float32 `json:"amount"`
+	IsPaid        bool    `json:"isPaid"`
+	PaymentMethod string  `json:"paymentMethod"`
+	Active        bool    `json:"active"`
+}
+type CreateSessionResponse struct {
+	Session      Session `json:"session"`
+	SessionToken string  `json:"sessionToken"`
+}
+type JoinSessionRequest struct {
+	ShopId  string `json:"shopId"`
+	TableId string `json:"tableId"`
+	Otp     string `json:"otp"`
+}
+type JoinSessionResponse struct {
+	Session      Session `json:"session"`
+	SessionToken string  `json:"sessionToken"`
+}
+type UpdateSessionRequest struct {
+	Session Session `json:"session"`
+}
+type UpdateSessionResponse struct {
+	Success bool `json:"success"`
+}

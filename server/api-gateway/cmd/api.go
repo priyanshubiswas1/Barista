@@ -15,18 +15,20 @@ import (
 type APIFunc func(context.Context, http.ResponseWriter, *http.Request) error
 
 type APIServer struct {
-	authClientUrl  string
-	shopClientUrl  string
-	menuClientUrl  string
-	tableClientUrl string
+	authClientUrl    string
+	shopClientUrl    string
+	menuClientUrl    string
+	tableClientUrl   string
+	sessionClientUrl string
 }
 
-func NewAPIServer(authClient, shopClientUrl, menuClientUrl, tableClientUrl string) (*APIServer, error) {
+func NewAPIServer(authClient, shopClientUrl, menuClientUrl, tableClientUrl, sessionClientUrl string) (*APIServer, error) {
 	return &APIServer{
-		authClientUrl:  authClient,
-		shopClientUrl:  shopClientUrl,
-		menuClientUrl:  menuClientUrl,
-		tableClientUrl: tableClientUrl,
+		authClientUrl:    authClient,
+		shopClientUrl:    shopClientUrl,
+		menuClientUrl:    menuClientUrl,
+		tableClientUrl:   tableClientUrl,
+		sessionClientUrl: sessionClientUrl,
 	}, nil
 }
 
@@ -44,6 +46,10 @@ func (s *APIServer) ListenServer(port string) error {
 		return err
 	}
 	tableClient, err := handler.NewTable(s.tableClientUrl)
+	if err != nil {
+		return err
+	}
+	sessionClient, err := handler.NewSession(s.sessionClientUrl)
 	if err != nil {
 		return err
 	}
@@ -97,6 +103,15 @@ func (s *APIServer) ListenServer(port string) error {
 	protected.HandleFunc("/api/table/{tableid}", makeHttpHandleFunc(tableClient.GetTable)).Methods("GET")
 	protected.HandleFunc("/api/table", makeHttpHandleFunc(tableClient.UpdateTable)).Methods("PUT")
 	protected.HandleFunc("/api/table", makeHttpHandleFunc(tableClient.DeleteTable)).Methods("DELETE")
+
+	//SESSIONS
+	protected.HandleFunc("/api/sessions?shopid={shopid}", makeHttpHandleFunc(sessionClient.GetAllSessions)).Methods("GET")
+	protected.HandleFunc("/api/sessions?shopid={shopid}&tableid={tableid}", makeHttpHandleFunc(sessionClient.GetActiveSession)).Methods("GET")
+	protected.HandleFunc("/api/sessions/{sessionid}", makeHttpHandleFunc(sessionClient.GetSessionById)).Methods("GET")
+	router.HandleFunc("/api/sessions/send-otp", makeHttpHandleFunc(sessionClient.SendSessionOTP)).Methods("POST") //generate otp
+	router.HandleFunc("/api/sessions", makeHttpHandleFunc(sessionClient.CreateSession)).Methods("POST")           //create after validating against redis.
+	router.HandleFunc("/api/sessions/join", makeHttpHandleFunc(sessionClient.JoinSession)).Methods("POST")        //validate otp with db then join session
+	protected.HandleFunc("/api/sessions", makeHttpHandleFunc(sessionClient.UpdateSession)).Methods("PUT")
 
 	return http.ListenAndServe(fmt.Sprintf(":%s", port), router)
 }

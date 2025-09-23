@@ -44,6 +44,7 @@ func NewService(repository IRepository, conn *amqp.Connection, consumeConn *amqp
 }
 
 func (s *service) CreateTable(ctx context.Context, shopId, tableNumber string) (pkg.Table, error) {
+	tableId := uuid.New().String()
 	//CONSUME
 	rmqConsumeClient, err := NewRabbitMQClient(s.rmqConsConn)
 	if err != nil {
@@ -77,7 +78,7 @@ func (s *service) CreateTable(ctx context.Context, shopId, tableNumber string) (
 		DeliveryMode:  amqp.Transient,
 		ReplyTo:       consumeQueue.Name,
 		CorrelationId: correlationID,
-		Body:          fmt.Appendf([]byte{}, "%s/%s/%s", s.clientUrl, shopId, tableNumber),
+		Body:          fmt.Appendf([]byte{}, "%s/%s/%s", s.clientUrl, shopId, tableId),
 	}); err != nil {
 		return pkg.Table{}, err
 	}
@@ -110,14 +111,13 @@ func (s *service) CreateTable(ctx context.Context, shopId, tableNumber string) (
 		return pkg.Table{}, errors.New(string(qr))
 	}
 	encodedQRCode := base64.StdEncoding.EncodeToString(qr)
-	id := uuid.New().String()
 	createdAt := time.Now()
 
-	if err := s.repository.CreateTable(ctx, id, shopId, tableNumber, encodedQRCode, true, createdAt); err != nil {
+	if err := s.repository.CreateTable(ctx, tableId, shopId, tableNumber, encodedQRCode, true, createdAt); err != nil {
 		return pkg.Table{}, err
 	}
 	return pkg.Table{
-		TableId:     id,
+		TableId:     tableId,
 		ShopId:      shopId,
 		TableNumber: tableNumber,
 		QR:          encodedQRCode,

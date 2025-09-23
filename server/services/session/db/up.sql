@@ -9,6 +9,7 @@ CREATE TABLE session (
     is_paid BOOLEAN DEFAULT FALSE,
     payment_method TEXT,
     active BOOLEAN NOT NULL DEFAULT TRUE,
+    phone_number NUMBER NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
