@@ -31,7 +31,7 @@ type Session struct {
 	TotalAmount   float32                `protobuf:"fixed32,7,opt,name=totalAmount,proto3" json:"totalAmount,omitempty"`
 	IsPaid        bool                   `protobuf:"varint,8,opt,name=isPaid,proto3" json:"isPaid,omitempty"`
 	PaymentMethod string                 `protobuf:"bytes,9,opt,name=paymentMethod,proto3" json:"paymentMethod,omitempty"`
-	PhoneNumber   int32                  `protobuf:"varint,10,opt,name=phoneNumber,proto3" json:"phoneNumber,omitempty"`
+	PhoneNumber   string                 `protobuf:"bytes,10,opt,name=phoneNumber,proto3" json:"phoneNumber,omitempty"`
 	Active        bool                   `protobuf:"varint,11,opt,name=active,proto3" json:"active,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -123,11 +123,11 @@ func (x *Session) GetPaymentMethod() string {
 	return ""
 }
 
-func (x *Session) GetPhoneNumber() int32 {
+func (x *Session) GetPhoneNumber() string {
 	if x != nil {
 		return x.PhoneNumber
 	}
-	return 0
+	return ""
 }
 
 func (x *Session) GetActive() bool {
@@ -413,7 +413,7 @@ type SendSessionOTPRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ShopId        string                 `protobuf:"bytes,1,opt,name=shopId,proto3" json:"shopId,omitempty"`
 	TableId       string                 `protobuf:"bytes,2,opt,name=tableId,proto3" json:"tableId,omitempty"`
-	PhoneNo       int32                  `protobuf:"varint,3,opt,name=phoneNo,proto3" json:"phoneNo,omitempty"`
+	PhoneNo       string                 `protobuf:"bytes,3,opt,name=phoneNo,proto3" json:"phoneNo,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -462,11 +462,11 @@ func (x *SendSessionOTPRequest) GetTableId() string {
 	return ""
 }
 
-func (x *SendSessionOTPRequest) GetPhoneNo() int32 {
+func (x *SendSessionOTPRequest) GetPhoneNo() string {
 	if x != nil {
 		return x.PhoneNo
 	}
-	return 0
+	return ""
 }
 
 type SendSessionOTPResponse struct {
@@ -880,7 +880,7 @@ const file_session_proto_rawDesc = "" +
 	"\x06isPaid\x18\b \x01(\bR\x06isPaid\x12$\n" +
 	"\rpaymentMethod\x18\t \x01(\tR\rpaymentMethod\x12 \n" +
 	"\vphoneNumber\x18\n" +
-	" \x01(\x05R\vphoneNumber\x12\x16\n" +
+	" \x01(\tR\vphoneNumber\x12\x16\n" +
 	"\x06active\x18\v \x01(\bR\x06active\"/\n" +
 	"\x15GetAllSessionsRequest\x12\x16\n" +
 	"\x06shopId\x18\x01 \x01(\tR\x06shopId\"F\n" +
@@ -898,7 +898,7 @@ const file_session_proto_rawDesc = "" +
 	"\x15SendSessionOTPRequest\x12\x16\n" +
 	"\x06shopId\x18\x01 \x01(\tR\x06shopId\x12\x18\n" +
 	"\atableId\x18\x02 \x01(\tR\atableId\x12\x18\n" +
-	"\aphoneNo\x18\x03 \x01(\x05R\aphoneNo\"2\n" +
+	"\aphoneNo\x18\x03 \x01(\tR\aphoneNo\"2\n" +
 	"\x16SendSessionOTPResponse\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\"\xf8\x01\n" +
 	"\x14CreateSessionRequest\x12\x16\n" +

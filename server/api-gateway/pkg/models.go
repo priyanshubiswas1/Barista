@@ -34,7 +34,6 @@ type LoginRes struct {
 	Address string `json:"address"`
 }
 type UpdateUserReq struct {
-	Id          string `json:"id"`
 	Name        string `json:"name"`
 	Email       string `json:"email"`
 	Phone       string `json:"phone"`
@@ -253,7 +252,7 @@ type Session struct {
 	Amount        float32 `json:"amount"`
 	IsPaid        bool    `json:"isPaid"`
 	PaymentMethod string  `json:"paymentMethod"`
-	PhoneNumber   int32   `json:"phoneNumber"`
+	PhoneNumber   string  `json:"phoneNumber"`
 	Active        bool    `json:"active"`
 }
 
@@ -272,7 +271,7 @@ type GetSessionResponse struct {
 type SendSessionOTPRequest struct {
 	ShopId      string `json:"shopId"`
 	TableId     string `json:"tableId"`
-	PhoneNumber int32  `json:"phoneNumber"`
+	PhoneNumber string `json:"phoneNumber"`
 }
 type SendSessionOTPResponse struct {
 	Success bool `json:"success"`

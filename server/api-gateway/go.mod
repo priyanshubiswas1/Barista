@@ -6,7 +6,7 @@ require (
 	github.com/golang-jwt/jwt/v4 v4.5.2
 	github.com/gorilla/mux v1.8.1
 	github.com/kelseyhightower/envconfig v1.4.0
-	github.com/priyanshubiswas1/baristacontracts v1.2.2
+	github.com/priyanshubiswas1/baristacontracts v1.2.4
 	google.golang.org/grpc v1.75.0
 )
 

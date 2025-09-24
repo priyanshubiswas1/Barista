@@ -17,7 +17,7 @@ import (
 type RedisData struct {
 	ShopId      string `json:"shopId"`
 	TableId     string `json:"tableId"`
-	PhoneNumber int32  `json:"phoneNumber"`
+	PhoneNumber string `json:"phoneNumber"`
 	OTP         string `json:"otp"`
 }
 
@@ -25,8 +25,8 @@ type IService interface {
 	GetAllSessions(ctx context.Context, shopId string) ([]pkg.Session, error)
 	GetActiveSession(ctx context.Context, shopId, tableId string) (pkg.Session, error)
 	GetSessionById(ctx context.Context, sessionId string) (pkg.Session, error)
-	SendSessionOTP(ctx context.Context, shopId, tableId string, phoneNumber int32) (bool, error)
-	CreateSession(ctx context.Context, shopId, tableId, status, paymentMethod, otp string, totalAmount float32, isPaid bool, active bool) (string, string, int32, error)
+	SendSessionOTP(ctx context.Context, shopId, tableId, phoneNumber string) (bool, error)
+	CreateSession(ctx context.Context, shopId, tableId, status, paymentMethod, otp string, totalAmount float32, isPaid bool, active bool) (string, string, string, error)
 	JoinSession(ctx context.Context, shopId, tableId, otp string) (pkg.Session, string, error)
 	UpdateSession(ctx context.Context, id, status, paymentMethod string, totalAmount float32, isPaid bool, active bool) error
 }
@@ -66,7 +66,14 @@ func (s *service) GetActiveSession(ctx context.Context, shopId, tableId string) 
 	if _, err := uuid.Parse(tableId); err != nil {
 		return pkg.Session{}, errors.New("invalid table ID format")
 	}
-	return s.repository.GetActiveSession(ctx, shopId, tableId)
+	session, err := s.repository.GetActiveSession(ctx, shopId, tableId)
+	if err != nil {
+		return pkg.Session{}, err
+	}
+	if session == (pkg.Session{}) {
+		return pkg.Session{}, errors.New("no active sessions found")
+	}
+	return session, nil
 }
 
 func (s *service) GetSessionById(ctx context.Context, sessionId string) (pkg.Session, error) {
@@ -79,7 +86,7 @@ func (s *service) GetSessionById(ctx context.Context, sessionId string) (pkg.Ses
 	return s.repository.GetSessionById(ctx, sessionId)
 }
 
-func (s *service) SendSessionOTP(ctx context.Context, shopId, tableId string, phoneNumber int32) (bool, error) {
+func (s *service) SendSessionOTP(ctx context.Context, shopId, tableId, phoneNumber string) (bool, error) {
 	otp := generateOTP()
 	value, err := json.Marshal(RedisData{
 		ShopId:      shopId, //not used
@@ -97,33 +104,42 @@ func (s *service) SendSessionOTP(ctx context.Context, shopId, tableId string, ph
 	return true, nil
 }
 
-func (s *service) CreateSession(ctx context.Context, shopId, tableId, status, paymentMethod, otp string, totalAmount float32, isPaid bool, active bool) (string, string, int32, error) {
+func (s *service) CreateSession(ctx context.Context, shopId, tableId, status, paymentMethod, otp string, totalAmount float32, isPaid bool, active bool) (string, string, string, error) {
 	id := uuid.New().String()
 	value, err := s.redisClient.GetValue(ctx, tableId)
 	if err != nil {
-		return "", "", 0, err
+		return "", "", "", err
 	}
 	unMarshalValue := RedisData{}
 	if err := json.Unmarshal([]byte(value), &unMarshalValue); err != nil {
-		return "", "", 0, err
+		return "", "", "", err
 	}
 
 	if tableId != unMarshalValue.TableId {
-		return "", "", 0, errors.New("invalid table ID")
+		return "", "", "", errors.New("invalid table ID")
 	}
 	if otp != unMarshalValue.OTP {
-		return "", "", 0, errors.New("invalid OTP")
+		return "", "", "", errors.New("invalid OTP")
 	}
 
 	phoneNumber := unMarshalValue.PhoneNumber
+	session, err := s.repository.GetActiveSession(ctx, shopId, tableId)
+	if err != nil {
+		return "", "", "", err
+	}
+	if session != (pkg.Session{}) {
+		return "", "", "", errors.New("session already active")
+	}
+
 	if err := s.repository.CreateSession(ctx, id, shopId, tableId, status, paymentMethod, otp, phoneNumber, totalAmount, isPaid, true, time.Now()); err != nil {
-		return "", "", 0, err
+		return "", "", "", err
 	}
 	tokenString, err := GenerateToken(id)
 	if err != nil {
 		log.Println("error generating token")
-		return "", "", 0, err
+		return "", "", "", err
 	}
+	s.redisClient.DeleteKey(ctx, tableId)
 	return id, tokenString, phoneNumber, nil
 }
 

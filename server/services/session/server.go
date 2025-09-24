@@ -150,7 +150,7 @@ func (s *gRPCserver) JoinSession(ctx context.Context, req *session.JoinSessionRe
 }
 
 func (s *gRPCserver) UpdateSession(ctx context.Context, req *session.UpdateSessionRequest) (*session.UpdateSessionResponse, error) {
-	if err := s.service.UpdateSession(ctx, req.Session.ShopId, req.Session.SessionStatus, req.Session.PaymentMethod, req.Session.TotalAmount, req.Session.IsPaid, req.Session.Active); err != nil {
+	if err := s.service.UpdateSession(ctx, req.Session.SessionId, req.Session.SessionStatus, req.Session.PaymentMethod, req.Session.TotalAmount, req.Session.IsPaid, req.Session.Active); err != nil {
 		return nil, err
 	}
 	return &session.UpdateSessionResponse{

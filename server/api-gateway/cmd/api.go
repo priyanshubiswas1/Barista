@@ -83,7 +83,7 @@ func (s *APIServer) ListenServer(port string) error {
 	protected.HandleFunc("/api/item", makeHttpHandleFunc(menuClient.CreateItem)).Methods("POST")
 	protected.HandleFunc("/api/item/{itemid}", makeHttpHandleFunc(menuClient.GetItem)).Methods("GET")
 	protected.HandleFunc("/api/items/{shopid}", makeHttpHandleFunc(menuClient.GetItems)).Methods("GET")
-	protected.HandleFunc("/api/item/{itemid}", makeHttpHandleFunc(menuClient.UpdateItem)).Methods("PUT")
+	protected.HandleFunc("/api/item", makeHttpHandleFunc(menuClient.UpdateItem)).Methods("PUT")
 	protected.HandleFunc("/api/item/{itemid}", makeHttpHandleFunc(menuClient.DeleteItem)).Methods("DELETE")
 
 	//MENU-ITEMS
@@ -95,7 +95,7 @@ func (s *APIServer) ListenServer(port string) error {
 	//CATEGORIES
 	protected.HandleFunc("/api/category", makeHttpHandleFunc(menuClient.CreateCategory)).Methods("POST")
 	protected.HandleFunc("/api/category/{shopid}", makeHttpHandleFunc(menuClient.GetCategories)).Methods("GET")
-	protected.HandleFunc("/api/category/", makeHttpHandleFunc(menuClient.DeleteCategory)).Methods("DELETE")
+	protected.HandleFunc("/api/category", makeHttpHandleFunc(menuClient.DeleteCategory)).Methods("DELETE")
 
 	//TABLES
 	protected.HandleFunc("/api/table", makeHttpHandleFunc(tableClient.CreateTable)).Methods("POST")
@@ -104,9 +104,9 @@ func (s *APIServer) ListenServer(port string) error {
 	protected.HandleFunc("/api/table", makeHttpHandleFunc(tableClient.UpdateTable)).Methods("PUT")
 	protected.HandleFunc("/api/table", makeHttpHandleFunc(tableClient.DeleteTable)).Methods("DELETE")
 
-	//SESSIONS
-	protected.HandleFunc("/api/sessions?shopid={shopid}", makeHttpHandleFunc(sessionClient.GetAllSessions)).Methods("GET")
-	protected.HandleFunc("/api/sessions?shopid={shopid}&tableid={tableid}", makeHttpHandleFunc(sessionClient.GetActiveSession)).Methods("GET")
+    //SESSIONS
+    protected.HandleFunc("/api/sessions", makeHttpHandleFunc(sessionClient.GetAllSessions)).Methods("GET").Queries("shopid", "{shopid}")
+    protected.HandleFunc("/api/sessions", makeHttpHandleFunc(sessionClient.GetActiveSession)).Methods("GET").Queries("shopid", "{shopid}", "tableid", "{tableid}")
 	protected.HandleFunc("/api/sessions/{sessionid}", makeHttpHandleFunc(sessionClient.GetSessionById)).Methods("GET")
 	router.HandleFunc("/api/sessions/send-otp", makeHttpHandleFunc(sessionClient.SendSessionOTP)).Methods("POST") //generate otp
 	router.HandleFunc("/api/sessions", makeHttpHandleFunc(sessionClient.CreateSession)).Methods("POST")           //create after validating against redis.

@@ -10,7 +10,7 @@ type Session struct {
 	IsPaid        bool    `json:"isPaid"`
 	PaymentMethod string  `json:"paymentMethod"`
 	Active        bool    `json:"active"`
-	PhoneNumber   int32   `json:"phoneNumber"`
+	PhoneNumber   string  `json:"phoneNumber"`
 }
 
 type CreateResponse struct {
