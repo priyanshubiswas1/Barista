@@ -49,3 +49,10 @@ session-proto-gen:
     --proto_path=./contracts/protos \
     session.proto
 
+order-proto-gen:
+	protoc \
+	--go_out=./contracts/gen/order --go_opt=paths=source_relative \
+    --go-grpc_out=./contracts/gen/order --go-grpc_opt=paths=source_relative \
+    --proto_path=./contracts/protos \
+    order.proto
+

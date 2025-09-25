@@ -305,3 +305,50 @@ type UpdateSessionRequest struct {
 type UpdateSessionResponse struct {
 	Success bool `json:"success"`
 }
+
+//ORDERS
+type Order struct {
+	Id           string `json:"orderId"`
+	SessionId    string `json:"sessionId"`
+	OrderStatus  string `json:"orderStatus"`
+	SpecialNotes string `json:"specialNotes"`
+}
+type OrderItems struct {
+	Id               string `json:"orderItemId"`
+	OrderId          string `json:"orderId"`
+	ItemId           string `json:"itemId"`
+	Quantity         string `json:"quantity"`
+	PriceAtOrderTime string `json:"priceAtOrderTime"`
+}
+type OrderItemRequest struct {
+	ItemId           string `json:"itemId"`
+	Quantity         string `json:"quantity"`
+	PriceAtOrderTime string `json:"priceAtOrderTime"`
+}
+type GetOrdersBySessionIdResponse struct {
+	OrderItems []OrderItems `json:"orderItems"`
+}
+type GetOrdersByOrderIdResponse struct {
+	OrderItems []OrderItems `json:"orderItems"`
+}
+type CreateOrderRequest struct {
+	SpecialNotes string             `json:"specialNotes"`
+	OrderItems   []OrderItemRequest `json:"orderItems"`
+}
+type CreateOrderResponse struct {
+	Order      Order        `json:"order"`
+	OrderItems []OrderItems `json:"orderItems"`
+}
+type UpdateOrderRequest struct {
+	OrderId     string `json:"orderId"`
+	OrderStatus string `json:"orderStatus"`
+}
+type UpdateOrderResponse struct {
+	Success bool `json:"success"`
+}
+type CancelOrderRequest struct {
+	OrderId string `json:"orderId"`
+}
+type CancelOrderResponse struct {
+	Success bool `json:"success"`
+}

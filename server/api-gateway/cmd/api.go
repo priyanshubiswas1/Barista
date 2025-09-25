@@ -20,15 +20,17 @@ type APIServer struct {
 	menuClientUrl    string
 	tableClientUrl   string
 	sessionClientUrl string
+	orderClientUrl   string
 }
 
-func NewAPIServer(authClient, shopClientUrl, menuClientUrl, tableClientUrl, sessionClientUrl string) (*APIServer, error) {
+func NewAPIServer(authClient, shopClientUrl, menuClientUrl, tableClientUrl, sessionClientUrl, orderClientUrl string) (*APIServer, error) {
 	return &APIServer{
 		authClientUrl:    authClient,
 		shopClientUrl:    shopClientUrl,
 		menuClientUrl:    menuClientUrl,
 		tableClientUrl:   tableClientUrl,
 		sessionClientUrl: sessionClientUrl,
+		orderClientUrl:   orderClientUrl,
 	}, nil
 }
 
@@ -53,6 +55,10 @@ func (s *APIServer) ListenServer(port string) error {
 	if err != nil {
 		return err
 	}
+	orderClient, err := handler.NewOrder(s.orderClientUrl)
+	if err != nil {
+		return err
+	}
 
 	router := mux.NewRouter()
 	router.HandleFunc("/api/auth/register", makeHttpHandleFunc(authClient.RegisterHandler)).Methods("POST")
@@ -60,6 +66,10 @@ func (s *APIServer) ListenServer(port string) error {
 
 	protected := router.PathPrefix("/").Subrouter()
 	protected.Use(middleware.AuthMiddleware)
+	// protected.Use(middleware.SessionMiddleware)
+
+	session := router.PathPrefix("/").Subrouter()
+	session.Use(middleware.SessionMiddleware)
 
 	//USER
 	protected.HandleFunc("/api/auth/user", makeHttpHandleFunc(authClient.GetUserHandler)).Methods("GET")
@@ -104,14 +114,21 @@ func (s *APIServer) ListenServer(port string) error {
 	protected.HandleFunc("/api/table", makeHttpHandleFunc(tableClient.UpdateTable)).Methods("PUT")
 	protected.HandleFunc("/api/table", makeHttpHandleFunc(tableClient.DeleteTable)).Methods("DELETE")
 
-    //SESSIONS
-    protected.HandleFunc("/api/sessions", makeHttpHandleFunc(sessionClient.GetAllSessions)).Methods("GET").Queries("shopid", "{shopid}")
-    protected.HandleFunc("/api/sessions", makeHttpHandleFunc(sessionClient.GetActiveSession)).Methods("GET").Queries("shopid", "{shopid}", "tableid", "{tableid}")
+	//SESSIONS
+	protected.HandleFunc("/api/sessions", makeHttpHandleFunc(sessionClient.GetAllSessions)).Methods("GET").Queries("shopid", "{shopid}")
+	protected.HandleFunc("/api/sessions", makeHttpHandleFunc(sessionClient.GetActiveSession)).Methods("GET").Queries("shopid", "{shopid}", "tableid", "{tableid}")
 	protected.HandleFunc("/api/sessions/{sessionid}", makeHttpHandleFunc(sessionClient.GetSessionById)).Methods("GET")
 	router.HandleFunc("/api/sessions/send-otp", makeHttpHandleFunc(sessionClient.SendSessionOTP)).Methods("POST") //generate otp
 	router.HandleFunc("/api/sessions", makeHttpHandleFunc(sessionClient.CreateSession)).Methods("POST")           //create after validating against redis.
 	router.HandleFunc("/api/sessions/join", makeHttpHandleFunc(sessionClient.JoinSession)).Methods("POST")        //validate otp with db then join session
 	protected.HandleFunc("/api/sessions", makeHttpHandleFunc(sessionClient.UpdateSession)).Methods("PUT")
+
+	//ORDERS
+	session.HandleFunc("/api/orders", makeHttpHandleFunc(orderClient.GetOrdersBySessionId)).Methods("GET")
+	protected.HandleFunc("/api/order/{orderid}", makeHttpHandleFunc(orderClient.GetOrderById)).Methods("POST")
+	session.HandleFunc("/api/order", makeHttpHandleFunc(orderClient.CreateOrder)).Methods("POST")
+	protected.HandleFunc("/api/order", makeHttpHandleFunc(orderClient.UpdateOrder)).Methods("PUT")
+	protected.HandleFunc("/api/order", makeHttpHandleFunc(orderClient.CancelOrder)).Methods("PUT")
 
 	return http.ListenAndServe(fmt.Sprintf(":%s", port), router)
 }

@@ -10,7 +10,8 @@ type Config struct {
 	ShopClient    string `envconfig:"SHOP_CLIENT" default:"localhost:8081"`
 	MenuClient    string `envconfig:"MENU_CLIENT" default:"localhost:8082"`
 	TableClient   string `envconfig:"TABLE_CLIENT" default:"localhost:8083"`
-    SessionClient string `envconfig:"SESSION_CLIENT" default:"localhost:8084"`
+	SessionClient string `envconfig:"SESSION_CLIENT" default:"localhost:8084"`
+	OrderClient   string `envconfig:"ORDER_CLIENT" default:"localhost:8085"`
 	JwtKey        string `envconfig:"JWT_KEY" default:"key"`
 }
 
