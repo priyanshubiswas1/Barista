@@ -56,3 +56,10 @@ order-proto-gen:
     --proto_path=./contracts/protos \
     order.proto
 
+payment-proto-gen:
+	protoc \
+	--go_out=./contracts/gen/payment --go_opt=paths=source_relative \
+    --go-grpc_out=./contracts/gen/payment --go-grpc_opt=paths=source_relative \
+    --proto_path=./contracts/protos \
+    payment.proto
+

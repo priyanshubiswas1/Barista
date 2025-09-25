@@ -352,3 +352,23 @@ type CancelOrderRequest struct {
 type CancelOrderResponse struct {
 	Success bool `json:"success"`
 }
+
+//PAYMENTS
+type Payment struct {
+	Id            string  `json:"id"`
+	SessionId     string  `json:"sessionId"`
+	Amount        float32 `json:"amount"`
+	PaymentMethod string  `json:"paymentMethod"`
+	PaymentStatus string  `json:"paymentStatus"`
+	TransactionId string  `json:"transactionId"`
+}
+type PaymentRequest struct {
+	SessionId     string  `json:"sessionId"`
+	Amount        float32 `json:"amount"`
+	PaymentMethod string  `json:"paymentMethod"`
+	PaymentStatus string  `json:"paymentStatus"`
+	TransactionId string  `json:"transactionId"`
+}
+type GetPaymentRequest struct {
+	SessionId string `json:"sessionId"`
+}

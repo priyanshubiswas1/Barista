@@ -56,5 +56,5 @@ GET    /api/orders/{tableId}         # list all orders for the current active se
 PUT    /api/orders/{orderId}/status             # update order (accept/reject/complete)
 
 Payments
-POST   /api/sessions/{sessionId}/payments       # record payment
-GET    /api/sessions/{sessionId}/payments       # check payment status
+POST   /api/payment/{sessionId}       # record payment
+GET    /api/payment/{sessionId}       # check payment status

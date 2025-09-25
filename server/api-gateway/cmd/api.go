@@ -21,9 +21,18 @@ type APIServer struct {
 	tableClientUrl   string
 	sessionClientUrl string
 	orderClientUrl   string
+	paymentClientUrl string
 }
 
-func NewAPIServer(authClient, shopClientUrl, menuClientUrl, tableClientUrl, sessionClientUrl, orderClientUrl string) (*APIServer, error) {
+func NewAPIServer(
+	authClient,
+	shopClientUrl,
+	menuClientUrl,
+	tableClientUrl,
+	sessionClientUrl,
+	orderClientUrl,
+	paymentClientUrl string,
+) (*APIServer, error) {
 	return &APIServer{
 		authClientUrl:    authClient,
 		shopClientUrl:    shopClientUrl,
@@ -31,6 +40,7 @@ func NewAPIServer(authClient, shopClientUrl, menuClientUrl, tableClientUrl, sess
 		tableClientUrl:   tableClientUrl,
 		sessionClientUrl: sessionClientUrl,
 		orderClientUrl:   orderClientUrl,
+		paymentClientUrl: paymentClientUrl,
 	}, nil
 }
 
@@ -56,6 +66,10 @@ func (s *APIServer) ListenServer(port string) error {
 		return err
 	}
 	orderClient, err := handler.NewOrder(s.orderClientUrl)
+	if err != nil {
+		return err
+	}
+    paymentClient, err := handler.NewPayment(s.paymentClientUrl)
 	if err != nil {
 		return err
 	}
@@ -129,6 +143,10 @@ func (s *APIServer) ListenServer(port string) error {
 	session.HandleFunc("/api/order", makeHttpHandleFunc(orderClient.CreateOrder)).Methods("POST")
 	protected.HandleFunc("/api/order", makeHttpHandleFunc(orderClient.UpdateOrder)).Methods("PUT")
 	protected.HandleFunc("/api/order", makeHttpHandleFunc(orderClient.CancelOrder)).Methods("PUT")
+
+	//PAYMENTS
+	protected.HandleFunc("/api/payment", makeHttpHandleFunc(paymentClient.CreatePayment)).Methods("POST")
+	session.HandleFunc("/api/payment", makeHttpHandleFunc(paymentClient.GetPayment)).Methods("GET")
 
 	return http.ListenAndServe(fmt.Sprintf(":%s", port), router)
 }
