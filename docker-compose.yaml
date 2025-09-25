@@ -72,6 +72,7 @@ services:
       - menuservice
       - tableservice
       - sessionservice
+      - orderservice
     ports:
       - 8000:8080
     environment:
@@ -81,6 +82,7 @@ services:
       MENU_CLIENT: menuservice:8080
       TABLE_CLIENT: tableservice:8080
       SESSION_CLIENT: sessionservice:8080
+      ORDER_CLIENT: orderservice:8080
     restart: on-failure
   rabbitmqservice:
     build:
@@ -154,4 +156,14 @@ services:
       PORT: "8080"
       DB_URL: "postgres://admin:7866@session_db:5432/session?sslmode=disable"
       REDIS_URL: redis:6379
+    restart: on-failure
+  orderservice:
+    build:
+      context: ./server/services/order
+      dockerfile: ./app.dockerfile
+    depends_on:
+      - order_db
+    environment:
+      PORT: "8080"
+      DB_URL: "postgres://admin:7866@order_db:5432/order?sslmode=disable"
     restart: on-failure
