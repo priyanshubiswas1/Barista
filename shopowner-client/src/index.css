@@ -14,3 +14,8 @@ p {
   font-size: var(--text-sm);
 }
 
+h3{
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-semibold);
+}
+
