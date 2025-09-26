@@ -57,7 +57,7 @@ const Sidebar = () => {
   return (
     <aside className="flex flex-col flex-shrink-0 justify-between w-60 h-screen bg-white border-r border-gray-200">
       <div className="flex flex-col">
-        <SidebarHeader></SidebarHeader>
+        <SidebarHeader />
         <div className="flex flex-col gap-4">
           <div className="flex flex-col px-5">
             <div className="px-1.5 py-2">
@@ -95,7 +95,7 @@ const Sidebar = () => {
           </div>
         </div>
       </div>
-      <SidebarProfile></SidebarProfile>
+      <SidebarProfile />
     </aside>
   );
 };
