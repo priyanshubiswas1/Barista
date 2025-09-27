@@ -30,42 +30,46 @@ func ListenGRPC(service IService, port string) error {
 }
 
 func (s *gRPCserver) GetOrdersBySessionId(ctx context.Context, req *order.GetOrdersBySessionIdRequest) (*order.GetOrdersBySessionIdResponse, error) {
-	res, err := s.service.GetOrdersBySessionId(ctx, req.SessionId)
+	orderItemsRes, totalAmount, err := s.service.GetOrdersBySessionId(ctx, req.SessionId)
 	if err != nil {
 		return nil, err
 	}
 	orderItems := []*order.OrderItem{}
-	for _, oi := range res {
+	for _, oi := range orderItemsRes {
 		orderItems = append(orderItems, &order.OrderItem{
 			OrderItemId:      oi.Id,
 			OrderId:          oi.OrderId,
 			ItemId:           oi.ItemId,
 			Quantity:         oi.Quantity,
 			PriceAtOrderTime: oi.PriceAtOrderTime,
+			OrderStatus:      oi.OrderStatus,
 		})
 	}
 	return &order.GetOrdersBySessionIdResponse{
-		Orderitems: orderItems,
+		Orderitems:        orderItems,
+		TotalSessionPrice: totalAmount,
 	}, nil
 }
 
 func (s *gRPCserver) GetOrderById(ctx context.Context, req *order.GetOrderByIdRequest) (*order.GetOrderByIdResponse, error) {
-	res, err := s.service.GetOrderById(ctx, req.OrderId)
+	orderItemsRes, totalAmount, err := s.service.GetOrderById(ctx, req.OrderId)
 	if err != nil {
 		return nil, err
 	}
 	orderItems := []*order.OrderItem{}
-	for _, oi := range res {
+	for _, oi := range orderItemsRes {
 		orderItems = append(orderItems, &order.OrderItem{
 			OrderItemId:      oi.Id,
 			OrderId:          oi.OrderId,
 			ItemId:           oi.ItemId,
 			Quantity:         oi.Quantity,
 			PriceAtOrderTime: oi.PriceAtOrderTime,
+			OrderStatus:      oi.OrderStatus,
 		})
 	}
 	return &order.GetOrderByIdResponse{
-		Orderitems: orderItems,
+		Orderitems:      orderItems,
+		TotalOrderPrice: totalAmount,
 	}, nil
 }
 
@@ -94,6 +98,7 @@ func (s *gRPCserver) CreateOrder(ctx context.Context, req *order.CreateOrderRequ
 			ItemId:           oi.ItemId,
 			Quantity:         oi.Quantity,
 			PriceAtOrderTime: oi.PriceAtOrderTime,
+			OrderStatus:      oi.OrderStatus,
 		})
 	}
 	return &order.CreateOrderResponse{

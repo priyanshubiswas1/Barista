@@ -13,6 +13,7 @@ type OrderItems struct {
 	ItemId           string  `json:"itemId"`
 	Quantity         int32   `json:"quantity"`
 	PriceAtOrderTime float32 `json:"priceAtOrderTime"`
+	OrderStatus      string  `json:"orderStatus"`
 }
 
 type OrderItemsReq struct {

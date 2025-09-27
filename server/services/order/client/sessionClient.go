@@ -11,6 +11,7 @@ import (
 
 type ISessionClient interface {
 	UpdateSession(ctx context.Context, updateSession pkg.UpdateSessionRequest) (bool, error)
+	GetSessionById(ctx context.Context, sessionId string) (pkg.Session, error)
 }
 
 type SessionClient struct {
@@ -47,4 +48,24 @@ func (c *SessionClient) UpdateSession(ctx context.Context, updateSession pkg.Upd
 		return false, err
 	}
 	return res.Success, err
+}
+
+func (c *SessionClient) GetSessionById(ctx context.Context, sessionId string) (pkg.Session, error) {
+	res, err := c.service.GetSessionById(ctx, &session.GetSessionRequest{
+		SessionId: sessionId,
+	})
+	if err != nil {
+		return pkg.Session{}, err
+	}
+	return pkg.Session{
+		Id:            res.Session.SessionId,
+		ShopId:        res.Session.ShopId,
+		TableId:       res.Session.TableId,
+		Otp:           res.Session.Otp,
+		Status:        res.Session.SessionStatus,
+		Amount:        res.Session.TotalAmount,
+		IsPaid:        res.Session.IsPaid,
+		PaymentMethod: res.Session.PaymentMethod,
+		Active:        res.Session.Active,
+	}, nil
 }

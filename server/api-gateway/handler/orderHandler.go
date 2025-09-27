@@ -59,10 +59,12 @@ func (c *OrderClient) GetOrdersBySessionId(ctx context.Context, w http.ResponseW
 			ItemId:           oi.ItemId,
 			Quantity:         oi.Quantity,
 			PriceAtOrderTime: oi.PriceAtOrderTime,
+			Status:           oi.OrderStatus,
 		})
 	}
 	return pkg.WriteJSON(w, http.StatusOK, pkg.GetOrdersBySessionIdResponse{
 		OrderItems: orderItems,
+		TotalPrice: res.TotalSessionPrice,
 	})
 }
 
@@ -86,10 +88,12 @@ func (c *OrderClient) GetOrderById(ctx context.Context, w http.ResponseWriter, r
 			ItemId:           oi.ItemId,
 			Quantity:         oi.Quantity,
 			PriceAtOrderTime: oi.PriceAtOrderTime,
+			Status:           oi.OrderStatus,
 		})
 	}
 	return pkg.WriteJSON(w, http.StatusOK, pkg.GetOrdersByOrderIdResponse{
 		OrderItems: orderItems,
+		TotalPrice: res.TotalOrderPrice,
 	})
 }
 

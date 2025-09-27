@@ -319,6 +319,7 @@ type OrderItems struct {
 	ItemId           string  `json:"itemId"`
 	Quantity         int32   `json:"quantity"`
 	PriceAtOrderTime float32 `json:"priceAtOrderTime"`
+	Status           string  `json:"orderStatus"`
 }
 type OrderItemRequest struct {
 	ItemId           string  `json:"itemId"`
@@ -327,9 +328,11 @@ type OrderItemRequest struct {
 }
 type GetOrdersBySessionIdResponse struct {
 	OrderItems []OrderItems `json:"orderItems"`
+	TotalPrice float32      `json:"totalPrice"`
 }
 type GetOrdersByOrderIdResponse struct {
 	OrderItems []OrderItems `json:"orderItems"`
+	TotalPrice float32      `json:"totalPrice"`
 }
 type CreateOrderRequest struct {
 	SpecialNotes string             `json:"specialNotes"`

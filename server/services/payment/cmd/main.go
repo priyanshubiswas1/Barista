@@ -5,6 +5,7 @@ import (
 	"time"
 
 	payment "github.com/priyanshubiswas1/barista/paymentservice"
+	"github.com/priyanshubiswas1/barista/paymentservice/client"
 	"github.com/priyanshubiswas1/barista/paymentservice/pkg"
 	"github.com/tinrab/retry"
 )
@@ -26,7 +27,14 @@ func main() {
 	defer r.Close()
 	log.Println("payment repo created")
 
-	service, err := payment.NewService(r)
+	log.Println("creating session grpc client")
+	sessionClient, err := client.NewSession(cfg.SessionClient)
+	if err != nil {
+		log.Fatal("failed to create session grpc client: ", err)
+	}
+	log.Println("session grpc client created")
+
+	service, err := payment.NewService(r, sessionClient)
 	if err != nil {
 		log.Fatal("failed to create service: ", err)
 	}

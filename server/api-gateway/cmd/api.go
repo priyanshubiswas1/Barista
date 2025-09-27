@@ -69,7 +69,7 @@ func (s *APIServer) ListenServer(port string) error {
 	if err != nil {
 		return err
 	}
-    paymentClient, err := handler.NewPayment(s.paymentClientUrl)
+	paymentClient, err := handler.NewPayment(s.paymentClientUrl)
 	if err != nil {
 		return err
 	}
@@ -142,7 +142,7 @@ func (s *APIServer) ListenServer(port string) error {
 	protected.HandleFunc("/api/order/{orderid}", makeHttpHandleFunc(orderClient.GetOrderById)).Methods("GET")
 	session.HandleFunc("/api/order", makeHttpHandleFunc(orderClient.CreateOrder)).Methods("POST")
 	protected.HandleFunc("/api/order", makeHttpHandleFunc(orderClient.UpdateOrder)).Methods("PUT")
-	protected.HandleFunc("/api/order", makeHttpHandleFunc(orderClient.CancelOrder)).Methods("PUT")
+	protected.HandleFunc("/api/order/cancel", makeHttpHandleFunc(orderClient.CancelOrder)).Methods("PUT")
 
 	//PAYMENTS
 	protected.HandleFunc("/api/payment", makeHttpHandleFunc(paymentClient.CreatePayment)).Methods("POST")

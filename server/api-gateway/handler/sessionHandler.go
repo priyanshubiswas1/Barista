@@ -58,6 +58,7 @@ func (c *SessionClient) GetAllSessions(ctx context.Context, w http.ResponseWrite
 			Amount:        session.TotalAmount,
 			IsPaid:        session.IsPaid,
 			PaymentMethod: session.PaymentMethod,
+			PhoneNumber:   session.PhoneNumber,
 			Active:        session.Active,
 		})
 	}
@@ -87,6 +88,7 @@ func (c *SessionClient) GetActiveSession(ctx context.Context, w http.ResponseWri
 			Amount:        res.Session.TotalAmount,
 			IsPaid:        res.Session.IsPaid,
 			PaymentMethod: res.Session.PaymentMethod,
+			PhoneNumber:   res.Session.PhoneNumber,
 			Active:        res.Session.Active,
 		},
 	})
@@ -111,6 +113,7 @@ func (c *SessionClient) GetSessionById(ctx context.Context, w http.ResponseWrite
 			Amount:        res.Session.TotalAmount,
 			IsPaid:        res.Session.IsPaid,
 			PaymentMethod: res.Session.PaymentMethod,
+			PhoneNumber:   res.Session.PhoneNumber,
 			Active:        res.Session.Active,
 		},
 	})

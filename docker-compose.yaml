@@ -179,4 +179,5 @@ services:
     environment:
       PORT: "8080"
       DB_URL: "postgres://admin:7866@payment_db:5432/payment?sslmode=disable"
+      SESSION_CLIENT: sessionservice:8080
     restart: on-failure

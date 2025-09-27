@@ -17,6 +17,7 @@ type IRepository interface {
 	CreateOrder(ctx context.Context, id, sessionId, specialNotes string, createdAt time.Time, orderItems []pkg.OrderItemsReq) (pkg.CreateOrderRes, error)
 	UpdateOrder(ctx context.Context, orderId, orderStatus string, updatedAt time.Time) error
 	CancelOrder(ctx context.Context, orderId string, updatedAT time.Time) error
+	GetSessionIdByOrderId(ctx context.Context, orderId string) (string, error)
 	Close() error
 }
 
@@ -42,7 +43,7 @@ func (r *postgresRepository) Close() error {
 }
 
 func (r *postgresRepository) GetOrdersBySessionId(ctx context.Context, sessionId string) ([]pkg.OrderItems, error) {
-	query := `SELECT oi.id, oi.order_id, oi.item_id, oi.quantity, oi.price_at_order_time
+	query := `SELECT oi.id, oi.order_id, oi.item_id, oi.quantity, oi.price_at_order_time, o.status
 				FROM order_item oi
 				JOIN "order" o ON oi.order_id = o.id
 				WHERE o.session_id = $1;
@@ -59,7 +60,8 @@ func (r *postgresRepository) GetOrdersBySessionId(ctx context.Context, sessionId
 			&orderItem.OrderId,
 			&orderItem.ItemId,
 			&orderItem.Quantity,
-			&orderItem.PriceAtOrderTime); err != nil {
+			&orderItem.PriceAtOrderTime,
+			&orderItem.OrderStatus); err != nil {
 			return nil, err
 		}
 		orderItems = append(orderItems, orderItem)
@@ -68,8 +70,10 @@ func (r *postgresRepository) GetOrdersBySessionId(ctx context.Context, sessionId
 }
 
 func (r *postgresRepository) GetOrderById(ctx context.Context, orderId string) ([]pkg.OrderItems, error) {
-	query := `SELECT id,order_id,item_id,quantity,price_at_order_time
-				FROM "order_item" WHERE order_id = $1
+	query := `SELECT oi.id,oi.order_id,oi.item_id,oi.quantity,oi.price_at_order_time,o.status
+				FROM order_item oi 
+				JOIN "order" o ON oi.order_id = o.id
+				WHERE o.id = $1
 			`
 	rows, err := r.db.QueryContext(ctx, query, orderId)
 	if err != nil {
@@ -83,7 +87,8 @@ func (r *postgresRepository) GetOrderById(ctx context.Context, orderId string) (
 			&orderItem.OrderId,
 			&orderItem.ItemId,
 			&orderItem.Quantity,
-			&orderItem.PriceAtOrderTime); err != nil {
+			&orderItem.PriceAtOrderTime,
+			&orderItem.OrderStatus); err != nil {
 			return nil, err
 		}
 		orderItems = append(orderItems, orderItem)
@@ -147,6 +152,7 @@ func (r *postgresRepository) CreateOrder(ctx context.Context, id, sessionId, spe
 			ItemId:           oi.ItemId,
 			Quantity:         oi.Quantity,
 			PriceAtOrderTime: oi.PriceAtOrderTime,
+			OrderStatus:      "pending",
 		})
 	}
 
@@ -193,4 +199,15 @@ func (r *postgresRepository) CancelOrder(ctx context.Context, orderId string, up
 		return errors.New("failed to cancel order")
 	}
 	return nil
+}
+
+func (r *postgresRepository) GetSessionIdByOrderId(ctx context.Context, orderId string) (string, error) {
+	query := `SELECT session_id FROM "order" WHERE id = $1
+			`
+	var sessionId string
+	row := r.db.QueryRowContext(ctx, query, orderId)
+	if err := row.Scan(&sessionId); err != nil {
+		return "", err
+	}
+	return sessionId, nil
 }
