@@ -314,16 +314,16 @@ type Order struct {
 	SpecialNotes string `json:"specialNotes"`
 }
 type OrderItems struct {
-	Id               string `json:"orderItemId"`
-	OrderId          string `json:"orderId"`
-	ItemId           string `json:"itemId"`
-	Quantity         string `json:"quantity"`
-	PriceAtOrderTime string `json:"priceAtOrderTime"`
+	Id               string  `json:"orderItemId"`
+	OrderId          string  `json:"orderId"`
+	ItemId           string  `json:"itemId"`
+	Quantity         int32   `json:"quantity"`
+	PriceAtOrderTime float32 `json:"priceAtOrderTime"`
 }
 type OrderItemRequest struct {
-	ItemId           string `json:"itemId"`
-	Quantity         string `json:"quantity"`
-	PriceAtOrderTime string `json:"priceAtOrderTime"`
+	ItemId           string  `json:"itemId"`
+	Quantity         int32   `json:"quantity"`
+	PriceAtOrderTime float32 `json:"priceAtOrderTime"`
 }
 type GetOrdersBySessionIdResponse struct {
 	OrderItems []OrderItems `json:"orderItems"`

@@ -1,4 +1,4 @@
-CREATE TYPE payment_status AS ENUM ('pending','completed','failed');
+CREATE TYPE payment_status AS ENUM ('pending','completed');
 CREATE TABLE payment (
     id UUID PRIMARY KEY,
     session_id UUID NOT NULL,

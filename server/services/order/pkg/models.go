@@ -8,17 +8,17 @@ type Order struct {
 }
 
 type OrderItems struct {
-	Id               string `json:"orderItemId"`
-	OrderId          string `json:"orderId"`
-	ItemId           string `json:"itemId"`
-	Quantity         string `json:"quantity"`
-	PriceAtOrderTime string `json:"priceAtOrderTime"`
+	Id               string  `json:"orderItemId"`
+	OrderId          string  `json:"orderId"`
+	ItemId           string  `json:"itemId"`
+	Quantity         int32   `json:"quantity"`
+	PriceAtOrderTime float32 `json:"priceAtOrderTime"`
 }
 
 type OrderItemsReq struct {
-	ItemId           string `json:"itemId"`
-	Quantity         string `json:"quantity"`
-	PriceAtOrderTime string `json:"priceAtOrderTime"`
+	ItemId           string  `json:"itemId"`
+	Quantity         int32   `json:"quantity"`
+	PriceAtOrderTime float32 `json:"priceAtOrderTime"`
 }
 
 type OrderReq struct {
@@ -30,4 +30,21 @@ type OrderReq struct {
 type CreateOrderRes struct {
 	Order      Order        `json:"order"`
 	OrderItems []OrderItems `json:"orderItems"`
+}
+
+type Session struct {
+	Id            string  `json:"sessionId"`
+	ShopId        string  `json:"shopId"`
+	TableId       string  `json:"tableId"`
+	Otp           string  `json:"otp"`
+	Status        string  `json:"status"`
+	Amount        float32 `json:"amount"`
+	IsPaid        bool    `json:"isPaid"`
+	PaymentMethod string  `json:"paymentMethod"`
+	PhoneNumber   string  `json:"phoneNumber"`
+	Active        bool    `json:"active"`
+}
+
+type UpdateSessionRequest struct {
+	Session Session `json:"session"`
 }

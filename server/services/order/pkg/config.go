@@ -3,8 +3,9 @@ package pkg
 import "github.com/kelseyhightower/envconfig"
 
 type Config struct {
-	Port  string `json:"PORT" default:"8080"`
-	DbUrl string `json:"DB_URL" default:"postgres://admin:7866@order_db:5432/order?sslmode=disable"`
+	Port          string `json:"PORT" default:"8080"`
+	DbUrl         string `json:"DB_URL" default:"postgres://admin:7866@order_db:5432/order?sslmode=disable"`
+	SessionClient string `envconfig:"SESSION_CLIENT" default:"localhost:8084"`
 }
 
 func GetConfig() (Config, error) {

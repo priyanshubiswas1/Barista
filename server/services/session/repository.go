@@ -4,6 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"strconv"
+	"strings"
 	"time"
 
 	_ "github.com/lib/pq"
@@ -16,7 +18,7 @@ type IRepository interface {
 	GetSessionById(ctx context.Context, sessionId string) (pkg.Session, error)
 	CreateSession(ctx context.Context, id, shopId, tableId, status, paymentMethod, otp, phoneNumber string, totalAmount float32, isPaid, active bool, createdAt time.Time) error
 	JoinSession(ctx context.Context, shopId, tableId, otp string) (pkg.Session, error)
-	UpdateSession(ctx context.Context, id, status, paymentMethod string, totalAmount float32, isPaid, active bool, updatedAt time.Time) error
+	UpdateSession(ctx context.Context, id, status, paymentMethod string, amount float32, isPaid, active bool, updatedAt time.Time) error
 	Close() error
 }
 
@@ -156,14 +158,45 @@ func (r *postgresRepository) JoinSession(ctx context.Context, shopId, tableId, o
 	return session, nil
 }
 
-func (r *postgresRepository) UpdateSession(ctx context.Context, id, status, paymentMethod string, totalAmount float32, isPaid, active bool, updatedAt time.Time) error {
-	query := `UPDATE session SET status=$1,total_amount=$2,is_paid=$3,payment_method=$4,active=$5,updated_at=$6
-				WHERE id=$7
-			`
-	res, err := r.db.ExecContext(ctx, query, status, totalAmount, isPaid, paymentMethod, active, updatedAt, id)
+func (r *postgresRepository) UpdateSession(ctx context.Context, id, status, paymentMethod string, amount float32, isPaid, active bool, updatedAt time.Time) error {
+	query := `UPDATE session SET `
+	var params []interface{}
+	var setClauses []string
+
+	if status != "" {
+		setClauses = append(setClauses, "status=$"+strconv.Itoa(len(params)+1))
+		params = append(params, status)
+	}
+
+	setClauses = append(setClauses, "total_amount=total_amount + $"+strconv.Itoa(len(params)+1))
+	params = append(params, amount)
+
+	setClauses = append(setClauses, "is_paid=$"+strconv.Itoa(len(params)+1))
+	params = append(params, isPaid)
+
+	if paymentMethod != "" {
+		setClauses = append(setClauses, "payment_method=$"+strconv.Itoa(len(params)+1))
+		params = append(params, paymentMethod)
+	}
+
+	setClauses = append(setClauses, "active=$"+strconv.Itoa(len(params)+1))
+	params = append(params, active)
+
+	setClauses = append(setClauses, "updated_at=$"+strconv.Itoa(len(params)+1))
+	params = append(params, updatedAt)
+
+	if len(setClauses) == 0 {
+		return errors.New("no values to update")
+	}
+
+	query += strings.Join(setClauses, ", ") + " WHERE id=$" + strconv.Itoa(len(params)+1)
+	params = append(params, id)
+
+	res, err := r.db.ExecContext(ctx, query, params...)
 	if err != nil {
 		return err
 	}
+
 	rowsAffected, err := res.RowsAffected()
 	if err != nil {
 		return err
@@ -171,5 +204,22 @@ func (r *postgresRepository) UpdateSession(ctx context.Context, id, status, paym
 	if rowsAffected < 1 {
 		return errors.New("failed to update")
 	}
+
 	return nil
+
+	// query := `UPDATE session SET status=$1,total_amount=total_amount + $2,is_paid=$3,payment_method=$4,active=$5,updated_at=$6
+	// 			WHERE id=$7
+	// 		`
+	// res, err := r.db.ExecContext(ctx, query, status, amount, isPaid, paymentMethod, active, updatedAt, id)
+	// if err != nil {
+	// 	return err
+	// }
+	// rowsAffected, err := res.RowsAffected()
+	// if err != nil {
+	// 	return err
+	// }
+	// if rowsAffected < 1 {
+	// 	return errors.New("failed to update")
+	// }
+	// return nil
 }

@@ -179,7 +179,7 @@ func (r *postgresRepository) UpdateOrder(ctx context.Context, orderId, orderStat
 }
 
 func (r *postgresRepository) CancelOrder(ctx context.Context, orderId string, updatedAt time.Time) error {
-	query := `UPDATE "order" SET status = 'cancelled',updated_at = $1 WHERE id = $2
+	query := `UPDATE "order" SET status = 'cancelled', updated_at = $1 WHERE id = $2
 			`
 	res, err := r.db.ExecContext(ctx, query, updatedAt, orderId)
 	if err != nil {
