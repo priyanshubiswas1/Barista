@@ -7,3 +7,11 @@ export const Tabs = {
     COMMUNITY: 'Community',
     HELP: 'Help',
 };
+
+export const Overlays = {
+    ADDITEM: 'AddItem',
+    MANAGECAT: 'ManageCategory',
+    FILTER: 'Filter',
+    CREATEORDER: 'CreateOrder',
+    GENERATEBILL: 'GenerateBill',
+};
