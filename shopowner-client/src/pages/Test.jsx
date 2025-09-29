@@ -1,12 +1,12 @@
 import React from "react";
 import Button from "../components/Button";
 import { Plus } from "phosphor-react";
-import Sidebar from "../components/Sidebar";
+import LeftSidebar from "../components/LeftSidebar.jsx";
 
 const Test = () => {
   return (
     <div className="flex h-screen">
-      <Sidebar></Sidebar>
+      <LeftSidebar />
       <div className="h-screen w-screen flex items-center justify-center bg-gray-100">
         <div className="inline-flex flex-col gap-4 p-6 bg-white rounded-lg">
           <h3 className="text-base font-semibold text-gray-800">Text Only :</h3>
