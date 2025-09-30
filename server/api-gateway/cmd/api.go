@@ -10,6 +10,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/priyanshubiswas1/barista/apigateway/handler"
 	"github.com/priyanshubiswas1/barista/apigateway/middleware"
+	"github.com/rs/cors"
 )
 
 type APIFunc func(context.Context, http.ResponseWriter, *http.Request) error
@@ -75,6 +76,15 @@ func (s *APIServer) ListenServer(port string) error {
 	}
 
 	router := mux.NewRouter()
+
+	c := cors.New(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:5173"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Content-Type", "Authorization"},
+		AllowCredentials: true,
+	})
+	handler := c.Handler(router)
+
 	router.HandleFunc("/api/auth/register", makeHttpHandleFunc(authClient.RegisterHandler)).Methods("POST")
 	router.HandleFunc("/api/auth/login", makeHttpHandleFunc(authClient.LoginHandler)).Methods("POST")
 
@@ -148,7 +158,7 @@ func (s *APIServer) ListenServer(port string) error {
 	protected.HandleFunc("/api/payment", makeHttpHandleFunc(paymentClient.CreatePayment)).Methods("POST")
 	session.HandleFunc("/api/payment", makeHttpHandleFunc(paymentClient.GetPayment)).Methods("GET")
 
-	return http.ListenAndServe(fmt.Sprintf(":%s", port), router)
+	return http.ListenAndServe(fmt.Sprintf(":%s", port), handler)
 }
 
 func makeHttpHandleFunc(apiFunc APIFunc) http.HandlerFunc {

@@ -54,39 +54,43 @@ const MenuContentBody = ({ items }) => {
         </div>
       </div>
       <div className="flex w-full text-gray-100 border rounded"></div>
-      <div className="flex w-full pt-2 px-10">
-        <div className="flex flex-1 items-center gap-4">
-          <div className="w-9 h-9 ml-5 bg-gray-800 rounded-full"></div>
-          <div>{items}</div>
-        </div>
-        <div className="flex flex-1 items-center justify-around gap-12">
-          <div>120.00</div>
-          <div className="w-20 flex justify-center">
-            {!items ? (
-              <div className="bg-green-100 text-green-700 text-sm font-semibold rounded-sm flex items-center justify-center px-2">
-                veg
+      {items.map((item) => {
+        return (
+          <div className="flex w-full pt-2 px-10">
+            <div className="flex flex-1 items-center gap-4">
+              <div className="w-9 h-9 ml-5 bg-gray-800 rounded-full"></div>
+              <div>{item.itemName}</div>
+            </div>
+            <div className="flex flex-1 items-center justify-around gap-12">
+              <div>{item.price}</div>
+              <div className="w-20 flex justify-center">
+                {!item ? (
+                  <div className="bg-green-100 text-green-700 text-sm font-semibold rounded-sm flex items-center justify-center px-2">
+                    veg
+                  </div>
+                ) : (
+                  <div className="bg-red-100 text-red-700 text-sm font-semibold rounded-sm flex items-center justify-center px-2">
+                    non-veg
+                  </div>
+                )}
               </div>
-            ) : (
-              <div className="bg-red-100 text-red-700 text-sm font-semibold rounded-sm flex items-center justify-center px-2">
-                non-veg
+              <div>
+                <Toggle />
               </div>
-            )}
+              <FaEllipsis className="text-gray-500" />
+            </div>
           </div>
-          <div>
-            <Toggle />
-          </div>
-          <FaEllipsis className="text-gray-500" />
-        </div>
-      </div>
+        );
+      })}
     </div>
   );
 };
 
-const MenuContent = ({ category }) => {
+const MenuContent = ({ category, items }) => {
   return (
     <div className="w-full bg-white p-4">
-      <MenuContentHeader category={category} count={"5"} />
-      <MenuContentBody items={"mango shake"} />
+      <MenuContentHeader category={category} count={items.length} />
+      <MenuContentBody items={items} />
     </div>
   );
 };

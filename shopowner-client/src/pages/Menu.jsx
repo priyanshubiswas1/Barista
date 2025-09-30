@@ -8,13 +8,8 @@ import { useState } from "react";
 import { useOverlay } from "../store/overlayStore";
 import MenuContent from "../components/menu/MenuContent";
 import { useQuery } from "@tanstack/react-query";
-import { fetchMenuItems } from "../api/api";
+import { fetchItemsByShopId } from "../api/api";
 import LeftSidebar from "../components/LeftSidebar";
-
-// const { data } = useQuery.fetchQuery({
-//   queryKey: ["menu-items"],
-//   queryFn: fetchMenuItems,
-// });
 
 const Preview = () => {
   return (
@@ -67,6 +62,26 @@ const Menu = () => {
     setisSidebarCollapesed((prev) => !prev);
   };
   const { setOverlay } = useOverlay();
+
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["menuItems"],
+    queryFn: () => fetchItemsByShopId("8dc5b0b4-dbb6-457a-beac-b469b6c1e396"),
+  });
+
+  if (isLoading) return <p>Loading item...</p>;
+  if (error) return <p>Error: {error.message}</p>;
+
+  const items = data.items;
+
+  const groupedItems = items.reduce((acc, item) => {
+    if (!acc[item.category]) {
+      acc[item.category] = [];
+    }
+    acc[item.category].push(item);
+    return acc;
+  }, {});
+  console.log(groupedItems);
+
   return (
     <div className="flex">
       <LeftSidebar collapsed={isSidebarCollapesed} tab={Tabs.MENU} />
@@ -77,9 +92,13 @@ const Menu = () => {
           onManageCategoryClick={() => setOverlay(Overlays.MANAGECAT)}
         />
         <div className="pt-5 flex flex-col gap-2">
-          <MenuContent category={"Shakes"} />
-          <MenuContent category={"Snacks"} />
-          <MenuContent category={"Main Course"} />
+          {Object.entries(groupedItems).map(([category, categoryItems]) => (
+            <MenuContent
+              key={categoryItems.itemId}
+              category={category}
+              items={categoryItems}
+            />
+          ))}
         </div>
         <OverlaySidebar />
       </div>
