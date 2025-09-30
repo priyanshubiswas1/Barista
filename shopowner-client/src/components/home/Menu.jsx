@@ -6,6 +6,7 @@ import { FaPlus } from "react-icons/fa";
 import { OverlaySidebar } from "../overlaysidebar/OverlaySidebar";
 import { useState } from "react";
 import { useOverlay } from "../../store/overlayStore";
+import MenuContent from "../menu/MenuContent";
 
 const Preview = () => {
   return (
@@ -39,11 +40,11 @@ const AddItem = ({ onClick }) => (
 const MenuSubHeader = ({ onAddItemClick, onManageCategoryClick }) => {
   return (
     <div className="w-[100%] flex justify-between items-center pt-10">
-      <div className="flex items-center">
+      <div className="flex items-center gap-5">
         <Searchbar />
         <Filter />
       </div>
-      <div className="flex items-center">
+      <div className="flex items-center gap-5">
         <Preview />
         <ManageCategory onClick={onManageCategoryClick} />
         <AddItem onClick={onAddItemClick} />
@@ -55,12 +56,17 @@ const MenuSubHeader = ({ onAddItemClick, onManageCategoryClick }) => {
 const Menu = ({ toggleSidebar }) => {
   const { setOverlay } = useOverlay();
   return (
-    <div className="p-5 h-[100%] w-[100%] relative">
+    <div className="p-5 h-[100%] w-[100%] relative flex flex-col">
       <TabHeader toggleSidebar={toggleSidebar} tab={Tabs.MENU} />
       <MenuSubHeader
         onAddItemClick={() => setOverlay(Overlays.ADDITEM)}
         onManageCategoryClick={() => setOverlay(Overlays.MANAGECAT)}
       />
+      <div className="pt-5 flex flex-col gap-2">
+        <MenuContent category={"Shakes"} />
+        <MenuContent category={"Snacks"} />
+        <MenuContent category={"Main Course"} />
+      </div>
       <OverlaySidebar />
     </div>
   );
