@@ -34,7 +34,6 @@ type LoginRes struct {
 	Address string `json:"address"`
 }
 type UpdateUserReq struct {
-	Id          string `json:"id"`
 	Name        string `json:"name"`
 	Email       string `json:"email"`
 	Phone       string `json:"phone"`
@@ -241,4 +240,138 @@ type DeleteTableRequest struct {
 }
 type DeleteTableResponse struct {
 	Success bool `json:"success"`
+}
+
+//SESSIONS
+type Session struct {
+	Id            string  `json:"sessionId"`
+	ShopId        string  `json:"shopId"`
+	TableId       string  `json:"tableId"`
+	Otp           string  `json:"otp"`
+	Status        string  `json:"status"`
+	Amount        float32 `json:"amount"`
+	IsPaid        bool    `json:"isPaid"`
+	PaymentMethod string  `json:"paymentMethod"`
+	PhoneNumber   string  `json:"phoneNumber"`
+	Active        bool    `json:"active"`
+}
+
+type GetAllSessionsResponse struct {
+	Sessions []Session `json:"sessions"`
+}
+type GetActiveSessionResponse struct {
+	Session Session `json:"session"`
+}
+type GetSessionRequest struct {
+	Id string `json:"sessionId"`
+}
+type GetSessionResponse struct {
+	Session Session `json:"session"`
+}
+type SendSessionOTPRequest struct {
+	ShopId      string `json:"shopId"`
+	TableId     string `json:"tableId"`
+	PhoneNumber string `json:"phoneNumber"`
+}
+type SendSessionOTPResponse struct {
+	Success bool `json:"success"`
+}
+type CreateSessionRequest struct {
+	ShopId        string  `json:"shopId"`
+	TableId       string  `json:"tableId"`
+	Otp           string  `json:"otp"`
+	Status        string  `json:"status"`
+	Amount        float32 `json:"amount"`
+	IsPaid        bool    `json:"isPaid"`
+	PaymentMethod string  `json:"paymentMethod"`
+	Active        bool    `json:"active"`
+}
+type CreateSessionResponse struct {
+	Session      Session `json:"session"`
+	SessionToken string  `json:"sessionToken"`
+}
+type JoinSessionRequest struct {
+	ShopId  string `json:"shopId"`
+	TableId string `json:"tableId"`
+	Otp     string `json:"otp"`
+}
+type JoinSessionResponse struct {
+	Session      Session `json:"session"`
+	SessionToken string  `json:"sessionToken"`
+}
+type UpdateSessionRequest struct {
+	Session Session `json:"session"`
+}
+type UpdateSessionResponse struct {
+	Success bool `json:"success"`
+}
+
+//ORDERS
+type Order struct {
+	Id           string `json:"orderId"`
+	SessionId    string `json:"sessionId"`
+	OrderStatus  string `json:"orderStatus"`
+	SpecialNotes string `json:"specialNotes"`
+}
+type OrderItems struct {
+	Id               string  `json:"orderItemId"`
+	OrderId          string  `json:"orderId"`
+	ItemId           string  `json:"itemId"`
+	Quantity         int32   `json:"quantity"`
+	PriceAtOrderTime float32 `json:"priceAtOrderTime"`
+	Status           string  `json:"orderStatus"`
+}
+type OrderItemRequest struct {
+	ItemId           string  `json:"itemId"`
+	Quantity         int32   `json:"quantity"`
+	PriceAtOrderTime float32 `json:"priceAtOrderTime"`
+}
+type GetOrdersBySessionIdResponse struct {
+	OrderItems []OrderItems `json:"orderItems"`
+	TotalPrice float32      `json:"totalPrice"`
+}
+type GetOrdersByOrderIdResponse struct {
+	OrderItems []OrderItems `json:"orderItems"`
+	TotalPrice float32      `json:"totalPrice"`
+}
+type CreateOrderRequest struct {
+	SpecialNotes string             `json:"specialNotes"`
+	OrderItems   []OrderItemRequest `json:"orderItems"`
+}
+type CreateOrderResponse struct {
+	Order      Order        `json:"order"`
+	OrderItems []OrderItems `json:"orderItems"`
+}
+type UpdateOrderRequest struct {
+	OrderId     string `json:"orderId"`
+	OrderStatus string `json:"orderStatus"`
+}
+type UpdateOrderResponse struct {
+	Success bool `json:"success"`
+}
+type CancelOrderRequest struct {
+	OrderId string `json:"orderId"`
+}
+type CancelOrderResponse struct {
+	Success bool `json:"success"`
+}
+
+//PAYMENTS
+type Payment struct {
+	Id            string  `json:"id"`
+	SessionId     string  `json:"sessionId"`
+	Amount        float32 `json:"amount"`
+	PaymentMethod string  `json:"paymentMethod"`
+	PaymentStatus string  `json:"paymentStatus"`
+	TransactionId string  `json:"transactionId"`
+}
+type PaymentRequest struct {
+	SessionId     string  `json:"sessionId"`
+	Amount        float32 `json:"amount"`
+	PaymentMethod string  `json:"paymentMethod"`
+	PaymentStatus string  `json:"paymentStatus"`
+	TransactionId string  `json:"transactionId"`
+}
+type GetPaymentRequest struct {
+	SessionId string `json:"sessionId"`
 }

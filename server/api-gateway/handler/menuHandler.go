@@ -217,15 +217,10 @@ func (c *MenuClient) GetItems(ctx context.Context, w http.ResponseWriter, r *htt
 }
 
 func (c *MenuClient) UpdateItem(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
-	vars := mux.Vars(r)
-	itemid := vars["itemid"]
-
 	item := pkg.UpdateItemRequest{}
 	if err := json.NewDecoder(r.Body).Decode(&item); err != nil {
 		return err
 	}
-
-	item.ItemId = itemid
 
 	res, err := c.service.UpdateItem(ctx, &menu.UpdateItemRequest{
 		ItemId:      item.ItemId,
