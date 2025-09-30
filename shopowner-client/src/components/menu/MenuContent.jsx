@@ -42,24 +42,37 @@ const MenuContentBody = ({ items }) => {
   return (
     <div className="flex flex-col w-full items-center">
       <div className="flex w-full text-gray-400 items-center px-10 pt-4 pb-2">
-        <h2 className="flex flex-1">Item Name</h2>
-        <div className="flex flex-1 justify-around">
+        <div className="flex flex-1 items-center gap-4">
+          <span className="w-9 h-9 ml-5" />
+          <h2>Item Name</h2>
+        </div>
+        <div className="flex flex-1 items-center justify-around gap-12">
           <h2>price</h2>
-          <h2>veg/non-Veg</h2>
+          <h2>veg/non-veg</h2>
           <h2>availability</h2>
           <h2></h2>
         </div>
       </div>
       <div className="flex w-full text-gray-100 border rounded"></div>
-      <div className="flex w-full pt-2">
+      <div className="flex w-full pt-2 px-10">
         <div className="flex flex-1 items-center gap-4">
           <div className="w-9 h-9 ml-5 bg-gray-800 rounded-full"></div>
-          <div className="">{items}</div>
+          <div>{items}</div>
         </div>
         <div className="flex flex-1 items-center justify-around gap-12">
-          <div className="">120.00</div>
-          <div className="">veg</div>
-          <div className="">
+          <div>120.00</div>
+          <div className="w-20 flex justify-center">
+            {!items ? (
+              <div className="bg-green-100 text-green-700 text-sm font-semibold rounded-sm flex items-center justify-center px-2">
+                veg
+              </div>
+            ) : (
+              <div className="bg-red-100 text-red-700 text-sm font-semibold rounded-sm flex items-center justify-center px-2">
+                non-veg
+              </div>
+            )}
+          </div>
+          <div>
             <Toggle />
           </div>
           <FaEllipsis className="text-gray-500" />

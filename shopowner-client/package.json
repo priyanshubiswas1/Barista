@@ -14,6 +14,7 @@
     "@phosphor-icons/react": "github:phosphor-icons/react",
     "@tailwindcss/vite": "^4.1.13",
     "@tanstack/react-query": "^5.90.2",
+    "axios": "^1.12.2",
     "phosphor-icons": "^1.4.2",
     "phosphor-react": "^1.4.1",
     "react": "^19.1.1",

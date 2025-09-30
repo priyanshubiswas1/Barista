@@ -7,6 +7,23 @@ import { OverlaySidebar } from "../overlaysidebar/OverlaySidebar";
 import { useState } from "react";
 import { useOverlay } from "../../store/overlayStore";
 import MenuContent from "../menu/MenuContent";
+import { useQuery } from "@tanstack/react-query";
+import { fetchMenuItems } from "../../api/api";
+
+const getMenuItems = async () => {
+  try {
+    const res = await fetchMenuItems();
+    res.status === 200 ? res.data : [];
+  } catch (error) {
+    console.log(error);
+    return [];
+  }
+};
+
+const { data } = useQuery({
+  queryKey: ["menu-items"],
+  queryFn: getMenuItems(),
+});
 
 const Preview = () => {
   return (
