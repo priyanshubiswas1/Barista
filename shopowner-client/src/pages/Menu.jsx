@@ -1,29 +1,20 @@
-import { TabHeader } from "../TabHeader";
-import { Overlays, Tabs } from "../../constants/constants";
-import Searchbar from "../Searchbar";
-import Filter from "../Filter";
+import { TabHeader } from "../components/TabHeader";
+import { Overlays, Tabs } from "../constants/constants";
+import Searchbar from "../components/Searchbar";
+import Filter from "../components/Filter";
 import { FaPlus } from "react-icons/fa";
-import { OverlaySidebar } from "../overlaysidebar/OverlaySidebar";
+import { OverlaySidebar } from "../components/overlaysidebar/OverlaySidebar";
 import { useState } from "react";
-import { useOverlay } from "../../store/overlayStore";
-import MenuContent from "../menu/MenuContent";
+import { useOverlay } from "../store/overlayStore";
+import MenuContent from "../components/menu/MenuContent";
 import { useQuery } from "@tanstack/react-query";
-import { fetchMenuItems } from "../../api/api";
+import { fetchMenuItems } from "../api/api";
+import LeftSidebar from "../components/LeftSidebar";
 
-const getMenuItems = async () => {
-  try {
-    const res = await fetchMenuItems();
-    res.status === 200 ? res.data : [];
-  } catch (error) {
-    console.log(error);
-    return [];
-  }
-};
-
-const { data } = useQuery({
-  queryKey: ["menu-items"],
-  queryFn: getMenuItems(),
-});
+// const { data } = useQuery.fetchQuery({
+//   queryKey: ["menu-items"],
+//   queryFn: fetchMenuItems,
+// });
 
 const Preview = () => {
   return (
@@ -70,21 +61,28 @@ const MenuSubHeader = ({ onAddItemClick, onManageCategoryClick }) => {
   );
 };
 
-const Menu = ({ toggleSidebar }) => {
+const Menu = () => {
+  const [isSidebarCollapesed, setisSidebarCollapesed] = useState(false);
+  const toggleSidebar = () => {
+    setisSidebarCollapesed((prev) => !prev);
+  };
   const { setOverlay } = useOverlay();
   return (
-    <div className="p-5 h-[100%] w-[100%] relative flex flex-col">
-      <TabHeader toggleSidebar={toggleSidebar} tab={Tabs.MENU} />
-      <MenuSubHeader
-        onAddItemClick={() => setOverlay(Overlays.ADDITEM)}
-        onManageCategoryClick={() => setOverlay(Overlays.MANAGECAT)}
-      />
-      <div className="pt-5 flex flex-col gap-2">
-        <MenuContent category={"Shakes"} />
-        <MenuContent category={"Snacks"} />
-        <MenuContent category={"Main Course"} />
+    <div className="flex">
+      <LeftSidebar collapsed={isSidebarCollapesed} tab={Tabs.MENU} />
+      <div className="p-5 h-[100%] w-[100%] relative flex flex-col">
+        <TabHeader toggleSidebar={toggleSidebar} tab={Tabs.MENU} />
+        <MenuSubHeader
+          onAddItemClick={() => setOverlay(Overlays.ADDITEM)}
+          onManageCategoryClick={() => setOverlay(Overlays.MANAGECAT)}
+        />
+        <div className="pt-5 flex flex-col gap-2">
+          <MenuContent category={"Shakes"} />
+          <MenuContent category={"Snacks"} />
+          <MenuContent category={"Main Course"} />
+        </div>
+        <OverlaySidebar />
       </div>
-      <OverlaySidebar />
     </div>
   );
 };

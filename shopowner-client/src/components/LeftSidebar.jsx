@@ -10,6 +10,7 @@ import { GoGear } from "react-icons/go";
 import { IoHelpCircleOutline } from "react-icons/io5";
 import { Tabs } from "../constants/constants";
 import { useTabs } from "../store/tabStore";
+import { useNavigate } from "react-router-dom";
 
 const SidebarItem = ({
   children,
@@ -65,9 +66,8 @@ const SidebarProfile = ({ collapsed }) => (
   </div>
 );
 
-export const LeftSidebar = ({ collapsed }) => {
-  const { tab, setTab } = useTabs();
-
+export const LeftSidebar = ({ collapsed, tab }) => {
+  const navigate = useNavigate();
   return (
     <aside
       className={`flex flex-col flex-shrink-0 ${
@@ -88,7 +88,7 @@ export const LeftSidebar = ({ collapsed }) => {
             <SidebarItem
               variant={tab === Tabs.MENU ? "active" : "default"}
               icon={PiStorefront}
-              onClick={() => setTab(Tabs.MENU)}
+              onClick={() => navigate("/menu")}
               collapsed={collapsed}
             >
               Menu
@@ -97,7 +97,7 @@ export const LeftSidebar = ({ collapsed }) => {
             <SidebarItem
               variant={tab === Tabs.ORDERS ? "active" : "default"}
               icon={PiCallBell}
-              onClick={() => setTab(Tabs.ORDERS)}
+              onClick={() => navigate("/orders")}
               collapsed={collapsed}
             >
               Orders
@@ -106,7 +106,7 @@ export const LeftSidebar = ({ collapsed }) => {
             <SidebarItem
               variant={tab === Tabs.TABLES ? "active" : "default"}
               icon={PiChair}
-              onClick={() => setTab(Tabs.TABLES)}
+              onClick={() => navigate("/tables")}
               collapsed={collapsed}
             >
               Tables
@@ -115,7 +115,7 @@ export const LeftSidebar = ({ collapsed }) => {
             <SidebarItem
               variant={tab === Tabs.HISTORY ? "active" : "default"}
               icon={PiInvoice}
-              onClick={() => setTab(Tabs.HISTORY)}
+              onClick={() => navigate("/history")}
               collapsed={collapsed}
             >
               History
@@ -132,7 +132,7 @@ export const LeftSidebar = ({ collapsed }) => {
             <SidebarItem
               variant={tab === Tabs.SETTINGS ? "active" : "default"}
               icon={GoGear}
-              onClick={() => setTab(Tabs.SETTINGS)}
+              onClick={() => navigate("/settings")}
               collapsed={collapsed}
             >
               Settings
@@ -141,7 +141,7 @@ export const LeftSidebar = ({ collapsed }) => {
             <SidebarItem
               variant={tab === Tabs.COMMUNITY ? "active" : "default"}
               icon={PiUsersThreeLight}
-              onClick={() => setTab(Tabs.COMMUNITY)}
+              onClick={() => navigate("/community")}
               collapsed={collapsed}
             >
               Community
@@ -150,7 +150,7 @@ export const LeftSidebar = ({ collapsed }) => {
             <SidebarItem
               variant={tab === Tabs.HELP ? "active" : "default"}
               icon={IoHelpCircleOutline}
-              onClick={() => setTab(Tabs.HELP)}
+              onClick={() => navigate("/help")}
               collapsed={collapsed}
             >
               Help
