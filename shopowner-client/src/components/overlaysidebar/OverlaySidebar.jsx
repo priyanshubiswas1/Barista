@@ -14,6 +14,9 @@ export const OverlaySidebar = () => {
     case Overlays.MANAGECAT:
       content = <h2 className="text-gray-800 text-lg">Manage Categories</h2>;
       break;
+    case Overlays.CREATEORDER:
+      content = <h2 className="text-gray-800 text-lg">Create Orders</h2>;
+      break;
     default:
       content = null;
   }

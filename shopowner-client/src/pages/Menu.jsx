@@ -13,16 +13,6 @@ import LeftSidebar from "../components/LeftSidebar";
 import MenuNoItems from "../components/menu/MenuNoItems";
 import Button from "../components/Button";
 
-const AddItem = ({ onClick }) => (
-  <div
-    onClick={onClick}
-    className="flex justify-center items-center gap-3 bg-gray-800 border border-gray-200 rounded-lg px-3 py-2 cursor-pointer"
-  >
-    <FaPlus className="text-white" />
-    <h2 className="text-white">Add Items</h2>
-  </div>
-);
-
 const MenuSubHeader = ({ onAddItemClick, onManageCategoryClick }) => {
   return (
     <div className="w-[100%] flex justify-between items-center pt-10">
@@ -40,7 +30,6 @@ const MenuSubHeader = ({ onAddItemClick, onManageCategoryClick }) => {
         <Button onClick={onAddItemClick} variant="primary" icon={FaPlus}>
           Add Items
         </Button>
-        {/* <AddItem onClick={onAddItemClick} /> */}
       </div>
     </div>
   );
@@ -73,16 +62,16 @@ const Menu = () => {
   console.log(groupedItems);
 
   return (
-    <div className="flex">
+    <div className="flex h-screen">
       <LeftSidebar collapsed={isSidebarCollapesed} tab={Tabs.MENU} />
-      <div className="p-5 h-lvh w-[100%] relative flex flex-col">
+      <div className="p-5 flex flex-col w-full">
         <TabHeader toggleSidebar={toggleSidebar} tab={Tabs.MENU} />
         <MenuSubHeader
           onAddItemClick={() => setOverlay(Overlays.ADDITEM)}
           onManageCategoryClick={() => setOverlay(Overlays.MANAGECAT)}
         />
         {items.length > 0 ? (
-          <div className="pt-5 flex flex-col gap-2">
+          <div className="pt-5 flex-grow flex flex-col gap-2">
             {Object.entries(groupedItems).map(([category, categoryItems]) => (
               <MenuContent
                 key={categoryItems.itemId}
@@ -92,7 +81,7 @@ const Menu = () => {
             ))}
           </div>
         ) : (
-          <div className="pt-5 w-full h-full">
+          <div className="pt-5 flex-grow">
             <MenuNoItems />
           </div>
         )}
