@@ -10,6 +10,7 @@ import MenuContent from "../components/menu/MenuContent";
 import { useQuery } from "@tanstack/react-query";
 import { fetchItemsByShopId } from "../api/api";
 import LeftSidebar from "../components/LeftSidebar";
+import MenuNoItems from "../components/menu/MenuNoItems";
 
 const Preview = () => {
   return (
@@ -65,7 +66,7 @@ const Menu = () => {
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["menuItems"],
-    queryFn: () => fetchItemsByShopId("8dc5b0b4-dbb6-457a-beac-b469b6c1e396"),
+    queryFn: () => fetchItemsByShopId("d89c08e4-62fb-4ced-856d-528425ab5d22"),
   });
 
   if (isLoading) return <p>Loading item...</p>;
@@ -85,21 +86,27 @@ const Menu = () => {
   return (
     <div className="flex">
       <LeftSidebar collapsed={isSidebarCollapesed} tab={Tabs.MENU} />
-      <div className="p-5 h-[100%] w-[100%] relative flex flex-col">
+      <div className="p-5 h-lvh w-[100%] relative flex flex-col">
         <TabHeader toggleSidebar={toggleSidebar} tab={Tabs.MENU} />
         <MenuSubHeader
           onAddItemClick={() => setOverlay(Overlays.ADDITEM)}
           onManageCategoryClick={() => setOverlay(Overlays.MANAGECAT)}
         />
-        <div className="pt-5 flex flex-col gap-2">
-          {Object.entries(groupedItems).map(([category, categoryItems]) => (
-            <MenuContent
-              key={categoryItems.itemId}
-              category={category}
-              items={categoryItems}
-            />
-          ))}
-        </div>
+        {items.length == 0 ? (
+          <div className="pt-5 flex flex-col gap-2">
+            {Object.entries(groupedItems).map(([category, categoryItems]) => (
+              <MenuContent
+                key={categoryItems.itemId}
+                category={category}
+                items={categoryItems}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="pt-5 w-full h-full">
+            <MenuNoItems />
+          </div>
+        )}
         <OverlaySidebar />
       </div>
     </div>
