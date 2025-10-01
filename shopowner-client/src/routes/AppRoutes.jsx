@@ -7,11 +7,15 @@ import History from "../pages/History.jsx";
 import Settings from "../pages/Settings.jsx";
 import Community from "../pages/Community.jsx";
 import Help from "../pages/Help.jsx";
+import Login from "../pages/Login.jsx";
+import Register from "../pages/Register.jsx";
 
 function AppRoutes() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
         <Route path="/menu" element={<Menu />} />
         <Route path="/orders" element={<Orders />} />
         <Route path="/tables" element={<Tables />} />

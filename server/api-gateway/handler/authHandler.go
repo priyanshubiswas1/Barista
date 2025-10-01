@@ -82,6 +82,8 @@ func (c *AuthClient) RegisterHandler(ctx context.Context, w http.ResponseWriter,
 		Email:   res.User.Email,
 		Phone:   res.User.Phone,
 		Address: res.User.Address,
+		ShopId:  res.ShopId,
+		MenuId:  res.MenuId,
 	})
 }
 
@@ -105,6 +107,8 @@ func (c *AuthClient) LoginHandler(ctx context.Context, w http.ResponseWriter, r 
 		Email:   res.User.Email,
 		Phone:   res.User.Phone,
 		Address: res.User.Address,
+		ShopId:  res.ShopId,
+		MenuId:  res.MenuId,
 	})
 }
 

@@ -107,6 +107,8 @@ services:
     environment:
       PORT: "8080"
       DB_URL: "postgres://admin:7866@user_db:5432/user?sslmode=disable"
+      SHOP_CLIENT: shopservice:8080
+      MENU_CLIENT: menuservice:8080
     restart: on-failure
   shopservice:
     build:

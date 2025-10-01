@@ -5,6 +5,7 @@ import (
 	"time"
 
 	auth "github.com/priyanshubiswas1/barista/authservice"
+	"github.com/priyanshubiswas1/barista/authservice/client"
 	"github.com/priyanshubiswas1/barista/authservice/pkg"
 	"github.com/tinrab/retry"
 )
@@ -26,7 +27,21 @@ func main() {
 	defer r.Close()
 	log.Println("auth repo created")
 
-	s := auth.NewService(r)
+	log.Println("creating shop grpc client")
+	shopClient, err := client.NewShop(cfg.ShopClient)
+	if err != nil {
+		log.Fatal("failed to create session grpc client: ", err)
+	}
+	log.Println("session grpc client created")
+
+	log.Println("creating menu grpc client")
+	menuClient, err := client.NewMenu(cfg.MenuClient)
+	if err != nil {
+		log.Fatal("failed to create session grpc client: ", err)
+	}
+	log.Println("session grpc client created")
+
+	s := auth.NewService(r, shopClient, menuClient)
 	log.Println("starting grpc server on port: ", cfg.Port)
 	if err := auth.ListenGRPC(s, cfg.Port); err != nil {
 		log.Fatal("failed to create grpc server: ", err)

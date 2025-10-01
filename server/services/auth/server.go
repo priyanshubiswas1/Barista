@@ -48,8 +48,10 @@ func (s *grpcServer) RegisterUser(ctx context.Context, req *auth.RegisterRequest
 	}
 
 	return &auth.RegisterResponse{
-		User:  authUser,
-		Token: res.Token,
+		User:   authUser,
+		Token:  res.Token,
+		ShopId: res.ShopId,
+		MenuId: res.MenuId,
 	}, nil
 }
 func (s *grpcServer) LoginUser(ctx context.Context, req *auth.LoginRequest) (*auth.LoginResponse, error) {
@@ -73,8 +75,10 @@ func (s *grpcServer) LoginUser(ctx context.Context, req *auth.LoginRequest) (*au
 		Address: res.User.Address,
 	}
 	return &auth.LoginResponse{
-		Token: res.Token,
-		User:  authUser,
+		Token:  res.Token,
+		User:   authUser,
+		ShopId: res.ShopId,
+		MenuId: res.MenuId,
 	}, nil
 }
 func (s *grpcServer) UpdateUser(ctx context.Context, req *auth.UpdateRequest) (*auth.UpdateResponse, error) {

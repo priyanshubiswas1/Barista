@@ -88,7 +88,7 @@ const MenuContentBody = ({ items }) => {
 
 const MenuContent = ({ category, items }) => {
   return (
-    <div className="w-full bg-white p-4">
+    <div className="w-full bg-white p-4 rounded-md">
       <MenuContentHeader category={category} count={items.length} />
       <MenuContentBody items={items} />
     </div>

@@ -2,7 +2,7 @@ import React from "react";
 import Button from "../components/Button";
 import { Plus } from "phosphor-react";
 import LeftSidebar from "../components/LeftSidebar.jsx";
-import Login from "../components/Login.jsx";
+import Login from "./Login.jsx";
 
 const Test = () => {
   return (

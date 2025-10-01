@@ -20,6 +20,8 @@ type RegisterRes struct {
 	Email   string `json:"email"`
 	Phone   string `json:"phone"`
 	Address string `json:"address"`
+	ShopId  string `json:"shopId"`
+	MenuId  string `json:"menuId"`
 }
 type LoginReq struct {
 	Email    string `json:"email"`
@@ -32,6 +34,8 @@ type LoginRes struct {
 	Email   string `json:"email"`
 	Phone   string `json:"phone"`
 	Address string `json:"address"`
+	ShopId  string `json:"shopId"`
+	MenuId  string `json:"menuId"`
 }
 type UpdateUserReq struct {
 	Name        string `json:"name"`

@@ -7,6 +7,7 @@ import (
 
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/google/uuid"
+	"github.com/priyanshubiswas1/barista/authservice/client"
 	"github.com/priyanshubiswas1/barista/authservice/pkg"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -19,15 +20,18 @@ type Service interface {
 	DeleteUser(ctx context.Context, id, password string) error
 }
 
-type Auth struct {
-}
-
 type authService struct {
 	repository Repository
+	shopClient client.IShopClient
+	menuClient client.IMenuClient
 }
 
-func NewService(r Repository) Service {
-	return &authService{r}
+func NewService(r Repository, shopClient client.IShopClient, menuClient client.IMenuClient) Service {
+	return &authService{
+		repository: r,
+		shopClient: shopClient,
+		menuClient: menuClient,
+	}
 }
 
 func (s *authService) Register(ctx context.Context, user *pkg.User) (*pkg.RegisterResponse, error) {
@@ -49,8 +53,28 @@ func (s *authService) Register(ctx context.Context, user *pkg.User) (*pkg.Regist
 		return nil, err
 	}
 
+	shopId, err := s.shopClient.RegisterShop(ctx, pkg.CreateShopReq{
+		OwnerId:  id,
+		ShopName: user.Name,
+	})
+	if err != nil {
+		log.Println("error creating shop")
+		return nil, err
+	}
+
+	menuId, err := s.menuClient.CreateMenu(ctx, pkg.CreateMenuReq{
+		ShopId:   shopId,
+		MenuName: user.Name,
+	})
+	if err != nil {
+		log.Println("error creating menu")
+		return nil, err
+	}
+
 	return &pkg.RegisterResponse{
-		Token: tokenString,
+		Token:  tokenString,
+		ShopId: shopId,
+		MenuId: menuId,
 	}, nil
 }
 
@@ -64,9 +88,30 @@ func (s *authService) Login(ctx context.Context, email, phone, password string) 
 		log.Println("error generating token")
 		return nil, err
 	}
+
+	shopIds, err := s.shopClient.GetShopByOwnerId(ctx, id)
+	if err != nil {
+		log.Println("error fetching shop")
+		return nil, err
+	}
+	if len(shopIds) < 1 {
+		log.Println("user has no shops")
+	}
+
+	menuIds, err := s.menuClient.GetMenus(ctx, shopIds[0])
+	if err != nil {
+		log.Println("error fetching menus")
+		return nil, err
+	}
+	if len(menuIds) < 1 {
+		log.Println("shop has no menu")
+	}
+
 	return &pkg.LoginResponse{
-		Token: tokenString,
-		User:  *user,
+		Token:  tokenString,
+		User:   *user,
+		ShopId: shopIds[0],
+		MenuId: menuIds[0],
 	}, nil
 }
 

@@ -10,6 +10,7 @@ export default function Input({
   disabled = false,
   prefix,
   type = "text",
+  autocomplete = "",
   ...props
 }) {
   return (
@@ -42,6 +43,7 @@ export default function Input({
           onChange={onChange}
           placeholder={placeholder}
           disabled={disabled}
+          autoComplete={autocomplete}
           className={`flex-1 w-full bg-transparent outline-none text-sm text-gray-800
             placeholder:text-gray-400
             disabled:placeholder:text-gray-300`}
