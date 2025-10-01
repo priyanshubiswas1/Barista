@@ -25,7 +25,7 @@ const Button = ({
   // Icon-only: square button, no gap
   const paddingClasses = isIconOnly
     ? "w-8 h-8 p-0 flex items-center justify-center"
-    : "px-4 py-2 flex items-center gap-2";
+    : "px-4 py-2 flex items-center gap-2 justify-center";
 
   const handleClick = (e) => {
     if (onClick) {

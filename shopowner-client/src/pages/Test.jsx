@@ -2,13 +2,14 @@ import React from "react";
 import Button from "../components/Button";
 import { Plus } from "phosphor-react";
 import LeftSidebar from "../components/LeftSidebar.jsx";
+import Login from "../components/Login.jsx";
 
 const Test = () => {
   return (
     <div className="flex h-screen">
-      <LeftSidebar />
-      <div className="h-screen w-screen flex items-center justify-center bg-gray-100">
-        <div className="inline-flex flex-col gap-4 p-6 bg-white rounded-lg">
+      {/* <LeftSidebar /> */}
+      <div className="h-screen w-screen flex flex-col gap-6 items-center justify-center bg-white">
+        {/* <div className="inline-flex flex-col gap-4 p-6 bg-white rounded-lg">
           <h3 className="text-base font-semibold text-gray-800">Text Only :</h3>
           <div className="flex gap-2">
             <Button>Primary</Button>
@@ -47,7 +48,16 @@ const Test = () => {
               Add Item
             </Button>
           </div>
-        </div>
+        </div> */}
+        <header className="flex flex-col gap-2 items-center">
+          <h1 className="text-2xl font-semibold text-gray-800">
+            Sign in to MyCafeApp
+          </h1>
+          {/* <h2 className="text-gray-400 text-base font-normal">
+            Enter your details to continue
+          </h2> */}
+        </header>
+        <Login></Login>
       </div>
     </div>
   );
