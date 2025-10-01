@@ -1,0 +1,1593 @@
+{
+	"info": {
+		"_postman_id": "8a22a362-c360-4490-b155-34b59678a697",
+		"name": "Barista",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "26812303"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Register",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"test\",\r\n    \"email\": \"testemail\",\r\n    \"phone\": \"7866013788\",\r\n    \"password\": \"7866\",\r\n    \"address\": \"testaddress\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/auth/register",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"testemail\",\r\n    \"phone\": \"7866013788\",\r\n    \"password\": \"7866\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/auth/login",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetUser",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTg3NzE2NTMsImlhdCI6MTc1ODY4NTI1MywianRpIjoiOTRjYjBmNDMtODM1My00OGQxLTg3MTItZTEyZWFiZTE2NmEzIn0.__6MS5eB8bLwBkRXuUVQtMaKWGW14j0lHDkTqa4ZVlI",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/auth/user",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"user"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateUser",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTg3NzExNjAsImlhdCI6MTc1ODY4NDc2MCwianRpIjoiZGFiZGIzNTctNzM0Ny00NTQ1LWIzYjctMGMwN2Y1NWFmYTJhIn0.IJjpNrBZlw3NV37laq7fRK-gBqBep-VdAZFvGBi9TR4",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\":\"test2\",\r\n    \"email\":\"testemail\",\r\n    \"phone\":\"7866013788\",\r\n    \"oldPassword\":\"7866\",\r\n    \"password\":\"78667\",\r\n    \"address\":\"test2\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/auth/user",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"user"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DeleteUser",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTg3NzExNjAsImlhdCI6MTc1ODY4NDc2MCwianRpIjoiZGFiZGIzNTctNzM0Ny00NTQ1LWIzYjctMGMwN2Y1NWFmYTJhIn0.IJjpNrBZlw3NV37laq7fRK-gBqBep-VdAZFvGBi9TR4",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"password\":\"78667\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/auth/user",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"user"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Shop",
+			"item": [
+				{
+					"name": "GetShopById",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTg3NzExNjAsImlhdCI6MTc1ODY4NDc2MCwianRpIjoiZGFiZGIzNTctNzM0Ny00NTQ1LWIzYjctMGMwN2Y1NWFmYTJhIn0.IJjpNrBZlw3NV37laq7fRK-gBqBep-VdAZFvGBi9TR4",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/shop/95d5cbbc-78f8-42e1-8a3b-f4675e30851a",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"shop",
+								"95d5cbbc-78f8-42e1-8a3b-f4675e30851a"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetShops",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTg3NzExNjAsImlhdCI6MTc1ODY4NDc2MCwianRpIjoiZGFiZGIzNTctNzM0Ny00NTQ1LWIzYjctMGMwN2Y1NWFmYTJhIn0.IJjpNrBZlw3NV37laq7fRK-gBqBep-VdAZFvGBi9TR4",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/shops",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"shops"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CreateShop",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTkzNDcxNTUsImlhdCI6MTc1OTI2MDc1NSwianRpIjoiYWEzMzYxMzEtNWYxYi00NTFiLThiODItYzlmZWFiOTA0NDA2In0.WTvuBXuuDxWE9kzTK-C6ueJKcIgQKUOVzl6Y363cIBs",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"shopName\": \"test shop\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/shop",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"shop"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DeleteShop",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTg3NzExNjAsImlhdCI6MTc1ODY4NDc2MCwianRpIjoiZGFiZGIzNTctNzM0Ny00NTQ1LWIzYjctMGMwN2Y1NWFmYTJhIn0.IJjpNrBZlw3NV37laq7fRK-gBqBep-VdAZFvGBi9TR4",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"shopId\":\"95d5cbbc-78f8-42e1-8a3b-f4675e30851a\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/shop",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"shop"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateShop",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTg3NzExNjAsImlhdCI6MTc1ODY4NDc2MCwianRpIjoiZGFiZGIzNTctNzM0Ny00NTQ1LWIzYjctMGMwN2Y1NWFmYTJhIn0.IJjpNrBZlw3NV37laq7fRK-gBqBep-VdAZFvGBi9TR4",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"shopName\": \"shop\",\r\n    \"shopId\": \"95d5cbbc-78f8-42e1-8a3b-f4675e30851a\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/shop",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"shop"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Menu",
+			"item": [
+				{
+					"name": "CreateMenu",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTkwOTQ3MjUsImlhdCI6MTc1OTAwODMyNSwianRpIjoiZTJjMWNiZjgtNDNkNy00ZWNkLTgyOTItOGU5YjgwYTE4YmEyIn0.wnQTnfg3Md1LHJhBwq9JVQdQjmfrpAUaBoRGtzxGgzs",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"shopId\":\"6aa1e0ed-cd17-4be7-a5dd-dc0cd28350d9\",\r\n  \"name\":\"menu1\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/menu",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"menu"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetMenus",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTg3NzExNjAsImlhdCI6MTc1ODY4NDc2MCwianRpIjoiZGFiZGIzNTctNzM0Ny00NTQ1LWIzYjctMGMwN2Y1NWFmYTJhIn0.IJjpNrBZlw3NV37laq7fRK-gBqBep-VdAZFvGBi9TR4",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/menus/e66c23d8-1013-44b6-b870-cfb92e25bd8f",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"menus",
+								"e66c23d8-1013-44b6-b870-cfb92e25bd8f"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "SetMenu(active)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTg3NzExNjAsImlhdCI6MTc1ODY4NDc2MCwianRpIjoiZGFiZGIzNTctNzM0Ny00NTQ1LWIzYjctMGMwN2Y1NWFmYTJhIn0.IJjpNrBZlw3NV37laq7fRK-gBqBep-VdAZFvGBi9TR4",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/menu/26c48ef9-54f3-4f5e-90ba-49e503a7e1d3",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"menu",
+								"26c48ef9-54f3-4f5e-90ba-49e503a7e1d3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DeleteMenu",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTg3NzExNjAsImlhdCI6MTc1ODY4NDc2MCwianRpIjoiZGFiZGIzNTctNzM0Ny00NTQ1LWIzYjctMGMwN2Y1NWFmYTJhIn0.IJjpNrBZlw3NV37laq7fRK-gBqBep-VdAZFvGBi9TR4",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/menu/26c48ef9-54f3-4f5e-90ba-49e503a7e1d3",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"menu",
+								"26c48ef9-54f3-4f5e-90ba-49e503a7e1d3"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Items",
+			"item": [
+				{
+					"name": "CreateItem",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTkzNDcxNTUsImlhdCI6MTc1OTI2MDc1NSwianRpIjoiYWEzMzYxMzEtNWYxYi00NTFiLThiODItYzlmZWFiOTA0NDA2In0.WTvuBXuuDxWE9kzTK-C6ueJKcIgQKUOVzl6Y363cIBs",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\":\"snack 1\",\r\n  \"shopId\":\"8dc5b0b4-dbb6-457a-beac-b469b6c1e396\",\r\n  \"description\":\"drink\",\r\n  \"categoryId\":\"7d98bd7c-4c69-49e6-83e5-722ad86452a1\",\r\n  \"price\":20.00,\r\n  \"image\":\"image url\",\r\n  \"available\":true\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/item",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"item"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetItem",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTg3NzExNjAsImlhdCI6MTc1ODY4NDc2MCwianRpIjoiZGFiZGIzNTctNzM0Ny00NTQ1LWIzYjctMGMwN2Y1NWFmYTJhIn0.IJjpNrBZlw3NV37laq7fRK-gBqBep-VdAZFvGBi9TR4",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/item/5133e529-7921-4580-9c66-3d9c961e1dac",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"item",
+								"5133e529-7921-4580-9c66-3d9c961e1dac"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetItems",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTkzNDcxNTUsImlhdCI6MTc1OTI2MDc1NSwianRpIjoiYWEzMzYxMzEtNWYxYi00NTFiLThiODItYzlmZWFiOTA0NDA2In0.WTvuBXuuDxWE9kzTK-C6ueJKcIgQKUOVzl6Y363cIBs",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/items/8dc5b0b4-dbb6-457a-beac-b469b6c1e396",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"items",
+								"8dc5b0b4-dbb6-457a-beac-b469b6c1e396"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateItem",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTg3NzExNjAsImlhdCI6MTc1ODY4NDc2MCwianRpIjoiZGFiZGIzNTctNzM0Ny00NTQ1LWIzYjctMGMwN2Y1NWFmYTJhIn0.IJjpNrBZlw3NV37laq7fRK-gBqBep-VdAZFvGBi9TR4",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"itemId\":\"5133e529-7921-4580-9c66-3d9c961e1dac\",\r\n    \"shopId\":\"e66c23d8-1013-44b6-b870-cfb92e25bd8f\",\r\n    \"itemName\":\"food item\",\r\n    \"description\":\"food item\",\r\n    \"categoryId\":\"7763a144-e66a-4b5b-b7df-08f7aba150d1\",\r\n    \"price\":12,\r\n    \"image\":\"img url\",\r\n    \"available\": true\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/item",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"item"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DeleteItem",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTg3NzExNjAsImlhdCI6MTc1ODY4NDc2MCwianRpIjoiZGFiZGIzNTctNzM0Ny00NTQ1LWIzYjctMGMwN2Y1NWFmYTJhIn0.IJjpNrBZlw3NV37laq7fRK-gBqBep-VdAZFvGBi9TR4",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/item/2beb3039-092c-4bc3-9d4f-8a98ffc694f8",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"item",
+								"2beb3039-092c-4bc3-9d4f-8a98ffc694f8"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Category",
+			"item": [
+				{
+					"name": "CreateCategory",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTkzNDcxNTUsImlhdCI6MTc1OTI2MDc1NSwianRpIjoiYWEzMzYxMzEtNWYxYi00NTFiLThiODItYzlmZWFiOTA0NDA2In0.WTvuBXuuDxWE9kzTK-C6ueJKcIgQKUOVzl6Y363cIBs",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Drinks\",\r\n    \"shopId\": \"8dc5b0b4-dbb6-457a-beac-b469b6c1e396\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/category",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"category"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DeleteCategory",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTg3NzExNjAsImlhdCI6MTc1ODY4NDc2MCwianRpIjoiZGFiZGIzNTctNzM0Ny00NTQ1LWIzYjctMGMwN2Y1NWFmYTJhIn0.IJjpNrBZlw3NV37laq7fRK-gBqBep-VdAZFvGBi9TR4",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"categoryId\":\"c62a4b37-0209-488e-a056-672d96165b7b\",\r\n  \"shopId\":\"e66c23d8-1013-44b6-b870-cfb92e25bd8f\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/category",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"category"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetCategories",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTg3NzExNjAsImlhdCI6MTc1ODY4NDc2MCwianRpIjoiZGFiZGIzNTctNzM0Ny00NTQ1LWIzYjctMGMwN2Y1NWFmYTJhIn0.IJjpNrBZlw3NV37laq7fRK-gBqBep-VdAZFvGBi9TR4",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/category/e66c23d8-1013-44b6-b870-cfb92e25bd8f",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"category",
+								"e66c23d8-1013-44b6-b870-cfb92e25bd8f"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "MenuItems",
+			"item": [
+				{
+					"name": "CreateMenuItem",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTkwODk5NDAsImlhdCI6MTc1OTAwMzU0MCwianRpIjoiMzc2YWI1OGYtZmZlMS00NTRlLTgzZmMtZmI4ZDFhMzk2OGFkIn0.Woahqt1xKWgpZlJXEoCGrf504e7Uv_DL1FlVrCro9G8",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"menuId\":\"21e93950-c90d-4c5d-bd24-420dbf55a139\",\r\n  \"itemId\":\"efa5aa77-4980-4a0b-91ac-d48e2dd77fe4\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/menu-item",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"menu-item"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetMenuItems",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTg3NzExNjAsImlhdCI6MTc1ODY4NDc2MCwianRpIjoiZGFiZGIzNTctNzM0Ny00NTQ1LWIzYjctMGMwN2Y1NWFmYTJhIn0.IJjpNrBZlw3NV37laq7fRK-gBqBep-VdAZFvGBi9TR4",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/menu-item/e3ece2ba-3b0b-409c-8188-82df8e008b03",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"menu-item",
+								"e3ece2ba-3b0b-409c-8188-82df8e008b03"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DeleteMenuItem",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTg3NzExNjAsImlhdCI6MTc1ODY4NDc2MCwianRpIjoiZGFiZGIzNTctNzM0Ny00NTQ1LWIzYjctMGMwN2Y1NWFmYTJhIn0.IJjpNrBZlw3NV37laq7fRK-gBqBep-VdAZFvGBi9TR4",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"menuId\":\"e3ece2ba-3b0b-409c-8188-82df8e008b03\",\r\n  \"itemId\":\"0b6b7eaa-2976-4183-a163-1c8f007e50ea\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/menu-item",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"menu-item"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DeleteMenuItems",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTg3NzExNjAsImlhdCI6MTc1ODY4NDc2MCwianRpIjoiZGFiZGIzNTctNzM0Ny00NTQ1LWIzYjctMGMwN2Y1NWFmYTJhIn0.IJjpNrBZlw3NV37laq7fRK-gBqBep-VdAZFvGBi9TR4",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/menu-item/e3ece2ba-3b0b-409c-8188-82df8e008b03",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"menu-item",
+								"e3ece2ba-3b0b-409c-8188-82df8e008b03"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Table",
+			"item": [
+				{
+					"name": "CreateTable",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTkwOTQ3MjUsImlhdCI6MTc1OTAwODMyNSwianRpIjoiZTJjMWNiZjgtNDNkNy00ZWNkLTgyOTItOGU5YjgwYTE4YmEyIn0.wnQTnfg3Md1LHJhBwq9JVQdQjmfrpAUaBoRGtzxGgzs",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"shopId\":\"6aa1e0ed-cd17-4be7-a5dd-dc0cd28350d9\",\r\n  \"tableNumber\":\"47\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/table",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"table"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetTables",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTg3NzExNjAsImlhdCI6MTc1ODY4NDc2MCwianRpIjoiZGFiZGIzNTctNzM0Ny00NTQ1LWIzYjctMGMwN2Y1NWFmYTJhIn0.IJjpNrBZlw3NV37laq7fRK-gBqBep-VdAZFvGBi9TR4",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/tables/e66c23d8-1013-44b6-b870-cfb92e25bd8f",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"tables",
+								"e66c23d8-1013-44b6-b870-cfb92e25bd8f"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetTable",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTg3NzExNjAsImlhdCI6MTc1ODY4NDc2MCwianRpIjoiZGFiZGIzNTctNzM0Ny00NTQ1LWIzYjctMGMwN2Y1NWFmYTJhIn0.IJjpNrBZlw3NV37laq7fRK-gBqBep-VdAZFvGBi9TR4",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"shopId\":\"e66c23d8-1013-44b6-b870-cfb92e25bd8f\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/table/7d7d7fcc-95ce-41ac-9dc0-1cf2f5000ffb",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"table",
+								"7d7d7fcc-95ce-41ac-9dc0-1cf2f5000ffb"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateTable",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTg3NzExNjAsImlhdCI6MTc1ODY4NDc2MCwianRpIjoiZGFiZGIzNTctNzM0Ny00NTQ1LWIzYjctMGMwN2Y1NWFmYTJhIn0.IJjpNrBZlw3NV37laq7fRK-gBqBep-VdAZFvGBi9TR4",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"table\":{\r\n    \"tableId\":\"7d7d7fcc-95ce-41ac-9dc0-1cf2f5000ffb\",\r\n    \"shopId\":\"e66c23d8-1013-44b6-b870-cfb92e25bd8f\",\r\n    \"tableNumber\":\"12\",\r\n    \"qrUrl\":\"iVBORw0KGgoAAAANSUhEUgAAAQAAAAEAAQMAAABmvDolAAAABlBMVEX///8AAABVwtN+AAACrUlEQVR42uyZQY6rMBBEC7Hw0kfwTeBiKIByMbgJR+ilFxb1Ve3MJH8ugJHiHZk3UhpVV1c7+J7vueEJJLkB8cSUCnoCGHOnT+1GwAEEAashLSjAyC3sBvQtAWTYbYi0CUDPwDzmzmY+WwO4xTMuaUmqImxoErAhrjZhZs+wBeb7AUDYJWIWAAVBuu7+KOpqQH96VZGeR0lhy0P9j3YAP52NlGBKQgpU8/2xuosB6YEbBsx8ckFfH2ViS0tARh7i7p/Mbrv+7h/xV7R3ABjqvFi9SLiqw4kHJjQDILmpDXFlkWAgd8hy5tnaAeBWTJ5Rgil63DB4Ue0AKY8YDfGMPPpDj1UPPyZ2D0A+d8aqEMUchQmMPH8F0wKgKnQeUa3nVlzt47PMi4HADNJGrvIGvWo1ngTzbAg4ahVR7jAlHvQqbLa+HUCJlkpiK5+HYre6MGx667gT4CJWnqT7XNb6MGA2tAXwxGj+tasVD+GMSyztAFI15FtnnbusE8MeP3U0ARxhCyfUesXjYtaLlvH+hpybABluxUhPSte5e3VnSwADbQCUKI+S6p4ORLYDyB/qgIhPlqQs5rP3I+RcD2jHCbtpPSy+8+YxnOFXDW0A+tK5407alEqi5KGFh+95cQNAU0950uBJrPf1IQ/ofuZFEwB9E/eQ87pNCrvHxdnaAWoV2iCL+0OoNaw2oSHA1zD12gQkHhh9U/+o4haAx/BOS9ChiOO9yc/N/XrgdQfSGeKSpOuwcVMSe/fm9UC9TI7kyh9Vs6p6QjuA38tZ3XG0Lb6uwB/v26QWAJ8Xvh4mjTWMuZb2/xXoPQCD77y9OlGhd7U/ZV4PyOWsV7elQHQ+1paWAP8FpLOHX4FWEwsb/lf11YBfJnPXYl7vYRD2PMS3y90B+J7vaer8CwAA//91vJJO5S1lvQAAAABJRU5ErkJggg==\"\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/table",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"table"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DeleteTable",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTg3NzExNjAsImlhdCI6MTc1ODY4NDc2MCwianRpIjoiZGFiZGIzNTctNzM0Ny00NTQ1LWIzYjctMGMwN2Y1NWFmYTJhIn0.IJjpNrBZlw3NV37laq7fRK-gBqBep-VdAZFvGBi9TR4",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"tableId\":\"7d7d7fcc-95ce-41ac-9dc0-1cf2f5000ffb\",\r\n  \"shopId\":\"e66c23d8-1013-44b6-b870-cfb92e25bd8f\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/table",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"table"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Session",
+			"item": [
+				{
+					"name": "GetAllSessions",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTg4MjUzMTIsImlhdCI6MTc1ODczODkxMiwianRpIjoiZjEwZGUxMzItMTFmNC00MmM5LWJmZDUtZGU0NjZlMzc1ZWFmIn0.mTlPs8JJv0bvK36_zptZLe6jB_fGgqUT02tH1xkMAc0",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/sessions?shopid=8596f46d-042d-476d-8c6c-8c9349a7a7ef",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"sessions"
+							],
+							"query": [
+								{
+									"key": "shopid",
+									"value": "8596f46d-042d-476d-8c6c-8c9349a7a7ef"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetActiveSession",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTg4MjUzMTIsImlhdCI6MTc1ODczODkxMiwianRpIjoiZjEwZGUxMzItMTFmNC00MmM5LWJmZDUtZGU0NjZlMzc1ZWFmIn0.mTlPs8JJv0bvK36_zptZLe6jB_fGgqUT02tH1xkMAc0",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/sessions?shopid=8596f46d-042d-476d-8c6c-8c9349a7a7ef&table=3edd63d2-bf97-46a3-b580-a522de86d2ff",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"sessions"
+							],
+							"query": [
+								{
+									"key": "shopid",
+									"value": "8596f46d-042d-476d-8c6c-8c9349a7a7ef"
+								},
+								{
+									"key": "table",
+									"value": "3edd63d2-bf97-46a3-b580-a522de86d2ff"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetSessionById",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTkwOTQ3MjUsImlhdCI6MTc1OTAwODMyNSwianRpIjoiZTJjMWNiZjgtNDNkNy00ZWNkLTgyOTItOGU5YjgwYTE4YmEyIn0.wnQTnfg3Md1LHJhBwq9JVQdQjmfrpAUaBoRGtzxGgzs",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/sessions/b65edb10-2f58-4d0a-9059-a6d9cd92bf8c",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"sessions",
+								"b65edb10-2f58-4d0a-9059-a6d9cd92bf8c"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "SendSessionOTP",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"shopId\": \"6aa1e0ed-cd17-4be7-a5dd-dc0cd28350d9\",\r\n    \"tableId\": \"f3ebc470-71a3-4010-9644-fc6d85388bd2\",\r\n    \"phoneNumber\": \"7866013788\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/sessions/send-otp",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"sessions",
+								"send-otp"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CreateSession",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"shopId\": \"6aa1e0ed-cd17-4be7-a5dd-dc0cd28350d9\",\r\n    \"tableId\": \"f3ebc470-71a3-4010-9644-fc6d85388bd2\",\r\n    \"otp\": \"6183\",\r\n    \"status\": \"active\",\r\n    \"amount\": 0.00,\r\n    \"isPaid\": false,\r\n    \"paymentMethod\": \"\",\r\n    \"active\": true\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/sessions",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"sessions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "JoinSession",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n   \"shopId\": \"2666ab8f-8dfa-4598-9d42-975ce4acf59e\",\r\n    \"tableId\": \"2f21dee4-de35-4f81-a3e7-41df14f0d91c\",\r\n    \"otp\": \"2023\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/sessions/join",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"sessions",
+								"join"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateSession",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTg4MjUzMTIsImlhdCI6MTc1ODczODkxMiwianRpIjoiZjEwZGUxMzItMTFmNC00MmM5LWJmZDUtZGU0NjZlMzc1ZWFmIn0.mTlPs8JJv0bvK36_zptZLe6jB_fGgqUT02tH1xkMAc0",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"session\": {\r\n        \"sessionId\":\"c50036f5-f60a-4702-83e9-00c40d36a92f\",\r\n        \"shopId\": \"8596f46d-042d-476d-8c6c-8c9349a7a7ef\",\r\n        \"tableId\": \"3edd63d2-bf97-46a3-b580-a522de86d2ff\",\r\n        \"otp\": \"9632\",\r\n        \"status\": \"closed\",\r\n        \"amount\": 13.00,\r\n        \"isPaid\": true,\r\n        \"paymentMethod\": \"cash\",\r\n        \"active\": false\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/sessions",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"sessions"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Orders",
+			"item": [
+				{
+					"name": "CreateOrder",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Session",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTkwMTk2MDIsImlhdCI6MTc1OTAwODgwMiwianRpIjoiYjY1ZWRiMTAtMmY1OC00ZDBhLTkwNTktYTZkOWNkOTJiZjhjIn0.GwMHKc7nK2SDHYW8ZfD72LzHHkUwnSaqjhEwM_6lE-Q",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"specialNotes\":\"no salt\",\r\n    \"orderItems\":[{\r\n        \"itemId\":\"b5f487ac-9e06-4a22-8fa0-ecc994d55f88\",\r\n        \"quantity\":4,\r\n        \"priceAtOrderTime\":10.00\r\n    },{\r\n        \"itemId\":\"640f3f84-e129-4146-a283-9066eb0c21d6\",\r\n        \"quantity\":2,\r\n        \"priceAtOrderTime\":4.00\r\n    }]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/order",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"order"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetOrdersBySessionId",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Session",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTkwMTk2MDIsImlhdCI6MTc1OTAwODgwMiwianRpIjoiYjY1ZWRiMTAtMmY1OC00ZDBhLTkwNTktYTZkOWNkOTJiZjhjIn0.GwMHKc7nK2SDHYW8ZfD72LzHHkUwnSaqjhEwM_6lE-Q",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/orders",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"orders"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetOrdersByOrderId",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTkwOTQ3MjUsImlhdCI6MTc1OTAwODMyNSwianRpIjoiZTJjMWNiZjgtNDNkNy00ZWNkLTgyOTItOGU5YjgwYTE4YmEyIn0.wnQTnfg3Md1LHJhBwq9JVQdQjmfrpAUaBoRGtzxGgzs",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/order/e22f1475-f88c-48bd-a43c-f353476984a4",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"order",
+								"e22f1475-f88c-48bd-a43c-f353476984a4"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateOrderStatus",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTkwOTQ3MjUsImlhdCI6MTc1OTAwODMyNSwianRpIjoiZTJjMWNiZjgtNDNkNy00ZWNkLTgyOTItOGU5YjgwYTE4YmEyIn0.wnQTnfg3Md1LHJhBwq9JVQdQjmfrpAUaBoRGtzxGgzs",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"orderId\":\"e22f1475-f88c-48bd-a43c-f353476984a4\",\r\n    \"orderStatus\":\"ready\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/order",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"order"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CancelOrder",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTkwOTQ3MjUsImlhdCI6MTc1OTAwODMyNSwianRpIjoiZTJjMWNiZjgtNDNkNy00ZWNkLTgyOTItOGU5YjgwYTE4YmEyIn0.wnQTnfg3Md1LHJhBwq9JVQdQjmfrpAUaBoRGtzxGgzs",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"orderId\":\"7ae5ecda-2151-48a7-b206-9dfc5572b9b6\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/order/cancel",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"order",
+								"cancel"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Payment",
+			"item": [
+				{
+					"name": "GetPayment",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Session",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTkwMTQ1NDcsImlhdCI6MTc1OTAwMzc0NywianRpIjoiYThkMTg1OWQtZjA5Mi00MWFkLWFmOGMtNWRmZGE3YzhlZjU2In0.waetaEpr4Sqh-mh_uSgshhvL7BOPKhDOp8j-jkCIDlM",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/payment",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"payment"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CreatePayment",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTkwOTQ3MjUsImlhdCI6MTc1OTAwODMyNSwianRpIjoiZTJjMWNiZjgtNDNkNy00ZWNkLTgyOTItOGU5YjgwYTE4YmEyIn0.wnQTnfg3Md1LHJhBwq9JVQdQjmfrpAUaBoRGtzxGgzs",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"sessionId\":\"b65edb10-2f58-4d0a-9059-a6d9cd92bf8c\",\r\n    \"amount\":48.00,\r\n    \"paymentMethod\":\"cash\",\r\n    \"paymentStatus\":\"completed\",\r\n    \"transactionId\":\"123456\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/payment",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"payment"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "baseURL",
+			"value": "http://localhost:8000",
+			"type": "default"
+		}
+	]
+}
