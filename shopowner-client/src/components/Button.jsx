@@ -11,7 +11,13 @@ const VARIANTS = {
     "bg-gray-200 text-gray-500 hover:text-gray-700 disabled:bg-gray-100 disabled:text-gray-200",
 };
 
-const Button = ({ children, variant = "primary", icon: Icon, ...props }) => {
+const Button = ({
+  children,
+  variant = "primary",
+  icon: Icon,
+  onClick,
+  ...props
+}) => {
   const variantClasses = VARIANTS[variant] || VARIANTS.primary;
 
   const isIconOnly = Icon && React.Children.count(children) === 0;
@@ -19,11 +25,18 @@ const Button = ({ children, variant = "primary", icon: Icon, ...props }) => {
   // Icon-only: square button, no gap
   const paddingClasses = isIconOnly
     ? "w-8 h-8 p-0 flex items-center justify-center"
-    : "px-4 py-1.5 flex items-center gap-2";
+    : "px-4 py-2 flex items-center gap-2";
+
+  const handleClick = (e) => {
+    if (onClick) {
+      onClick(e);
+    }
+  };
 
   return (
     <button
       className={`${BASE_CLASSES} ${paddingClasses} ${variantClasses}`}
+      onClick={handleClick}
       {...props}
     >
       {Icon && (

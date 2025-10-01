@@ -1,7 +1,7 @@
 import { IoMdArrowDropdown } from "react-icons/io";
 import { FaEllipsis } from "react-icons/fa6";
 
-import React, { useState } from "react";
+import { useState } from "react";
 
 const Toggle = () => {
   const [isOn, setIsOn] = useState(false);

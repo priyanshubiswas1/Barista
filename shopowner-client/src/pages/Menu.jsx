@@ -1,7 +1,7 @@
 import { TabHeader } from "../components/TabHeader";
 import { Overlays, Tabs } from "../constants/constants";
 import Searchbar from "../components/Searchbar";
-import Filter from "../components/Filter";
+import { IoFilter } from "react-icons/io5";
 import { FaPlus } from "react-icons/fa";
 import { OverlaySidebar } from "../components/overlaysidebar/OverlaySidebar";
 import { useState } from "react";
@@ -11,25 +11,7 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchItemsByShopId } from "../api/api";
 import LeftSidebar from "../components/LeftSidebar";
 import MenuNoItems from "../components/menu/MenuNoItems";
-
-const Preview = () => {
-  return (
-    <div className="flex justify-center items-center gap-3 bg-white border border-gray-200 rounded-lg px-3 py-2">
-      <h2>Preview</h2>
-    </div>
-  );
-};
-
-const ManageCategory = ({ onClick }) => {
-  return (
-    <div
-      onClick={onClick}
-      className="flex justify-center items-center gap-3 bg-white border border-gray-200 rounded-lg px-3 py-2"
-    >
-      <h2>Manage Categories</h2>
-    </div>
-  );
-};
+import Button from "../components/Button";
 
 const AddItem = ({ onClick }) => (
   <div
@@ -46,12 +28,19 @@ const MenuSubHeader = ({ onAddItemClick, onManageCategoryClick }) => {
     <div className="w-[100%] flex justify-between items-center pt-10">
       <div className="flex items-center gap-5">
         <Searchbar />
-        <Filter />
+        <Button variant="outline" icon={IoFilter}>
+          Filter
+        </Button>
       </div>
       <div className="flex items-center gap-5">
-        <Preview />
-        <ManageCategory onClick={onManageCategoryClick} />
-        <AddItem onClick={onAddItemClick} />
+        <Button variant="outline">Preview</Button>
+        <Button onClick={onManageCategoryClick} variant="outline">
+          Manage Categories
+        </Button>
+        <Button onClick={onAddItemClick} variant="primary" icon={FaPlus}>
+          Add Items
+        </Button>
+        {/* <AddItem onClick={onAddItemClick} /> */}
       </div>
     </div>
   );
