@@ -4,7 +4,7 @@ import ManageCategory from "./ManageCategory.jsx";
 import AddItems from "./AddItems.jsx";
 
 const overlayHeaders = {
-  [Overlays.ADDITEM]: "Add Items",
+  [Overlays.ADDITEM]: "Add New Item",
   [Overlays.MANAGECAT]: "Manage Categories",
   [Overlays.CREATEORDER]: "Create Orders",
 };

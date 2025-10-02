@@ -62,7 +62,9 @@ const MenuContentBody = ({ items }) => {
               <div>{item.itemName}</div>
             </div>
             <div className="flex flex-1 items-center justify-around gap-12">
-              <div>{item.price}</div>
+              <div className="flex justify-center items-center">
+                ₹ {item.price}
+              </div>
               <div className="w-20 flex justify-center">
                 {!item ? (
                   <div className="bg-green-100 text-green-700 text-sm font-semibold rounded-sm flex items-center justify-center px-2">

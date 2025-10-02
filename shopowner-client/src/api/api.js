@@ -33,8 +33,13 @@ export const fetchItemsByShopId = async (id) => {
     return response.status === 200 ? response.data : null
 };
 
-export const fetchCategoriesByShopId = async (id) => {
+export const fetchCategoryItemsByShopId = async (id) => {
     const response = await api.get(`/category-items/${id}`);
+    return response.status === 200 ? response.data : null
+};
+
+export const fetchCategoriesByShopId = async (id) => {
+    const response = await api.get(`/category/${id}`);
     return response.status === 200 ? response.data : null
 };
 
@@ -44,3 +49,8 @@ export const deleteCategoryByCategoryId = async ({ categoryId, shopId }) => {
     });
     return response.status === 200 ? response.data : null
 };
+
+export const addItem = async ({ name, shopId, categoryId, price }) => {
+    const response = await api.post(`/item`, { name: name, shopId: shopId, description: "test", categoryId: categoryId, price: price, image: "url", available: true });
+    return response.status === 200 ? response.data : null
+}

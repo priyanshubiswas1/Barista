@@ -6,7 +6,7 @@ import { useOverlay } from "../../store/overlayStore";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   deleteCategoryByCategoryId,
-  fetchCategoriesByShopId,
+  fetchCategoryItemsByShopId,
 } from "../../api/api";
 
 const CategoryItem = ({ name, id, count }) => {
@@ -52,7 +52,7 @@ const ManageCategory = ({ header }) => {
   const { setOverlay } = useOverlay();
   const { data, isLoading, error } = useQuery({
     queryKey: ["categories"],
-    queryFn: () => fetchCategoriesByShopId(localStorage.getItem("shopId")),
+    queryFn: () => fetchCategoryItemsByShopId(localStorage.getItem("shopId")),
   });
   console.log(data);
   if (isLoading) return <p>Loading item...</p>;
