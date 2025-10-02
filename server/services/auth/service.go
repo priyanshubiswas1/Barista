@@ -14,6 +14,7 @@ import (
 
 type Service interface {
 	Register(ctx context.Context, user *pkg.User) (*pkg.RegisterResponse, error)
+	RegisterWithShopMenu(ctx context.Context, user *pkg.User) (*pkg.RegisterWithShopMenuResponse, error)
 	Login(ctx context.Context, email, phone, password string) (*pkg.LoginResponse, error)
 	GetUser(ctx context.Context, id string) (*pkg.User, error)
 	UpdateUser(ctx context.Context, id, password string, user *pkg.User) (*pkg.LoginResponse, error)
@@ -34,7 +35,7 @@ func NewService(r Repository, shopClient client.IShopClient, menuClient client.I
 	}
 }
 
-func (s *authService) Register(ctx context.Context, user *pkg.User) (*pkg.RegisterResponse, error) {
+func (s *authService) RegisterWithShopMenu(ctx context.Context, user *pkg.User) (*pkg.RegisterWithShopMenuResponse, error) {
 	createdAt := time.Now()
 	id := uuid.New().String()
 	hashedPassword, err := HashPassword(user.Password)
@@ -71,10 +72,34 @@ func (s *authService) Register(ctx context.Context, user *pkg.User) (*pkg.Regist
 		return nil, err
 	}
 
-	return &pkg.RegisterResponse{
+	return &pkg.RegisterWithShopMenuResponse{
 		Token:  tokenString,
 		ShopId: shopId,
 		MenuId: menuId,
+	}, nil
+}
+
+func (s *authService) Register(ctx context.Context, user *pkg.User) (*pkg.RegisterResponse, error) {
+	createdAt := time.Now()
+	id := uuid.New().String()
+	hashedPassword, err := HashPassword(user.Password)
+	if err != nil {
+		return nil, err
+	}
+	user.Password = hashedPassword
+
+	if err := s.repository.Register(ctx, id, user, true, createdAt); err != nil {
+		return nil, err
+	}
+
+	tokenString, err := GenerateToken(id)
+	if err != nil {
+		log.Println("error generating token")
+		return nil, err
+	}
+
+	return &pkg.RegisterResponse{
+		Token: tokenString,
 	}, nil
 }
 

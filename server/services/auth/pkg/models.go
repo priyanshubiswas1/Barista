@@ -9,6 +9,10 @@ type User struct {
 }
 
 type RegisterResponse struct {
+	Token string `json:"token"`
+}
+
+type RegisterWithShopMenuResponse struct {
 	Token  string `json:"token"`
 	ShopId string `json:"shopId"`
 	MenuId string `json:"menuId"`

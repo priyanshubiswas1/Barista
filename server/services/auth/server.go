@@ -28,6 +28,33 @@ func ListenGRPC(s Service, port string) error {
 	return server.Serve(lis)
 }
 
+func (s *grpcServer) RegisterUserWithShopMenu(ctx context.Context, req *auth.RegisterRequest) (*auth.RegisterUserWithShopMenuResponse, error) {
+	res, err := s.service.RegisterWithShopMenu(ctx, &pkg.User{
+		Name:     req.User.Name,
+		Email:    req.User.Email,
+		Password: req.Password,
+		Phone:    req.User.Phone,
+		Address:  req.User.Address,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	authUser := &auth.User{
+		Name:    req.User.Name,
+		Email:   req.User.Email,
+		Phone:   req.User.Phone,
+		Address: req.User.Address,
+	}
+
+	return &auth.RegisterUserWithShopMenuResponse{
+		User:   authUser,
+		Token:  res.Token,
+		ShopId: res.ShopId,
+		MenuId: res.MenuId,
+	}, nil
+}
+
 func (s *grpcServer) RegisterUser(ctx context.Context, req *auth.RegisterRequest) (*auth.RegisterResponse, error) {
 	res, err := s.service.Register(ctx, &pkg.User{
 		Name:     req.User.Name,
@@ -48,10 +75,8 @@ func (s *grpcServer) RegisterUser(ctx context.Context, req *auth.RegisterRequest
 	}
 
 	return &auth.RegisterResponse{
-		User:   authUser,
-		Token:  res.Token,
-		ShopId: res.ShopId,
-		MenuId: res.MenuId,
+		User:  authUser,
+		Token: res.Token,
 	}, nil
 }
 func (s *grpcServer) LoginUser(ctx context.Context, req *auth.LoginRequest) (*auth.LoginResponse, error) {

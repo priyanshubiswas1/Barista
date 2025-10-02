@@ -44,7 +44,7 @@ const Menu = () => {
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["menuItems"],
-    queryFn: () => fetchItemsByShopId("d89c08e4-62fb-4ced-856d-528425ab5d22"),
+    queryFn: () => fetchItemsByShopId(localStorage.getItem("shopId")),
   });
 
   if (isLoading) return <p>Loading item...</p>;

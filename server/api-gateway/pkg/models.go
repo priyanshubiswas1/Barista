@@ -14,7 +14,7 @@ type RegisterReq struct {
 	Password string `json:"password"`
 	Address  string `json:"address"`
 }
-type RegisterRes struct {
+type RegisterUserWithShopMenuRes struct {
 	Token   string `json:"token"`
 	Name    string `json:"name"`
 	Email   string `json:"email"`
@@ -22,6 +22,13 @@ type RegisterRes struct {
 	Address string `json:"address"`
 	ShopId  string `json:"shopId"`
 	MenuId  string `json:"menuId"`
+}
+type RegisterRes struct {
+	Token   string `json:"token"`
+	Name    string `json:"name"`
+	Email   string `json:"email"`
+	Phone   string `json:"phone"`
+	Address string `json:"address"`
 }
 type LoginReq struct {
 	Email    string `json:"email"`

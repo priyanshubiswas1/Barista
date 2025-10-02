@@ -85,6 +85,7 @@ func (s *APIServer) ListenServer(port string) error {
 	})
 	handler := c.Handler(router)
 
+	router.HandleFunc("/api/auth/onboard", makeHttpHandleFunc(authClient.RegisterWithShopMenuHandler)).Methods("POST")
 	router.HandleFunc("/api/auth/register", makeHttpHandleFunc(authClient.RegisterHandler)).Methods("POST")
 	router.HandleFunc("/api/auth/login", makeHttpHandleFunc(authClient.LoginHandler)).Methods("POST")
 

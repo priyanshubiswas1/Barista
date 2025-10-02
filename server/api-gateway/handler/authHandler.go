@@ -16,6 +16,7 @@ import (
 type IAuthClient interface {
 	GetUserHandler(ctx context.Context, w http.ResponseWriter, r *http.Request) error
 	RegisterHandler(ctx context.Context, w http.ResponseWriter, r *http.Request) error
+	RegisterWithShopMenuHandler(ctx context.Context, w http.ResponseWriter, r *http.Request) error
 	LoginHandler(ctx context.Context, w http.ResponseWriter, r *http.Request) error
 	UpdateUserHandler(ctx context.Context, w http.ResponseWriter, r *http.Request) error
 	DeleteUserHandler(ctx context.Context, w http.ResponseWriter, r *http.Request) error
@@ -58,6 +59,35 @@ func (c *AuthClient) GetUserHandler(ctx context.Context, w http.ResponseWriter, 
 	})
 }
 
+func (c *AuthClient) RegisterWithShopMenuHandler(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+	req := pkg.RegisterReq{}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		return err
+	}
+	user := &auth.User{
+		Name:    req.Name,
+		Email:   req.Email,
+		Phone:   req.Phone,
+		Address: req.Address,
+	}
+	res, err := c.service.RegisterUserWithShopMenu(ctx, &auth.RegisterRequest{
+		User:     user,
+		Password: req.Password,
+	})
+	if err != nil {
+		return err
+	}
+	return pkg.WriteJSON(w, http.StatusOK, &pkg.RegisterUserWithShopMenuRes{
+		Token:   res.Token,
+		Name:    res.User.Name,
+		Email:   res.User.Email,
+		Phone:   res.User.Phone,
+		Address: res.User.Address,
+		ShopId:  res.ShopId,
+		MenuId:  res.MenuId,
+	})
+}
+
 func (c *AuthClient) RegisterHandler(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 	req := pkg.RegisterReq{}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -82,8 +112,6 @@ func (c *AuthClient) RegisterHandler(ctx context.Context, w http.ResponseWriter,
 		Email:   res.User.Email,
 		Phone:   res.User.Phone,
 		Address: res.User.Address,
-		ShopId:  res.ShopId,
-		MenuId:  res.MenuId,
 	})
 }
 

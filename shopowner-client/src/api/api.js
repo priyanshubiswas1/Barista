@@ -24,7 +24,7 @@ export const fetchItemsByShopId = async (id) => {
 };
 
 export const registerUser = async (credentials) => {
-    const response = await api.post(`/auth/register`, credentials);
+    const response = await api.post(`/auth/onboard`, credentials);
     return response.status === 200 ? response.data : null
 }
 
