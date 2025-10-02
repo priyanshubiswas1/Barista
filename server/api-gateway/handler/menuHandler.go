@@ -35,6 +35,7 @@ type IMenuClient interface {
 	//MENU-ITEMS
 	CreateCategory(ctx context.Context, w http.ResponseWriter, r *http.Request) error
 	GetCategories(ctx context.Context, w http.ResponseWriter, r *http.Request) error
+	GetCategoriesWithItems(ctx context.Context, w http.ResponseWriter, r *http.Request) error
 	DeleteCategory(ctx context.Context, w http.ResponseWriter, r *http.Request) error
 }
 
@@ -378,6 +379,44 @@ func (c *MenuClient) GetCategories(ctx context.Context, w http.ResponseWriter, r
 		categories = append(categories, category)
 	}
 	return pkg.WriteJSON(w, http.StatusOK, pkg.GetCategoriesResponse{
+		Categories: categories,
+	})
+}
+
+func (c *MenuClient) GetCategoriesWithItems(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+	vars := mux.Vars(r)
+	shopId := vars["shopid"]
+
+	res, err := c.service.GetCategoryWithItems(ctx, &menu.GetCategoryRequest{
+		ShopId: shopId,
+	})
+	if err != nil {
+		return err
+	}
+	categories := []pkg.CategoryWithItems{}
+	for _, c := range res.Categories {
+		items := []pkg.Item{}
+		for _, i := range c.Items {
+			items = append(items, pkg.Item{
+				ItemId:      i.ItemId,
+				ShopId:      i.ShopId,
+				ItemName:    i.Name,
+				Description: i.Description,
+				Category:    i.Category,
+				Price:       i.Price,
+				Image:       i.Image,
+				Available:   i.IsAvailable,
+			})
+		}
+		category := pkg.CategoryWithItems{
+			CategoryId: c.Id,
+			ShopId:     c.ShopId,
+			Name:       c.Name,
+			Items:      items,
+		}
+		categories = append(categories, category)
+	}
+	return pkg.WriteJSON(w, http.StatusOK, pkg.GetCategoriesWithItemsResponse{
 		Categories: categories,
 	})
 }

@@ -191,6 +191,12 @@ type Category struct {
 	ShopId     string `json:"shopId"`
 	Name       string `json:"name"`
 }
+type CategoryWithItems struct {
+	CategoryId string `json:"categoryId"`
+	ShopId     string `json:"shopId"`
+	Name       string `json:"name"`
+	Items      []Item `json:"items"`
+}
 type CreateCategoryRequest struct {
 	ShopId string `json:"shopId"`
 	Name   string `json:"name"`
@@ -203,6 +209,9 @@ type GetCategoriesRequest struct {
 }
 type GetCategoriesResponse struct {
 	Categories []Category `json:"categories"`
+}
+type GetCategoriesWithItemsResponse struct {
+	Categories []CategoryWithItems `json:"categories"`
 }
 type DeleteCategoryRequest struct {
 	CategoryId string `json:"categoryId"`

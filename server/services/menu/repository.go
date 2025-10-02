@@ -3,6 +3,7 @@ package menu
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"errors"
 	"time"
 
@@ -27,6 +28,7 @@ type IRepository interface {
 	GetCategoryName(ctx context.Context, categoryId, shopId string) (string, error)
 	CreateCategory(ctx context.Context, id, shopId, name string) error
 	GetCategories(ctx context.Context, shopId string) ([]pkg.Category, error)
+	GetCategoriesWithItem(ctx context.Context, shopId string) ([]pkg.CategoryWithItems, error)
 	DeleteCategory(ctx context.Context, id, shopId string) (bool, error)
 	Close()
 }
@@ -406,6 +408,65 @@ func (r *postgresRepository) GetCategories(ctx context.Context, shopId string) (
 			&category.Name,
 		)
 		if err != nil {
+			return nil, err
+		}
+		categories = append(categories, category)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return categories, nil
+}
+
+func (r *postgresRepository) GetCategoriesWithItem(ctx context.Context, shopId string) ([]pkg.CategoryWithItems, error) {
+	query := `
+			SELECT
+			c.id,
+			c.shop_id,
+			c.name,
+			COALESCE(
+				json_agg(
+					json_build_object(
+						'id', i.id,
+						'shopId', i.shop_id,
+						'name', i.name,
+						'description', i.description,
+						'categoryId', i.category_id,
+						'price', i.price,
+						'image', i.image,
+						'isAvailable', i.is_available
+					)
+				) FILTER (WHERE i.id IS NOT NULL),
+				'[]'
+			) AS items
+		FROM
+			category c
+		LEFT JOIN
+			item i ON i.category_id = c.id
+		WHERE
+			c.shop_id = $1
+		GROUP BY
+			c.id, c.shop_id, c.name		
+	`
+	rows, err := r.db.QueryContext(ctx, query, shopId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	categories := []pkg.CategoryWithItems{}
+	for rows.Next() {
+		category := pkg.CategoryWithItems{}
+		var itemsJSON []byte
+
+		if err := rows.Scan(
+			&category.Id,
+			&category.ShopId,
+			&category.Name,
+			&itemsJSON,
+		); err != nil {
+			return nil, err
+		}
+		if err := json.Unmarshal(itemsJSON, &category.Items); err != nil {
 			return nil, err
 		}
 		categories = append(categories, category)

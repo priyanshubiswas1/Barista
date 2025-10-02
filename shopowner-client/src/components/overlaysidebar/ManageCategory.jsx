@@ -3,20 +3,44 @@ import { LuCirclePlus } from "react-icons/lu";
 import { AiOutlineDelete } from "react-icons/ai";
 import { PiPencilSimpleLight } from "react-icons/pi";
 import { useOverlay } from "../../store/overlayStore";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  deleteCategoryByCategoryId,
+  fetchCategoriesByShopId,
+} from "../../api/api";
 
-const CategoryItem = () => {
+const CategoryItem = ({ name, id, count }) => {
+  const queryClient = useQueryClient();
+  const { mutate, isPending, isError, isSuccess, error } = useMutation({
+    mutationFn: deleteCategoryByCategoryId,
+    onSuccess: (data) => {
+      alert("Category deleted");
+      queryClient.invalidateQueries({ queryKey: ["categories"] });
+    },
+    onError: (error) => {
+      alert("Deletion failed");
+      console.log("Deletion failed: ", error);
+    },
+  });
   return (
-    <div className="w-full">
+    <div className="w-full pt-3">
       <div className="flex justify-between items-center px-6 pb-3">
         <div className="flex text-xl text-gray-900 gap-3">
-          <div className="">Shakes</div>
+          <div className="">{name}</div>
           <div className="bg-gray-100 border border-gray-200 w-7 h-7 rounded flex items-center justify-center">
-            <h2>5</h2>
+            <h2>{count}</h2>
           </div>
         </div>
         <div className="flex text-gray-500 text-xl gap-3">
           <PiPencilSimpleLight />
-          <AiOutlineDelete />
+          <AiOutlineDelete
+            onClick={() =>
+              mutate({
+                categoryId: id,
+                shopId: localStorage.getItem("shopId"),
+              })
+            }
+          />
         </div>
       </div>
       <div className="w-full h-px bg-gray-200" />
@@ -26,6 +50,14 @@ const CategoryItem = () => {
 
 const ManageCategory = ({ header }) => {
   const { setOverlay } = useOverlay();
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["categories"],
+    queryFn: () => fetchCategoriesByShopId(localStorage.getItem("shopId")),
+  });
+  console.log(data);
+  if (isLoading) return <p>Loading item...</p>;
+  if (error) return <p>Error: {error.message}</p>;
+  const categories = data.categories;
   return (
     <div className="flex flex-col w-full h-full">
       <div className="px-6 pt-6 pb-4 flex justify-between items-start">
@@ -40,8 +72,15 @@ const ManageCategory = ({ header }) => {
       </div>
       <div className="w-full h-px bg-gray-200" />
       <div className="flex flex-col w-full h-full">
-        <div className="pt-8">
-          <CategoryItem />
+        <div className="pt-5">
+          {categories.map((category, index) => (
+            <CategoryItem
+              key={index}
+              name={category.name}
+              id={category.categoryId}
+              count={category.items.length}
+            />
+          ))}
         </div>
         <div className="pt-3 px-6">
           <button className="flex items-center gap-3">

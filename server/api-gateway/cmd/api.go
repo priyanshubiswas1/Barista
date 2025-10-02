@@ -130,6 +130,7 @@ func (s *APIServer) ListenServer(port string) error {
 	//CATEGORIES
 	protected.HandleFunc("/api/category", makeHttpHandleFunc(menuClient.CreateCategory)).Methods("POST")
 	protected.HandleFunc("/api/category/{shopid}", makeHttpHandleFunc(menuClient.GetCategories)).Methods("GET")
+	protected.HandleFunc("/api/category-items/{shopid}", makeHttpHandleFunc(menuClient.GetCategoriesWithItems)).Methods("GET")
 	protected.HandleFunc("/api/category", makeHttpHandleFunc(menuClient.DeleteCategory)).Methods("DELETE")
 
 	//TABLES

@@ -54,9 +54,9 @@ const MenuContentBody = ({ items }) => {
         </div>
       </div>
       <div className="flex w-full text-gray-100 border rounded"></div>
-      {items.map((item) => {
+      {items.map((item, index) => {
         return (
-          <div className="flex w-full pt-2 px-10">
+          <div key={index} className="flex w-full pt-2 px-10">
             <div className="flex flex-1 items-center gap-4">
               <div className="w-9 h-9 ml-5 bg-gray-800 rounded-full"></div>
               <div>{item.itemName}</div>

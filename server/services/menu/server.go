@@ -276,6 +276,38 @@ func (s *gRPCserver) GetCategory(ctx context.Context, req *menuPb.GetCategoryReq
 	}, nil
 }
 
+func (s *gRPCserver) GetCategoryWithItems(ctx context.Context, req *menuPb.GetCategoryRequest) (*menuPb.GetCategoryWithItemsResponse, error) {
+	pkgCategories, err := s.service.GetCategoriesWithItem(ctx, req.ShopId)
+	if err != nil {
+		return nil, err
+	}
+	categories := []*menuPb.CategoryWithItems{}
+	for _, c := range pkgCategories {
+		items := []*menuPb.Item{}
+		for _, i := range c.Items {
+			items = append(items, &menuPb.Item{
+				ItemId:      i.ItemId,
+				ShopId:      i.ShopId,
+				Name:        i.Name,
+				Description: i.Description,
+				Category:    i.Category,
+				Price:       i.Price,
+				Image:       i.Image,
+				IsAvailable: i.IsAvailable,
+			})
+		}
+		categories = append(categories, &menuPb.CategoryWithItems{
+			Id:     c.Id,
+			ShopId: c.ShopId,
+			Name:   c.Name,
+			Items:  items,
+		})
+	}
+	return &menuPb.GetCategoryWithItemsResponse{
+		Categories: categories,
+	}, nil
+}
+
 func (s *gRPCserver) DeleteCategory(ctx context.Context, req *menuPb.DeleteCategoryRequest) (*menuPb.DeleteCategoryResponse, error) {
 	res, err := s.service.DeleteCategory(ctx, req.Id, req.ShopId)
 	if err != nil {

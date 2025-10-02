@@ -72,13 +72,15 @@ const Menu = () => {
         />
         {items.length > 0 ? (
           <div className="pt-5 flex-grow flex flex-col gap-2">
-            {Object.entries(groupedItems).map(([category, categoryItems]) => (
-              <MenuContent
-                key={categoryItems.itemId}
-                category={category}
-                items={categoryItems}
-              />
-            ))}
+            {Object.entries(groupedItems).map(
+              ([category, categoryItems], index) => (
+                <MenuContent
+                  key={index}
+                  category={category}
+                  items={categoryItems}
+                />
+              )
+            )}
           </div>
         ) : (
           <div className="pt-5 flex-grow">

@@ -39,3 +39,10 @@ type Category struct {
 	ShopId string `json:"shopId"`
 	Name   string `json:"name"`
 }
+
+type CategoryWithItems struct {
+	Id     string `json:"id"`
+	ShopId string `json:"shopId"`
+	Name   string `json:"name"`
+	Items  []Item `json:"items"`
+}
