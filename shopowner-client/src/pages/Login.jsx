@@ -84,6 +84,15 @@ const Login = () => {
             <Button type="submit" variant="primary">
               {isPending ? "Logging in..." : "Continue"}
             </Button>
+            <div className="flex justify-center gap-1 w-full">
+              <p className="text-gray-500">Don't have an account?</p>
+              <button
+                type="button"
+                className=" text-sm text-gray-800 hover:underline cursor-pointer"
+              >
+                Sign Up
+              </button>
+            </div>
           </form>
         </div>
       </div>

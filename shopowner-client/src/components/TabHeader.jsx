@@ -1,13 +1,14 @@
-import { BsLayoutSidebar } from "react-icons/bs";
+// import { BsLayoutSidebar } from "react-icons/bs";
+import { SidebarSimple } from "phosphor-react";
 
 export const TabHeader = ({ toggleSidebar, tab }) => {
   return (
-    <div className="flex items-center gap-10 h-10">
+    <div className="flex items-center gap-4">
       <div className="" onClick={toggleSidebar}>
-        <BsLayoutSidebar className="text-xl" />
+        <SidebarSimple size={16} />
       </div>
-      <div className="h-[70%] border-l border-gray-300"></div>
-      <h2 className="text-xl text-gray-800">{tab}</h2>
+      <div className="h-3.5 border-l border-gray-300"></div>
+      <p className="text-gray-800">{tab}</p>
     </div>
   );
 };

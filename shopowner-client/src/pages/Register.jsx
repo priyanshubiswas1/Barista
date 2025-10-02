@@ -91,6 +91,7 @@ const Register = () => {
               type="text"
               name="phone"
               placeholder="Enter your phone number"
+              prefix={"+91"}
               helperText={err.phone}
               error={!!err.phone}
               value={formData.phone}
@@ -117,18 +118,20 @@ const Register = () => {
               value={formData.address}
               onChange={handleChange}
             />
-            <div className="flex justify-end w-full">
+
+            <Button type="submit" variant="primary">
+              {isPending ? "Registering..." : "Register"}
+            </Button>
+            <div className="flex justify-center w-full gap-1 items-center">
+              <p className="text-gray-500">Already have an account?</p>
               <button
                 type="button"
                 className=" text-sm text-gray-800 hover:underline cursor-pointer"
                 onClick={() => navigate("/login")}
               >
-                Already have an account?
+                Sign In
               </button>
             </div>
-            <Button type="submit" variant="primary">
-              {isPending ? "Registering..." : "Register"}
-            </Button>
           </form>
         </div>
       </div>
