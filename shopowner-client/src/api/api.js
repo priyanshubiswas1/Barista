@@ -50,6 +50,11 @@ export const deleteCategoryByCategoryId = async ({ categoryId, shopId }) => {
     return response.status === 200 ? response.data : null
 };
 
+export const createCategory = async ({ name, shopId }) => {
+    const response = await api.post(`/category`, { name: name, shopId: shopId });
+    return response.status === 200 ? response.data : null
+}
+
 export const addItem = async ({ name, shopId, categoryId, price }) => {
     const response = await api.post(`/item`, { name: name, shopId: shopId, description: "test", categoryId: categoryId, price: price, image: "url", available: true });
     return response.status === 200 ? response.data : null
