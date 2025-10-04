@@ -38,7 +38,7 @@ const ManageCategory = ({ header }) => {
   const queryClient = useQueryClient();
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ["categories"],
+    queryKey: ["categoryItems"],
     queryFn: () => fetchCategoryItemsByShopId(localStorage.getItem("shopId")),
   });
 
@@ -50,7 +50,7 @@ const ManageCategory = ({ header }) => {
     onSuccess: () => {
       alert("Category added✅");
       setAddCategory(false);
-      queryClient.invalidateQueries({ queryKey: ["categories"] });
+      queryClient.invalidateQueries({ queryKey: ["categoryItems"] });
     },
     onError: () => {},
   });
@@ -59,7 +59,7 @@ const ManageCategory = ({ header }) => {
     mutationFn: deleteCategoryByCategoryId,
     onSuccess: () => {
       alert("Category deleted");
-      queryClient.invalidateQueries({ queryKey: ["categories"] });
+      queryClient.invalidateQueries({ queryKey: ["categoryItems"] });
     },
     onError: () => {
       alert("Deletion failed");

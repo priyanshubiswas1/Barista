@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   PiStorefront,
   PiCallBell,
@@ -11,6 +11,7 @@ import { IoHelpCircleOutline } from "react-icons/io5";
 import { Tabs } from "../constants/constants";
 import { useTabs } from "../store/tabStore";
 import { useNavigate } from "react-router-dom";
+import { useOverlay } from "../store/overlayStore";
 
 const SidebarItem = ({
   children,
@@ -68,6 +69,10 @@ const SidebarProfile = ({ collapsed }) => (
 
 export const LeftSidebar = ({ collapsed, tab }) => {
   const navigate = useNavigate();
+  const { setOverlay } = useOverlay();
+  useEffect(() => {
+    setOverlay("");
+  }, [tab, setOverlay]);
   return (
     <aside
       className={`flex flex-col flex-shrink-0 ${
