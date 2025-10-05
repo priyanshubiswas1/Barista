@@ -15,6 +15,7 @@ import (
 type ISessionClient interface {
 	GetAllSessions(ctx context.Context, w http.ResponseWriter, r *http.Request) error
 	GetActiveSession(ctx context.Context, w http.ResponseWriter, r *http.Request) error
+	GetAllActiveSessions(ctx context.Context, w http.ResponseWriter, r *http.Request) error
 	GetSessionById(ctx context.Context, w http.ResponseWriter, r *http.Request) error
 	SendSessionOTP(ctx context.Context, w http.ResponseWriter, r *http.Request) error
 	CreateSession(ctx context.Context, w http.ResponseWriter, r *http.Request) error
@@ -91,6 +92,36 @@ func (c *SessionClient) GetActiveSession(ctx context.Context, w http.ResponseWri
 			PhoneNumber:   res.Session.PhoneNumber,
 			Active:        res.Session.Active,
 		},
+	})
+}
+
+func (c *SessionClient) GetAllActiveSessions(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+	params := r.URL.Query()
+	shopId := params.Get("shopid")
+	res, err := c.service.GetAllActiveSessions(ctx, &session.GetAllSessionsRequest{
+		ShopId: shopId,
+	})
+	if err != nil {
+		return err
+	}
+	sessions := []pkg.ActiveSession{}
+	for _, session := range res.Sessions {
+		sessions = append(sessions, pkg.ActiveSession{
+			Id:            session.SessionId,
+			ShopId:        session.ShopId,
+			TableId:       session.TableId,
+			TableNumber:   session.TableName,
+			Otp:           session.Otp,
+			Status:        session.SessionStatus,
+			Amount:        session.TotalAmount,
+			IsPaid:        session.IsPaid,
+			PaymentMethod: session.PaymentMethod,
+			PhoneNumber:   session.PhoneNumber,
+			Active:        session.Active,
+		})
+	}
+	return pkg.WriteJSON(w, http.StatusOK, pkg.GetAllActiveSessionsResponse{
+		Sessions: sessions,
 	})
 }
 

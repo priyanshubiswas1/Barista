@@ -26,7 +26,7 @@ type Table struct {
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	ShopId        string                 `protobuf:"bytes,2,opt,name=shop_id,json=shopId,proto3" json:"shop_id,omitempty"`
 	TableNumber   string                 `protobuf:"bytes,3,opt,name=table_number,json=tableNumber,proto3" json:"table_number,omitempty"`
-	QrUrl         string                 `protobuf:"bytes,4,opt,name=qr_url,json=qrUrl,proto3" json:"qr_url,omitempty"`
+	Qr            string                 `protobuf:"bytes,4,opt,name=qr,proto3" json:"qr,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -82,9 +82,9 @@ func (x *Table) GetTableNumber() string {
 	return ""
 }
 
-func (x *Table) GetQrUrl() string {
+func (x *Table) GetQr() string {
 	if x != nil {
-		return x.QrUrl
+		return x.Qr
 	}
 	return ""
 }
@@ -557,12 +557,12 @@ var File_table_proto protoreflect.FileDescriptor
 
 const file_table_proto_rawDesc = "" +
 	"\n" +
-	"\vtable.proto\x12\x05table\"j\n" +
+	"\vtable.proto\x12\x05table\"c\n" +
 	"\x05Table\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
 	"\ashop_id\x18\x02 \x01(\tR\x06shopId\x12!\n" +
-	"\ftable_number\x18\x03 \x01(\tR\vtableNumber\x12\x15\n" +
-	"\x06qr_url\x18\x04 \x01(\tR\x05qrUrl\"P\n" +
+	"\ftable_number\x18\x03 \x01(\tR\vtableNumber\x12\x0e\n" +
+	"\x02qr\x18\x04 \x01(\tR\x02qr\"P\n" +
 	"\x12CreateTableRequest\x12\x17\n" +
 	"\ashop_id\x18\x01 \x01(\tR\x06shopId\x12!\n" +
 	"\ftable_number\x18\x02 \x01(\tR\vtableNumber\"9\n" +

@@ -142,6 +142,7 @@ func (s *APIServer) ListenServer(port string) error {
 
 	//SESSIONS
 	protected.HandleFunc("/api/sessions", makeHttpHandleFunc(sessionClient.GetAllSessions)).Methods("GET").Queries("shopid", "{shopid}")
+	protected.HandleFunc("/api/active-sessions", makeHttpHandleFunc(sessionClient.GetAllActiveSessions)).Methods("GET").Queries("shopid", "{shopid}")
 	protected.HandleFunc("/api/sessions", makeHttpHandleFunc(sessionClient.GetActiveSession)).Methods("GET").Queries("shopid", "{shopid}", "tableid", "{tableid}")
 	protected.HandleFunc("/api/sessions/{sessionid}", makeHttpHandleFunc(sessionClient.GetSessionById)).Methods("GET")
 	router.HandleFunc("/api/sessions/send-otp", makeHttpHandleFunc(sessionClient.SendSessionOTP)).Methods("POST") //generate otp
@@ -151,6 +152,7 @@ func (s *APIServer) ListenServer(port string) error {
 
 	//ORDERS
 	session.HandleFunc("/api/orders", makeHttpHandleFunc(orderClient.GetOrdersBySessionId)).Methods("GET")
+	protected.HandleFunc("/api/orders/{sessionid}", makeHttpHandleFunc(orderClient.GetOrdersBySessionId)).Methods("GET")
 	protected.HandleFunc("/api/order/{orderid}", makeHttpHandleFunc(orderClient.GetOrderById)).Methods("GET")
 	session.HandleFunc("/api/order", makeHttpHandleFunc(orderClient.CreateOrder)).Methods("POST")
 	protected.HandleFunc("/api/order", makeHttpHandleFunc(orderClient.UpdateOrder)).Methods("PUT")

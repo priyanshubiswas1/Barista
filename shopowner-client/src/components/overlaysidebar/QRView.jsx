@@ -19,12 +19,12 @@ const QRView = ({ table, onClose }) => {
       ) : (
         <div
           className="bg-indigo-800 text-white rounded-md w-[20%] h-[50%] flex flex-col items-center p-6 relative"
-          style={{
-            backgroundImage: "url(/card-pattern.png)",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            backgroundRepeat: "no-repeat",
-          }}
+          //   style={{
+          //     backgroundImage: "url(/card-pattern.png)",
+          //     backgroundSize: "cover",
+          //     backgroundPosition: "center",
+          //     backgroundRepeat: "no-repeat",
+          //   }}
         >
           <div className="flex flex-col items-center mb-4">
             <div className="bg-white rounded-full h-10 w-10 mb-2"></div>

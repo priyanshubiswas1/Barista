@@ -74,6 +74,32 @@ func (s *gRPCserver) GetActiveSession(ctx context.Context, req *session.GetActiv
 	}, nil
 }
 
+func (s *gRPCserver) GetAllActiveSessions(ctx context.Context, req *session.GetAllSessionsRequest) (*session.GetAllActiveSessionsResponse, error) {
+	res, err := s.service.GetAllActiveSessions(ctx, req.ShopId)
+	if err != nil {
+		return nil, err
+	}
+	sessions := []*session.ActiveSession{}
+	for _, s := range res {
+		sessions = append(sessions, &session.ActiveSession{
+			SessionId:     s.Id,
+			ShopId:        s.ShopId,
+			TableId:       s.TableId,
+			TableName:     s.TableName,
+			Otp:           s.Otp,
+			SessionStatus: s.Status,
+			TotalAmount:   s.Amount,
+			IsPaid:        s.IsPaid,
+			PaymentMethod: s.PaymentMethod,
+			PhoneNumber:   s.PhoneNumber,
+			Active:        s.Active,
+		})
+	}
+	return &session.GetAllActiveSessionsResponse{
+		Sessions: sessions,
+	}, nil
+}
+
 func (s *gRPCserver) GetSessionById(ctx context.Context, req *session.GetSessionRequest) (*session.GetSessionResponse, error) {
 	res, err := s.service.GetSessionById(ctx, req.SessionId)
 	if err != nil {

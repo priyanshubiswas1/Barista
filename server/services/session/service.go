@@ -11,6 +11,7 @@ import (
 
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/google/uuid"
+	"github.com/priyanshubiswas1/barista/sessionservice/client"
 	"github.com/priyanshubiswas1/barista/sessionservice/pkg"
 )
 
@@ -24,6 +25,7 @@ type RedisData struct {
 type IService interface {
 	GetAllSessions(ctx context.Context, shopId string) ([]pkg.Session, error)
 	GetActiveSession(ctx context.Context, shopId, tableId string) (pkg.Session, error)
+	GetAllActiveSessions(ctx context.Context, shopId string) ([]pkg.ActiveSession, error)
 	GetSessionById(ctx context.Context, sessionId string) (pkg.Session, error)
 	SendSessionOTP(ctx context.Context, shopId, tableId, phoneNumber string) (bool, error)
 	CreateSession(ctx context.Context, shopId, tableId, status, paymentMethod, otp string, totalAmount float32, isPaid bool, active bool) (string, string, string, error)
@@ -34,12 +36,14 @@ type IService interface {
 type service struct {
 	repository  IRepository
 	redisClient IRedisClient
+	tableClient client.ITableClient
 }
 
-func NewService(repository IRepository, redisClient IRedisClient) (IService, error) {
+func NewService(repository IRepository, redisClient IRedisClient, tableClient client.ITableClient) (IService, error) {
 	return &service{
 		repository:  repository,
 		redisClient: redisClient,
+		tableClient: tableClient,
 	}, nil
 }
 
@@ -74,6 +78,40 @@ func (s *service) GetActiveSession(ctx context.Context, shopId, tableId string) 
 		return pkg.Session{}, errors.New("no active sessions found")
 	}
 	return session, nil
+}
+
+func (s *service) GetAllActiveSessions(ctx context.Context, shopId string) ([]pkg.ActiveSession, error) {
+	if shopId == "" {
+		return nil, errors.New("shop ID is required")
+	}
+	if _, err := uuid.Parse(shopId); err != nil {
+		return nil, errors.New("invalid shop ID format")
+	}
+	sessions, err := s.repository.GetAllActiveSessions(ctx, shopId)
+	if err != nil {
+		return nil, err
+	}
+	activeSessions := []pkg.ActiveSession{}
+	for _, session := range sessions {
+		table, err := s.tableClient.GetTable(ctx, session.TableId, session.ShopId)
+		if err != nil {
+			return nil, err
+		}
+		activeSessions = append(activeSessions, pkg.ActiveSession{
+			Id:            session.Id,
+			ShopId:        session.ShopId,
+			TableId:       session.TableId,
+			TableName:     table.Table.TableNumber,
+			Otp:           session.Otp,
+			Status:        session.Status,
+			Amount:        session.Amount,
+			IsPaid:        session.IsPaid,
+			PaymentMethod: session.PaymentMethod,
+			Active:        session.Active,
+			PhoneNumber:   session.PhoneNumber,
+		})
+	}
+	return activeSessions, nil
 }
 
 func (s *service) GetSessionById(ctx context.Context, sessionId string) (pkg.Session, error) {

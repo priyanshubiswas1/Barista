@@ -53,7 +53,7 @@ func (c *TableClient) CreateTable(ctx context.Context, w http.ResponseWriter, r 
 			Id:          res.Table.Id,
 			ShopId:      res.Table.ShopId,
 			TableNumber: res.Table.TableNumber,
-			QrUrl:       res.Table.QrUrl,
+			QrUrl:       res.Table.Qr,
 		},
 	})
 }
@@ -77,7 +77,7 @@ func (c *TableClient) GetTable(ctx context.Context, w http.ResponseWriter, r *ht
 			Id:          res.Table.Id,
 			ShopId:      res.Table.ShopId,
 			TableNumber: res.Table.TableNumber,
-			QrUrl:       res.Table.QrUrl,
+			QrUrl:       res.Table.Qr,
 		},
 	})
 }
@@ -97,7 +97,7 @@ func (c *TableClient) GetTables(ctx context.Context, w http.ResponseWriter, r *h
 			Id:          t.Id,
 			ShopId:      t.ShopId,
 			TableNumber: t.TableNumber,
-			QrUrl:       t.QrUrl,
+			QrUrl:       t.Qr,
 		})
 	}
 	return pkg.WriteJSON(w, http.StatusOK, pkg.GetTablesResponse{
@@ -115,7 +115,7 @@ func (c *TableClient) UpdateTable(ctx context.Context, w http.ResponseWriter, r 
 			Id:          req.Table.Id,
 			ShopId:      req.Table.ShopId,
 			TableNumber: req.Table.TableNumber,
-			QrUrl:       req.Table.QrUrl,
+			Qr:          req.Table.QrUrl,
 		},
 	})
 	if err != nil {

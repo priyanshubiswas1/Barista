@@ -275,9 +275,26 @@ type Session struct {
 	PhoneNumber   string  `json:"phoneNumber"`
 	Active        bool    `json:"active"`
 }
+type ActiveSession struct {
+	Id            string  `json:"sessionId"`
+	ShopId        string  `json:"shopId"`
+	TableId       string  `json:"tableId"`
+	TableNumber   string  `json:"tableNumber"`
+	Otp           string  `json:"otp"`
+	Status        string  `json:"status"`
+	Amount        float32 `json:"amount"`
+	IsPaid        bool    `json:"isPaid"`
+	PaymentMethod string  `json:"paymentMethod"`
+	PhoneNumber   string  `json:"phoneNumber"`
+	Active        bool    `json:"active"`
+}
 
 type GetAllSessionsResponse struct {
 	Sessions []Session `json:"sessions"`
+}
+
+type GetAllActiveSessionsResponse struct {
+	Sessions []ActiveSession `json:"sessions"`
 }
 type GetActiveSessionResponse struct {
 	Session Session `json:"session"`

@@ -40,17 +40,34 @@ func NewOrder(url string) (IOrderClient, error) {
 }
 
 func (c *OrderClient) GetOrdersBySessionId(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
-	sessIdVal := r.Context().Value(middleware.CtxSessionKeyID)
-	sessIdStr, ok := sessIdVal.(string)
-	if !ok || sessIdStr == "" {
-		return errors.New("missing or invalid session ID in context")
+	var sessionId string
+
+	if idVal := r.Context().Value(middleware.CtxKeyID); idVal != nil {
+		if idStr, ok := idVal.(string); ok && idStr != "" {
+			vars := mux.Vars(r)
+			sessionId = vars["sessionid"]
+			if _, err := uuid.Parse(sessionId); err != nil {
+				return errors.New("invalid session ID format")
+			}
+		}
 	}
+
+	if sessionId == "" {
+		sessIdVal := r.Context().Value(middleware.CtxSessionKeyID)
+		sessIdStr, ok := sessIdVal.(string)
+		if !ok || sessIdStr == "" {
+			return errors.New("missing or invalid session ID in context")
+		}
+		sessionId = sessIdStr
+	}
+
 	res, err := c.service.GetOrdersBySessionId(ctx, &order.GetOrdersBySessionIdRequest{
-		SessionId: sessIdStr,
+		SessionId: sessionId,
 	})
 	if err != nil {
 		return err
 	}
+
 	orderItems := []pkg.OrderItems{}
 	for _, oi := range res.Orderitems {
 		orderItems = append(orderItems, pkg.OrderItems{
@@ -62,6 +79,7 @@ func (c *OrderClient) GetOrdersBySessionId(ctx context.Context, w http.ResponseW
 			Status:           oi.OrderStatus,
 		})
 	}
+
 	return pkg.WriteJSON(w, http.StatusOK, pkg.GetOrdersBySessionIdResponse{
 		OrderItems: orderItems,
 		TotalPrice: res.TotalSessionPrice,

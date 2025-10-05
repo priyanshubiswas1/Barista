@@ -66,6 +66,9 @@ func (r *postgresRepository) GetTable(ctx context.Context, tableId, shopId strin
 			`
 	table := pkg.Table{}
 	if err := r.db.QueryRowContext(ctx, query, tableId, shopId).Scan(&table.TableId, &table.ShopId, &table.TableNumber, &table.QR); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return pkg.Table{}, nil
+		}
 		return pkg.Table{}, err
 	}
 	return pkg.Table{

@@ -5,6 +5,7 @@ import (
 	"time"
 
 	session "github.com/priyanshubiswas1/barista/sessionservice"
+	"github.com/priyanshubiswas1/barista/sessionservice/client"
 	"github.com/priyanshubiswas1/barista/sessionservice/pkg"
 	"github.com/tinrab/retry"
 )
@@ -33,7 +34,14 @@ func main() {
 	}
 	log.Println("redis client created")
 
-	service, err := session.NewService(r, redisClient)
+	log.Println("creating table grpc client")
+	tableClient, err := client.NewTable(cfg.TableClient)
+	if err != nil {
+		log.Fatal("failed to create table grpc client: ", err)
+	}
+	log.Println("table grpc client created")
+
+	service, err := session.NewService(r, redisClient, tableClient)
 	if err != nil {
 		log.Fatal("failed to create service: ", err)
 	}

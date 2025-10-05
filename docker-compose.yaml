@@ -160,6 +160,7 @@ services:
       PORT: "8080"
       DB_URL: "postgres://admin:7866@session_db:5432/session?sslmode=disable"
       REDIS_URL: redis:6379
+      TABLE_CLIENT: tableservice:8080
     restart: on-failure
   orderservice:
     build:
