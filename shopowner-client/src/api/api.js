@@ -28,6 +28,19 @@ export const loginUser = async (credentials) => {
     return response.status === 200 ? response.data : null
 }
 
+export const fetchTablesByShopId = async (shopId) => {
+    const response = await api.get(`/tables/${shopId}`);
+    return response.status === 200 ? response.data : null
+};
+
+export const createTableByShopId = async ({ shopId, tableNumber }) => {
+    const response = await api.post(`/table`, {
+        shopId: shopId,
+        tableNumber: tableNumber
+    });
+    return response.status === 200 ? response.data : null
+};
+
 export const fetchItemsByShopId = async (id) => {
     const response = await api.get(`/items/${id}`);
     return response.status === 200 ? response.data : null

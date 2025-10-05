@@ -11,6 +11,7 @@ export const Tabs = {
 export const Overlays = {
     ADDITEM: 'AddItem',
     MANAGECAT: 'ManageCategory',
+    CREATETABLE: 'CreateTable',
     FILTER: 'Filter',
     CREATEORDER: 'CreateOrder',
     GENERATEBILL: 'GenerateBill',
