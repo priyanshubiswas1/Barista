@@ -82,3 +82,8 @@ export const fetchOrdersBySessionId = async (sessionId) => {
     const response = await api.get(`/orders/${sessionId}`);
     return response.status === 200 ? response.data : null
 };
+
+export const createOrder = async (payload) => {
+    const response = await api.post(`/order-admin`, payload);
+    return response.status === 200 ? response.data : null
+};

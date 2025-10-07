@@ -66,7 +66,7 @@ const OrderCard = ({ orderId, orderItems, index }) => {
 
 const TableCard = ({ session }) => {
   const { data, isLoading, error } = useQuery({
-    queryKey: ["order-items"],
+    queryKey: ["order-items", session.sessionId],
     queryFn: () => fetchOrdersBySessionId(session.sessionId),
   });
   if (isLoading) return <p>Loading tables...</p>;
