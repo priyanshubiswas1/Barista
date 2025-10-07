@@ -19,6 +19,7 @@ type IRepository interface {
 	GetSessionById(ctx context.Context, sessionId string) (pkg.Session, error)
 	CreateSession(ctx context.Context, id, shopId, tableId, status, paymentMethod, otp, phoneNumber string, totalAmount float32, isPaid, active bool, createdAt time.Time) error
 	JoinSession(ctx context.Context, shopId, tableId, otp string) (pkg.Session, error)
+	JoinSessionAdmin(ctx context.Context, shopId, tableId string) (pkg.Session, error)
 	UpdateSession(ctx context.Context, id, status, paymentMethod string, amount float32, isPaid, active bool, updatedAt time.Time) error
 	Close() error
 }
@@ -184,6 +185,26 @@ func (r *postgresRepository) JoinSession(ctx context.Context, shopId, tableId, o
 	}
 	if session.Otp != otp {
 		return pkg.Session{}, errors.New("invalid OTP")
+	}
+	return session, nil
+}
+
+func (r *postgresRepository) JoinSessionAdmin(ctx context.Context, shopId, tableId string) (pkg.Session, error) {
+	query := `SELECT id,shop_id,table_id,otp,status,total_amount,is_paid,payment_method,active,phone_number FROM session WHERE shop_id=$1 AND table_id=$2 AND active=true`
+
+	row := r.db.QueryRowContext(ctx, query, shopId, tableId)
+	session := pkg.Session{}
+	if err := row.Scan(&session.Id,
+		&session.ShopId,
+		&session.TableId,
+		&session.Otp,
+		&session.Status,
+		&session.Amount,
+		&session.IsPaid,
+		&session.PaymentMethod,
+		&session.Active,
+		&session.PhoneNumber); err != nil {
+		return pkg.Session{}, err
 	}
 	return session, nil
 }

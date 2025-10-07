@@ -3,11 +3,12 @@ import { Overlays } from "../../constants/constants";
 import ManageCategory from "./ManageCategory.jsx";
 import AddItems from "./AddItems.jsx";
 import AddTable from "./AddTable.jsx";
+import AddNewOrder from "./AddNewOrder.jsx";
 
 const overlayHeaders = {
   [Overlays.ADDITEM]: "Add New Item",
   [Overlays.MANAGECAT]: "Manage Categories",
-  [Overlays.CREATEORDER]: "Create Orders",
+  [Overlays.CREATEORDER]: "Add New Order",
   [Overlays.CREATETABLE]: "Add New Table",
 };
 
@@ -27,6 +28,8 @@ const OverlayComponent = () => {
           <AddTable header={header} />
         </div>
       );
+    case Overlays.CREATEORDER:
+      return <AddNewOrder header={header} />;
     default:
       return null;
   }

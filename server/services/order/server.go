@@ -112,6 +112,46 @@ func (s *gRPCserver) CreateOrder(ctx context.Context, req *order.CreateOrderRequ
 	}, nil
 }
 
+func (s *gRPCserver) CreateOrderAdmin(ctx context.Context, req *order.CreateOrderAdminRequest) (*order.CreateOrderResponse, error) {
+	orderItems := []pkg.OrderItemsReq{}
+	for _, oi := range req.OrderItems {
+		orderItems = append(orderItems, pkg.OrderItemsReq{
+			ItemId:           oi.ItemId,
+			Quantity:         oi.Quantity,
+			PriceAtOrderTime: oi.PriceAtOrderTime,
+		})
+	}
+	orderRes, err := s.service.CreateOrderAdmin(ctx, pkg.OrderAdminReq{
+		ShopId:       req.ShopId,
+		TableId:      req.TableId,
+		SpecialNotes: req.SpecialNotes,
+		OrderItems:   orderItems,
+	})
+	if err != nil {
+		return nil, err
+	}
+	newOrderItems := []*order.OrderItem{}
+	for _, oi := range orderRes.OrderItems {
+		newOrderItems = append(newOrderItems, &order.OrderItem{
+			OrderItemId:      oi.Id,
+			OrderId:          oi.OrderId,
+			ItemId:           oi.ItemId,
+			Quantity:         oi.Quantity,
+			PriceAtOrderTime: oi.PriceAtOrderTime,
+			OrderStatus:      oi.OrderStatus,
+		})
+	}
+	return &order.CreateOrderResponse{
+		Order: &order.Order{
+			OrderId:      orderRes.Order.Id,
+			SessionId:    orderRes.Order.SessionId,
+			OrderStatus:  orderRes.Order.OrderStatus,
+			SpecialNotes: orderRes.Order.SpecialNotes,
+		},
+		OrderItems: newOrderItems,
+	}, nil
+}
+
 func (s *gRPCserver) UpdateOrder(ctx context.Context, req *order.UpdateOrderRequest) (*order.UpdateOrderResponse, error) {
 	res := s.service.UpdateOrder(ctx, req.OrderId, req.OrderStatus)
 	return &order.UpdateOrderResponse{

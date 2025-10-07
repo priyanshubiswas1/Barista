@@ -19,6 +19,7 @@ type ISessionClient interface {
 	GetSessionById(ctx context.Context, w http.ResponseWriter, r *http.Request) error
 	SendSessionOTP(ctx context.Context, w http.ResponseWriter, r *http.Request) error
 	CreateSession(ctx context.Context, w http.ResponseWriter, r *http.Request) error
+	CreateSessionAdmin(ctx context.Context, w http.ResponseWriter, r *http.Request) error
 	JoinSession(ctx context.Context, w http.ResponseWriter, r *http.Request) error
 	UpdateSession(ctx context.Context, w http.ResponseWriter, r *http.Request) error
 }
@@ -181,6 +182,41 @@ func (c *SessionClient) CreateSession(ctx context.Context, w http.ResponseWriter
 		TotalAmount:   createSession.Amount,
 		IsPaid:        createSession.IsPaid,
 		PaymentMethod: createSession.PaymentMethod,
+		Active:        createSession.Active,
+	})
+	if err != nil {
+		return err
+	}
+	return pkg.WriteJSON(w, http.StatusOK, pkg.CreateSessionResponse{
+		Session: pkg.Session{
+			Id:            res.Session.SessionId,
+			ShopId:        res.Session.ShopId,
+			TableId:       res.Session.TableId,
+			Otp:           res.Session.Otp,
+			Status:        res.Session.SessionStatus,
+			Amount:        res.Session.TotalAmount,
+			IsPaid:        res.Session.IsPaid,
+			PaymentMethod: res.Session.PaymentMethod,
+			PhoneNumber:   res.Session.PhoneNumber,
+			Active:        res.Session.Active,
+		},
+		SessionToken: res.Token,
+	})
+}
+
+func (c *SessionClient) CreateSessionAdmin(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+	createSession := pkg.CreateSessionAdminRequest{}
+	if err := json.NewDecoder(r.Body).Decode(&createSession); err != nil {
+		return err
+	}
+	res, err := c.service.CreateSessionAdmin(ctx, &session.CreateSessionAdminRequest{
+		ShopId:        createSession.ShopId,
+		TableId:       createSession.TableId,
+		SessionStatus: createSession.Status,
+		TotalAmount:   createSession.Amount,
+		IsPaid:        createSession.IsPaid,
+		PaymentMethod: createSession.PaymentMethod,
+		PhoneNumber:   createSession.PhoneNumber,
 		Active:        createSession.Active,
 	})
 	if err != nil {

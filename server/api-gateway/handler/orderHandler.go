@@ -19,6 +19,7 @@ type IOrderClient interface {
 	GetOrdersBySessionId(ctx context.Context, w http.ResponseWriter, r *http.Request) error
 	GetOrderById(ctx context.Context, w http.ResponseWriter, r *http.Request) error
 	CreateOrder(ctx context.Context, w http.ResponseWriter, r *http.Request) error
+	CreateOrderAdmin(ctx context.Context, w http.ResponseWriter, r *http.Request) error
 	UpdateOrder(ctx context.Context, w http.ResponseWriter, r *http.Request) error
 	CancelOrder(ctx context.Context, w http.ResponseWriter, r *http.Request) error
 }
@@ -116,11 +117,27 @@ func (c *OrderClient) GetOrderById(ctx context.Context, w http.ResponseWriter, r
 }
 
 func (c *OrderClient) CreateOrder(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
-	sessIdVal := r.Context().Value(middleware.CtxSessionKeyID)
-	sessIdStr, ok := sessIdVal.(string)
-	if !ok || sessIdStr == "" {
-		return errors.New("missing or invalid session ID in context")
+	var sessionId string
+
+	if idVal := r.Context().Value(middleware.CtxKeyID); idVal != nil {
+		if idStr, ok := idVal.(string); ok && idStr != "" {
+			vars := mux.Vars(r)
+			sessionId = vars["sessionid"]
+			if _, err := uuid.Parse(sessionId); err != nil {
+				return errors.New("invalid session ID format")
+			}
+		}
 	}
+
+	if sessionId == "" {
+		sessIdVal := r.Context().Value(middleware.CtxSessionKeyID)
+		sessIdStr, ok := sessIdVal.(string)
+		if !ok || sessIdStr == "" {
+			return errors.New("missing or invalid session ID in context")
+		}
+		sessionId = sessIdStr
+	}
+
 	req := pkg.CreateOrderRequest{}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return err
@@ -134,7 +151,50 @@ func (c *OrderClient) CreateOrder(ctx context.Context, w http.ResponseWriter, r 
 		})
 	}
 	res, err := c.service.CreateOrder(ctx, &order.CreateOrderRequest{
-		SessionId:    sessIdStr,
+		SessionId:    sessionId,
+		SpecialNotes: req.SpecialNotes,
+		OrderItems:   orderItems,
+	})
+	if err != nil {
+		return err
+	}
+	orderItemsRes := []pkg.OrderItems{}
+	for _, oi := range res.OrderItems {
+		orderItemsRes = append(orderItemsRes, pkg.OrderItems{
+			Id:               oi.OrderItemId,
+			OrderId:          oi.OrderId,
+			ItemId:           oi.ItemId,
+			Quantity:         oi.Quantity,
+			PriceAtOrderTime: oi.PriceAtOrderTime,
+		})
+	}
+	return pkg.WriteJSON(w, http.StatusOK, pkg.CreateOrderResponse{
+		Order: pkg.Order{
+			Id:           res.Order.OrderId,
+			SessionId:    res.Order.SessionId,
+			OrderStatus:  res.Order.OrderStatus,
+			SpecialNotes: res.Order.SpecialNotes,
+		},
+		OrderItems: orderItemsRes,
+	})
+}
+
+func (c *OrderClient) CreateOrderAdmin(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+	req := pkg.CreateOrderAdminRequest{}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		return err
+	}
+	orderItems := []*order.OrderItemReq{}
+	for _, oi := range req.OrderItems {
+		orderItems = append(orderItems, &order.OrderItemReq{
+			ItemId:           oi.ItemId,
+			Quantity:         oi.Quantity,
+			PriceAtOrderTime: oi.PriceAtOrderTime,
+		})
+	}
+	res, err := c.service.CreateOrderAdmin(ctx, &order.CreateOrderAdminRequest{
+		ShopId:       req.ShopId,
+		TableId:      req.TableId,
 		SpecialNotes: req.SpecialNotes,
 		OrderItems:   orderItems,
 	})

@@ -32,7 +32,7 @@ const OrderSubHeader = ({ onAddNewOrderClick }) => {
   );
 };
 
-const OrderCard = ({ orderId, orderItems }) => {
+const OrderCard = ({ orderId, orderItems, index }) => {
   const totalQuantity = orderItems.reduce((sum, item) => {
     return sum + item.quantity;
   }, 0);
@@ -42,7 +42,7 @@ const OrderCard = ({ orderId, orderItems }) => {
   return (
     <div className="bg-white border-2 p-3 border-gray-200 hover:border-gray-300 rounded-xl">
       <div className="flex justify-between items-center">
-        <h1 className="font-semibold text-xl">Order 001</h1>
+        <h1 className="font-semibold text-xl">Order {index}</h1>
         <FaEllipsis className="text-gray-500" />
       </div>
       <div className="pt-3">
@@ -89,8 +89,13 @@ const TableCard = ({ session }) => {
         Table {session.tableNumber}
       </h1>
       <div className="pt-3 flex flex-col gap-4">
-        {Object.entries(groupedOrders).map(([orderId, items]) => (
-          <OrderCard key={orderId} orderId={orderId} orderItems={items} />
+        {Object.entries(groupedOrders).map(([orderId, items], index) => (
+          <OrderCard
+            key={orderId}
+            orderId={orderId}
+            orderItems={items}
+            index={index}
+          />
         ))}
       </div>
       <div className="flex flex-col pt-3 gap-3">

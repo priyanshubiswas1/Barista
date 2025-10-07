@@ -12,6 +12,7 @@ import (
 type ISessionClient interface {
 	UpdateSession(ctx context.Context, updateSession pkg.UpdateSessionRequest) (bool, error)
 	GetSessionById(ctx context.Context, sessionId string) (pkg.Session, error)
+	CreateSessionAdmin(ctx context.Context, shopId, tableId, status, paymentMethod, phoneNumber string, totalAmount float32, isPaid bool, active bool) (pkg.Session, string, error)
 }
 
 type SessionClient struct {
@@ -68,4 +69,32 @@ func (c *SessionClient) GetSessionById(ctx context.Context, sessionId string) (p
 		PaymentMethod: res.Session.PaymentMethod,
 		Active:        res.Session.Active,
 	}, nil
+}
+
+func (c *SessionClient) CreateSessionAdmin(ctx context.Context, shopId, tableId, status, paymentMethod, phoneNumber string, totalAmount float32, isPaid bool, active bool) (pkg.Session, string, error) {
+	res, err := c.service.CreateSessionAdmin(ctx, &session.CreateSessionAdminRequest{
+		ShopId:        shopId,
+		TableId:       tableId,
+		SessionStatus: status,
+		TotalAmount:   totalAmount,
+		IsPaid:        isPaid,
+		PaymentMethod: paymentMethod,
+		PhoneNumber:   phoneNumber,
+		Active:        active,
+	})
+	if err != nil {
+		return pkg.Session{}, "", err
+	}
+	return pkg.Session{
+		Id:            res.Session.SessionId,
+		ShopId:        res.Session.ShopId,
+		TableId:       res.Session.TableId,
+		Otp:           res.Session.Otp,
+		Status:        res.Session.SessionStatus,
+		Amount:        res.Session.TotalAmount,
+		IsPaid:        res.Session.IsPaid,
+		PaymentMethod: res.Session.PaymentMethod,
+		PhoneNumber:   res.Session.PhoneNumber,
+		Active:        res.Session.Active,
+	}, res.Token, nil
 }

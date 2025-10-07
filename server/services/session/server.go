@@ -153,6 +153,28 @@ func (s *gRPCserver) CreateSession(ctx context.Context, req *session.CreateSessi
 	}, nil
 }
 
+func (s *gRPCserver) CreateSessionAdmin(ctx context.Context, req *session.CreateSessionAdminRequest) (*session.CreateSessionAdminResponse, error) {
+	sessionRes, token, err := s.service.CreateOrJoinSessionAdmin(ctx, req.ShopId, req.TableId, req.SessionStatus, req.PaymentMethod, req.PhoneNumber, req.TotalAmount, req.IsPaid, req.Active)
+	if err != nil {
+		return nil, err
+	}
+	return &session.CreateSessionAdminResponse{
+		Session: &session.Session{
+			SessionId:     sessionRes.Id,
+			ShopId:        sessionRes.ShopId,
+			TableId:       sessionRes.TableId,
+			Otp:           sessionRes.Otp,
+			SessionStatus: sessionRes.Status,
+			TotalAmount:   sessionRes.Amount,
+			IsPaid:        sessionRes.IsPaid,
+			PaymentMethod: sessionRes.PaymentMethod,
+			PhoneNumber:   sessionRes.PhoneNumber,
+			Active:        sessionRes.Active,
+		},
+		Token: token,
+	}, nil
+}
+
 func (s *gRPCserver) JoinSession(ctx context.Context, req *session.JoinSessionRequest) (*session.JoinSessionResponse, error) {
 	resSession, tokenString, err := s.service.JoinSession(ctx, req.ShopId, req.TableId, req.Otp)
 	if err != nil {

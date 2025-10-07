@@ -145,16 +145,19 @@ func (s *APIServer) ListenServer(port string) error {
 	protected.HandleFunc("/api/active-sessions", makeHttpHandleFunc(sessionClient.GetAllActiveSessions)).Methods("GET").Queries("shopid", "{shopid}")
 	protected.HandleFunc("/api/sessions", makeHttpHandleFunc(sessionClient.GetActiveSession)).Methods("GET").Queries("shopid", "{shopid}", "tableid", "{tableid}")
 	protected.HandleFunc("/api/sessions/{sessionid}", makeHttpHandleFunc(sessionClient.GetSessionById)).Methods("GET")
-	router.HandleFunc("/api/sessions/send-otp", makeHttpHandleFunc(sessionClient.SendSessionOTP)).Methods("POST") //generate otp
-	router.HandleFunc("/api/sessions", makeHttpHandleFunc(sessionClient.CreateSession)).Methods("POST")           //create after validating against redis.
-	router.HandleFunc("/api/sessions/join", makeHttpHandleFunc(sessionClient.JoinSession)).Methods("POST")        //validate otp with db then join session
+	router.HandleFunc("/api/sessions/send-otp", makeHttpHandleFunc(sessionClient.SendSessionOTP)).Methods("POST")           //generate otp
+	router.HandleFunc("/api/sessions", makeHttpHandleFunc(sessionClient.CreateSession)).Methods("POST")                     //create after validating against redis.
+	router.HandleFunc("/api/sessions/join", makeHttpHandleFunc(sessionClient.JoinSession)).Methods("POST")                  //validate otp with db then join session
+	protected.HandleFunc("/api/sessions/create-join", makeHttpHandleFunc(sessionClient.CreateSessionAdmin)).Methods("POST") //create or join session admin
 	protected.HandleFunc("/api/sessions", makeHttpHandleFunc(sessionClient.UpdateSession)).Methods("PUT")
 
 	//ORDERS
-	session.HandleFunc("/api/orders", makeHttpHandleFunc(orderClient.GetOrdersBySessionId)).Methods("GET")
-	protected.HandleFunc("/api/orders/{sessionid}", makeHttpHandleFunc(orderClient.GetOrdersBySessionId)).Methods("GET")
+	session.HandleFunc("/api/orders", makeHttpHandleFunc(orderClient.GetOrdersBySessionId)).Methods("GET")               //customer
+	protected.HandleFunc("/api/orders/{sessionid}", makeHttpHandleFunc(orderClient.GetOrdersBySessionId)).Methods("GET") //shopowner
 	protected.HandleFunc("/api/order/{orderid}", makeHttpHandleFunc(orderClient.GetOrderById)).Methods("GET")
-	session.HandleFunc("/api/order", makeHttpHandleFunc(orderClient.CreateOrder)).Methods("POST")
+	session.HandleFunc("/api/order", makeHttpHandleFunc(orderClient.CreateOrder)).Methods("POST")              //customer
+	protected.HandleFunc("/api/order-admin", makeHttpHandleFunc(orderClient.CreateOrderAdmin)).Methods("POST") //shopowner
+	// protected.HandleFunc("/api/order/{sessionid}", makeHttpHandleFunc(orderClient.CreateOrder)).Methods("POST") //shopowner
 	protected.HandleFunc("/api/order", makeHttpHandleFunc(orderClient.UpdateOrder)).Methods("PUT")
 	protected.HandleFunc("/api/order/cancel", makeHttpHandleFunc(orderClient.CancelOrder)).Methods("PUT")
 

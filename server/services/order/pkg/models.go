@@ -22,6 +22,13 @@ type OrderItemsReq struct {
 	PriceAtOrderTime float32 `json:"priceAtOrderTime"`
 }
 
+type OrderAdminReq struct {
+	ShopId       string          `json:"shopId"`
+	TableId      string          `json:"tableId"`
+	SpecialNotes string          `json:"specialNotes"`
+	OrderItems   []OrderItemsReq `json:"orderItems"`
+}
+
 type OrderReq struct {
 	SessionId    string          `json:"sessionId"`
 	SpecialNotes string          `json:"specialNotes"`

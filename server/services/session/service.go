@@ -29,6 +29,7 @@ type IService interface {
 	GetSessionById(ctx context.Context, sessionId string) (pkg.Session, error)
 	SendSessionOTP(ctx context.Context, shopId, tableId, phoneNumber string) (bool, error)
 	CreateSession(ctx context.Context, shopId, tableId, status, paymentMethod, otp string, totalAmount float32, isPaid bool, active bool) (string, string, string, error)
+	CreateOrJoinSessionAdmin(ctx context.Context, shopId, tableId, status, paymentMethod, phoneNumber string, totalAmount float32, isPaid bool, active bool) (pkg.Session, string, error)
 	JoinSession(ctx context.Context, shopId, tableId, otp string) (pkg.Session, string, error)
 	UpdateSession(ctx context.Context, id, status, paymentMethod string, totalAmount float32, isPaid bool, active bool) error
 }
@@ -179,6 +180,49 @@ func (s *service) CreateSession(ctx context.Context, shopId, tableId, status, pa
 	}
 	s.redisClient.DeleteKey(ctx, tableId)
 	return id, tokenString, phoneNumber, nil
+}
+
+func (s *service) CreateOrJoinSessionAdmin(ctx context.Context, shopId, tableId, status, paymentMethod, phoneNumber string, totalAmount float32, isPaid bool, active bool) (pkg.Session, string, error) {
+	session, err := s.repository.GetActiveSession(ctx, shopId, tableId)
+	if err != nil {
+		return pkg.Session{}, "", err
+	}
+	if session != (pkg.Session{}) {
+		res, err := s.repository.JoinSessionAdmin(ctx, shopId, tableId)
+		if err != nil {
+			return pkg.Session{}, "", err
+		}
+		tokenString, err := GenerateToken(res.Id)
+		if err != nil {
+			log.Println("error generating token")
+			return pkg.Session{}, tokenString, err
+		}
+		return res, tokenString, nil
+	} else {
+		otp := generateOTP()
+		//create session
+		id := uuid.New().String()
+		if err := s.repository.CreateSession(ctx, id, shopId, tableId, status, paymentMethod, otp, phoneNumber, totalAmount, isPaid, true, time.Now()); err != nil {
+			return pkg.Session{}, "", err
+		}
+		tokenString, err := GenerateToken(id)
+		if err != nil {
+			log.Println("error generating token")
+			return pkg.Session{}, tokenString, err
+		}
+		return pkg.Session{
+			Id:            id,
+			ShopId:        shopId,
+			TableId:       tableId,
+			Otp:           otp,
+			Status:        status,
+			Amount:        totalAmount,
+			IsPaid:        isPaid,
+			PaymentMethod: paymentMethod,
+			Active:        active,
+			PhoneNumber:   phoneNumber,
+		}, tokenString, nil
+	}
 }
 
 func (s *service) JoinSession(ctx context.Context, shopId, tableId, otp string) (pkg.Session, string, error) {
