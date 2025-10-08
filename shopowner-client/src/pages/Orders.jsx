@@ -66,7 +66,7 @@ const OrderCard = ({ orderId, orderItems, index }) => {
 
 const TableCard = ({ session }) => {
   const { data, isLoading, error } = useQuery({
-    queryKey: ["order-items", session.sessionId],
+    queryKey: ["order-items", session.tableId],
     queryFn: () => fetchOrdersBySessionId(session.sessionId),
   });
   if (isLoading) return <p>Loading tables...</p>;
@@ -116,6 +116,12 @@ const OrderContent = () => {
   const { data, isLoading, error } = useQuery({
     queryKey: ["sessions"],
     queryFn: () => fetchActiveSessions(localStorage.getItem("shopId")),
+    select: (data) => ({
+      ...data,
+      sessions: [...data.sessions].sort((a, b) =>
+        a.tableNumber.localeCompare(b.tableNumber, undefined, { numeric: true })
+      ),
+    }),
   });
   if (isLoading) return <p>Loading tables...</p>;
   if (error) return <p>Error: {error.message}</p>;
