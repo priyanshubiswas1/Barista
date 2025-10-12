@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { IoFilter } from "react-icons/io5";
-import { FaPlus } from "react-icons/fa";
+import { Plus } from "phosphor-react";
 import { FaEllipsis } from "react-icons/fa6";
 import { LuCirclePlus } from "react-icons/lu";
 import { FaArrowRightLong } from "react-icons/fa6";
@@ -15,14 +15,14 @@ import { OverlaySidebar } from "../components/overlaysidebar/OverlaySidebar";
 const OrderSubHeader = ({ onAddNewOrderClick }) => {
   return (
     <div className="w-[100%] flex justify-between items-center pt-10">
-      <div className="flex items-center gap-5">
+      <div className="flex items-center gap-3">
         <Searchbar />
         <Button variant="outline" icon={IoFilter}>
           Filter
         </Button>
       </div>
-      <div className="flex items-center gap-5">
-        <Button onClick={onAddNewOrderClick} variant="primary" icon={FaPlus}>
+      <div className="flex items-center gap-3">
+        <Button onClick={onAddNewOrderClick} variant="primary" icon={Plus}>
           Add New Order
         </Button>
       </div>

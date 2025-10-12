@@ -2,7 +2,7 @@ import { TabHeader } from "../components/TabHeader";
 import { Overlays, Tabs } from "../constants/constants";
 import Searchbar from "../components/Searchbar";
 import { IoFilter } from "react-icons/io5";
-import { FaPlus } from "react-icons/fa";
+import { Plus } from "phosphor-react";
 import { OverlaySidebar } from "../components/overlaysidebar/OverlaySidebar";
 import { useState } from "react";
 import { useOverlay } from "../store/overlayStore";
@@ -16,19 +16,19 @@ import Button from "../components/Button";
 const MenuSubHeader = ({ onAddItemClick, onManageCategoryClick }) => {
   return (
     <div className="w-[100%] flex justify-between items-center pt-10">
-      <div className="flex items-center gap-5">
+      <div className="flex items-center gap-3">
         <Searchbar />
         <Button variant="outline" icon={IoFilter}>
           Filter
         </Button>
       </div>
-      <div className="flex items-center gap-5">
+      <div className="flex items-center gap-3">
         <Button variant="outline">Preview</Button>
         <Button onClick={onManageCategoryClick} variant="outline">
           Manage Categories
         </Button>
-        <Button onClick={onAddItemClick} variant="primary" icon={FaPlus}>
-          Add Items
+        <Button onClick={onAddItemClick} variant="primary" icon={Plus}>
+          Add New Items
         </Button>
       </div>
     </div>
