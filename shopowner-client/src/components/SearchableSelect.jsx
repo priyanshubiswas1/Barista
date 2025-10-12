@@ -44,7 +44,7 @@ const SearchableSelect = ({
   };
 
   return (
-    <div className="w-64" ref={wrapperRef}>
+    <div className="w-64 relative" ref={wrapperRef}>
       {label && (
         <label
           className={`block text-xs font-medium mb-1 ${
@@ -79,22 +79,30 @@ const SearchableSelect = ({
           className="flex-1 bg-transparent outline-none text-sm text-gray-800 placeholder:text-gray-400 disabled:placeholder:text-gray-300 h-full"
         />
 
-        {/* CaretDown icon */}
+        {/* CaretDown icon (rotates when open) */}
         <CaretDown
           size={14}
           weight="bold"
-          className="text-gray-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
+          className={`text-gray-400 absolute right-3 top-1/2 -translate-y-1/2 transition-transform duration-200 ${
+            isOpen ? "rotate-180" : "rotate-0"
+          }`}
         />
       </div>
 
+      {/* Dropdown */}
       {isOpen && !disabled && (
-        <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-48 overflow-auto">
+        <div
+          className={`absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-sm max-h-48 overflow-auto p-1 
+            transition-all duration-200 ease-in-out
+            ${isOpen ? "opacity-100 scale-100" : "opacity-0 scale-95"}
+          `}
+        >
           {filtered.length > 0 ? (
             filtered.map((opt) => (
               <div
                 key={opt}
                 onClick={() => handleSelect(opt)}
-                className="px-3 py-2 hover:bg-gray-100 cursor-pointer text-sm"
+                className="px-3 py-2 text-sm text-gray-600 rounded hover:bg-gray-100 hover:text-gray-800 cursor-pointer"
               >
                 {opt}
               </div>
@@ -102,7 +110,7 @@ const SearchableSelect = ({
           ) : (
             <div
               onClick={handleAdd}
-              className="flex items-center px-3 py-2 hover:bg-gray-100 cursor-pointer text-sm text-gray-800"
+              className="flex items-center px-3 py-2 text-sm text-gray-600 rounded hover:bg-gray-100 hover:text-gray-800 cursor-pointer"
             >
               <PlusCircle
                 size={16}

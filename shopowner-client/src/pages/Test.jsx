@@ -7,7 +7,7 @@ import SearchableSelect from "../components/SearchableSelect.jsx";
 
 const Test = () => {
   return (
-    <div className="flex h-screen">
+    <div className="flex h-screen items-center justify-center">
       <SearchableSelect></SearchableSelect>
     </div>
   );
