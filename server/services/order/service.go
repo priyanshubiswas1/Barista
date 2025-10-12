@@ -15,6 +15,7 @@ type IService interface {
 	GetOrdersBySessionId(ctx context.Context, sessionId string) ([]pkg.OrderItems, float32, error)
 	GetOrderById(ctx context.Context, orderId string) ([]pkg.OrderItems, float32, error)
 	CreateOrder(ctx context.Context, order pkg.OrderReq) (pkg.CreateOrderRes, error)
+	CreateOrderAdmin(ctx context.Context, order pkg.OrderAdminReq) (pkg.CreateOrderRes, error)
 	UpdateOrder(ctx context.Context, orderId, orderStatus string) bool
 	CancelOrder(ctx context.Context, orderId string) bool
 }
@@ -70,6 +71,46 @@ func (s *service) CreateOrder(ctx context.Context, order pkg.OrderReq) (pkg.Crea
 	succ, err := s.client.UpdateSession(ctx, pkg.UpdateSessionRequest{
 		Session: pkg.Session{
 			Id:            order.SessionId,
+			ShopId:        "",
+			TableId:       "",
+			Otp:           "",
+			Status:        "",
+			Amount:        orderAmount,
+			IsPaid:        false,
+			PaymentMethod: "",
+			PhoneNumber:   "",
+			Active:        true,
+		},
+	})
+	if err != nil {
+		log.Println("failed to UpdateSession error: ", err)
+		return pkg.CreateOrderRes{}, err
+	}
+	if succ {
+		return res, err
+	}
+	return res, errors.New("failed to update session table")
+}
+
+func (s *service) CreateOrderAdmin(ctx context.Context, order pkg.OrderAdminReq) (pkg.CreateOrderRes, error) {
+	session, _, err := s.client.CreateSessionAdmin(ctx, order.ShopId, order.TableId, "active", "", "0000000000", 0, false, true)
+	if err != nil {
+		log.Println("failed to Create or Join Session error: ", err)
+		return pkg.CreateOrderRes{}, err
+	}
+
+	id := uuid.New().String()
+	res, err := s.repository.CreateOrder(ctx, id, session.Id, order.SpecialNotes, time.Now(), order.OrderItems)
+	if err != nil {
+		return pkg.CreateOrderRes{}, err
+	}
+	var orderAmount float32 = 0.00
+	for _, oi := range order.OrderItems {
+		orderAmount += oi.PriceAtOrderTime * float32(oi.Quantity)
+	}
+	succ, err := s.client.UpdateSession(ctx, pkg.UpdateSessionRequest{
+		Session: pkg.Session{
+			Id:            session.Id,
 			ShopId:        "",
 			TableId:       "",
 			Otp:           "",

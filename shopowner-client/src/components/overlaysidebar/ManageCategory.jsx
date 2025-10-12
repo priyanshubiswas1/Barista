@@ -5,42 +5,27 @@ import { PiPencilSimpleLight } from "react-icons/pi";
 import { useOverlay } from "../../store/overlayStore";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  createCategory,
   deleteCategoryByCategoryId,
   fetchCategoryItemsByShopId,
 } from "../../api/api";
+import Input from "../Input";
+import { useState } from "react";
+import Button from "../Button";
 
-const CategoryItem = ({ name, id, count }) => {
-  const queryClient = useQueryClient();
-  const { mutate, isPending, isError, isSuccess, error } = useMutation({
-    mutationFn: deleteCategoryByCategoryId,
-    onSuccess: (data) => {
-      alert("Category deleted");
-      queryClient.invalidateQueries({ queryKey: ["categories"] });
-    },
-    onError: (error) => {
-      alert("Deletion failed");
-      console.log("Deletion failed: ", error);
-    },
-  });
+const CategoryItem = ({ name, id, count, onDelete }) => {
   return (
     <div className="w-full pt-3">
       <div className="flex justify-between items-center px-6 pb-3">
         <div className="flex text-xl text-gray-900 gap-3">
-          <div className="">{name}</div>
+          <div>{name}</div>
           <div className="bg-gray-100 border border-gray-200 w-7 h-7 rounded flex items-center justify-center">
             <h2>{count}</h2>
           </div>
         </div>
         <div className="flex text-gray-500 text-xl gap-3">
           <PiPencilSimpleLight />
-          <AiOutlineDelete
-            onClick={() =>
-              mutate({
-                categoryId: id,
-                shopId: localStorage.getItem("shopId"),
-              })
-            }
-          />
+          <AiOutlineDelete onClick={() => onDelete(id)} />
         </div>
       </div>
       <div className="w-full h-px bg-gray-200" />
@@ -50,14 +35,57 @@ const CategoryItem = ({ name, id, count }) => {
 
 const ManageCategory = ({ header }) => {
   const { setOverlay } = useOverlay();
+  const queryClient = useQueryClient();
+
   const { data, isLoading, error } = useQuery({
-    queryKey: ["categories"],
+    queryKey: ["categoryItems"],
     queryFn: () => fetchCategoryItemsByShopId(localStorage.getItem("shopId")),
   });
-  console.log(data);
-  if (isLoading) return <p>Loading item...</p>;
+
+  const [addCategory, setAddCategory] = useState(false);
+  const [addItemName, setAddItemName] = useState("");
+
+  const createMutation = useMutation({
+    mutationFn: createCategory,
+    onSuccess: () => {
+      alert("Category added✅");
+      setAddCategory(false);
+      queryClient.invalidateQueries({ queryKey: ["categoryItems"] });
+    },
+    onError: () => {},
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteCategoryByCategoryId,
+    onSuccess: () => {
+      alert("Category deleted");
+      queryClient.invalidateQueries({ queryKey: ["categoryItems"] });
+    },
+    onError: () => {
+      alert("Deletion failed");
+    },
+  });
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    createMutation.mutate({
+      name: addItemName,
+      shopId: localStorage.getItem("shopId"),
+    });
+  };
+
+  const handleDeleteCategory = (id) => {
+    deleteMutation.mutate({
+      categoryId: id,
+      shopId: localStorage.getItem("shopId"),
+    });
+  };
+
+  if (isLoading) return <p>Loading items...</p>;
   if (error) return <p>Error: {error.message}</p>;
+
   const categories = data.categories;
+
   return (
     <div className="flex flex-col w-full h-full">
       <div className="px-6 pt-6 pb-4 flex justify-between items-start">
@@ -79,14 +107,37 @@ const ManageCategory = ({ header }) => {
               name={category.name}
               id={category.categoryId}
               count={category.items.length}
+              onDelete={handleDeleteCategory}
             />
           ))}
         </div>
-        <div className="pt-3 px-6">
-          <button className="flex items-center gap-3">
-            <LuCirclePlus />
-            <h2 className="text-lg font-medium">Add New Category</h2>
-          </button>
+        <div className="pt-3">
+          {addCategory ? (
+            <form
+              onSubmit={handleSubmit}
+              className="flex justify-between items-center gap-2 px-6 pt-4"
+            >
+              <Input
+                label="New Category Name"
+                type="text"
+                name="add category"
+                placeholder="Enter category name"
+                value={addItemName}
+                onChange={(e) => setAddItemName(e.target.value)}
+              />
+              <Button type="submit" variant="primary">
+                {createMutation.isPending ? "Adding..." : "Add"}
+              </Button>
+            </form>
+          ) : (
+            <button
+              onClick={() => setAddCategory(true)}
+              className="flex items-center gap-3 px-6"
+            >
+              <LuCirclePlus />
+              <h2 className="text-lg font-medium">Add New Category</h2>
+            </button>
+          )}
         </div>
       </div>
     </div>

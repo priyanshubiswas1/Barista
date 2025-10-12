@@ -39,7 +39,7 @@ func (s *gRPCserver) CreateTable(ctx context.Context, req *table.CreateTableRequ
 			Id:          pkgTable.TableId,
 			ShopId:      pkgTable.ShopId,
 			TableNumber: pkgTable.TableNumber,
-			QrUrl:       pkgTable.QR,
+			Qr:          pkgTable.QR,
 		},
 	}, nil
 }
@@ -54,7 +54,7 @@ func (s *gRPCserver) GetTable(ctx context.Context, req *table.GetTableRequest) (
 			Id:          pkgTable.TableId,
 			ShopId:      pkgTable.ShopId,
 			TableNumber: pkgTable.TableNumber,
-			QrUrl:       pkgTable.QR,
+			Qr:          pkgTable.QR,
 		},
 	}, nil
 }
@@ -70,7 +70,7 @@ func (s *gRPCserver) GetTables(ctx context.Context, req *table.GetTablesRequest)
 			Id:          pkgTable.TableId,
 			ShopId:      pkgTable.ShopId,
 			TableNumber: pkgTable.TableNumber,
-			QrUrl:       pkgTable.QR,
+			Qr:          pkgTable.QR,
 		})
 	}
 	return &table.GetTablesResponse{
@@ -83,7 +83,7 @@ func (s *gRPCserver) UpdateTable(ctx context.Context, req *table.UpdateTableRequ
 		TableId:     req.Table.Id,
 		ShopId:      req.Table.ShopId,
 		TableNumber: req.Table.TableNumber,
-		QR:          req.Table.QrUrl,
+		QR:          req.Table.Qr,
 	}); err != nil {
 		return nil, err
 	}

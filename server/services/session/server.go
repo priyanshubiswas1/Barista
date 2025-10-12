@@ -74,6 +74,32 @@ func (s *gRPCserver) GetActiveSession(ctx context.Context, req *session.GetActiv
 	}, nil
 }
 
+func (s *gRPCserver) GetAllActiveSessions(ctx context.Context, req *session.GetAllSessionsRequest) (*session.GetAllActiveSessionsResponse, error) {
+	res, err := s.service.GetAllActiveSessions(ctx, req.ShopId)
+	if err != nil {
+		return nil, err
+	}
+	sessions := []*session.ActiveSession{}
+	for _, s := range res {
+		sessions = append(sessions, &session.ActiveSession{
+			SessionId:     s.Id,
+			ShopId:        s.ShopId,
+			TableId:       s.TableId,
+			TableName:     s.TableName,
+			Otp:           s.Otp,
+			SessionStatus: s.Status,
+			TotalAmount:   s.Amount,
+			IsPaid:        s.IsPaid,
+			PaymentMethod: s.PaymentMethod,
+			PhoneNumber:   s.PhoneNumber,
+			Active:        s.Active,
+		})
+	}
+	return &session.GetAllActiveSessionsResponse{
+		Sessions: sessions,
+	}, nil
+}
+
 func (s *gRPCserver) GetSessionById(ctx context.Context, req *session.GetSessionRequest) (*session.GetSessionResponse, error) {
 	res, err := s.service.GetSessionById(ctx, req.SessionId)
 	if err != nil {
@@ -122,6 +148,28 @@ func (s *gRPCserver) CreateSession(ctx context.Context, req *session.CreateSessi
 			PaymentMethod: req.PaymentMethod,
 			PhoneNumber:   phoneNo,
 			Active:        req.Active,
+		},
+		Token: token,
+	}, nil
+}
+
+func (s *gRPCserver) CreateSessionAdmin(ctx context.Context, req *session.CreateSessionAdminRequest) (*session.CreateSessionAdminResponse, error) {
+	sessionRes, token, err := s.service.CreateOrJoinSessionAdmin(ctx, req.ShopId, req.TableId, req.SessionStatus, req.PaymentMethod, req.PhoneNumber, req.TotalAmount, req.IsPaid, req.Active)
+	if err != nil {
+		return nil, err
+	}
+	return &session.CreateSessionAdminResponse{
+		Session: &session.Session{
+			SessionId:     sessionRes.Id,
+			ShopId:        sessionRes.ShopId,
+			TableId:       sessionRes.TableId,
+			Otp:           sessionRes.Otp,
+			SessionStatus: sessionRes.Status,
+			TotalAmount:   sessionRes.Amount,
+			IsPaid:        sessionRes.IsPaid,
+			PaymentMethod: sessionRes.PaymentMethod,
+			PhoneNumber:   sessionRes.PhoneNumber,
+			Active:        sessionRes.Active,
 		},
 		Token: token,
 	}, nil

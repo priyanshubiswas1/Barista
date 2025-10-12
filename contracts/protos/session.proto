@@ -16,12 +16,30 @@ message Session {
     bool active = 11;
 }
 
+message ActiveSession {
+    string sessionId = 1;
+    string shopId = 2;
+    string tableId = 3;
+    string tableName = 4;
+    string otp = 5;
+    string sessionStatus = 6;
+    float totalAmount = 7;
+    bool isPaid = 8;
+    string paymentMethod = 9;
+    string phoneNumber = 10;
+    bool active = 11;
+}
+
 message GetAllSessionsRequest{
     string shopId = 1;
 }
 
 message GetAllSessionsResponse{
     repeated Session sessions = 1;
+}
+
+message GetAllActiveSessionsResponse{
+    repeated ActiveSession sessions = 1;
 }
 
 message GetActiveSessionRequest{
@@ -67,6 +85,22 @@ message CreateSessionResponse{
     string token = 2;
 }
 
+message CreateSessionAdminRequest{
+    string shopId = 1;
+    string tableId = 2;
+    string sessionStatus = 4;
+    float totalAmount = 5;
+    bool isPaid = 6;
+    string paymentMethod = 7;
+    string phoneNumber = 10;
+    bool active = 8;
+}
+
+message CreateSessionAdminResponse{
+    Session session = 1;
+    string token = 2;
+}
+
 message JoinSessionRequest{
     string shopId = 1;
     string tableId = 2;
@@ -89,9 +123,11 @@ message UpdateSessionResponse{
 service SessionService{
     rpc GetAllSessions(GetAllSessionsRequest) returns (GetAllSessionsResponse);
     rpc GetActiveSession(GetActiveSessionRequest) returns (GetActiveSessionResponse);
+    rpc GetAllActiveSessions(GetAllSessionsRequest) returns (GetAllActiveSessionsResponse);
     rpc GetSessionById(GetSessionRequest) returns (GetSessionResponse);
     rpc SendSessionOTP(SendSessionOTPRequest) returns (SendSessionOTPResponse);
     rpc CreateSession(CreateSessionRequest) returns (CreateSessionResponse);
+    rpc CreateSessionAdmin(CreateSessionAdminRequest) returns (CreateSessionAdminResponse);
     rpc JoinSession(JoinSessionRequest) returns (JoinSessionResponse);
     rpc UpdateSession(UpdateSessionRequest) returns (UpdateSessionResponse);
 }

@@ -275,9 +275,26 @@ type Session struct {
 	PhoneNumber   string  `json:"phoneNumber"`
 	Active        bool    `json:"active"`
 }
+type ActiveSession struct {
+	Id            string  `json:"sessionId"`
+	ShopId        string  `json:"shopId"`
+	TableId       string  `json:"tableId"`
+	TableNumber   string  `json:"tableNumber"`
+	Otp           string  `json:"otp"`
+	Status        string  `json:"status"`
+	Amount        float32 `json:"amount"`
+	IsPaid        bool    `json:"isPaid"`
+	PaymentMethod string  `json:"paymentMethod"`
+	PhoneNumber   string  `json:"phoneNumber"`
+	Active        bool    `json:"active"`
+}
 
 type GetAllSessionsResponse struct {
 	Sessions []Session `json:"sessions"`
+}
+
+type GetAllActiveSessionsResponse struct {
+	Sessions []ActiveSession `json:"sessions"`
 }
 type GetActiveSessionResponse struct {
 	Session Session `json:"session"`
@@ -304,6 +321,16 @@ type CreateSessionRequest struct {
 	Amount        float32 `json:"amount"`
 	IsPaid        bool    `json:"isPaid"`
 	PaymentMethod string  `json:"paymentMethod"`
+	Active        bool    `json:"active"`
+}
+type CreateSessionAdminRequest struct {
+	ShopId        string  `json:"shopId"`
+	TableId       string  `json:"tableId"`
+	Status        string  `json:"status"`
+	Amount        float32 `json:"amount"`
+	IsPaid        bool    `json:"isPaid"`
+	PaymentMethod string  `json:"paymentMethod"`
+	PhoneNumber   string  `json:"phoneNumber"`
 	Active        bool    `json:"active"`
 }
 type CreateSessionResponse struct {
@@ -353,6 +380,12 @@ type GetOrdersBySessionIdResponse struct {
 type GetOrdersByOrderIdResponse struct {
 	OrderItems []OrderItems `json:"orderItems"`
 	TotalPrice float32      `json:"totalPrice"`
+}
+type CreateOrderAdminRequest struct {
+	ShopId       string             `json:"shopId"`
+	TableId      string             `json:"tableId"`
+	SpecialNotes string             `json:"specialNotes"`
+	OrderItems   []OrderItemRequest `json:"orderItems"`
 }
 type CreateOrderRequest struct {
 	SpecialNotes string             `json:"specialNotes"`
