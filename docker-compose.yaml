@@ -98,6 +98,15 @@ services:
     image: redis:8.2.1-alpine
     container_name: redis
     restart: unless-stopped
+  websocketservice:
+    build:
+      context: ./server/services/ws
+      dockerfile: ./app.dockerfile
+    environment:
+      PORT: "8080"
+    ports:
+      - "8080:8081"
+    restart: on-failure
   authservice:
     build:
       context: ./server/services/auth
@@ -172,6 +181,7 @@ services:
       PORT: "8080"
       DB_URL: "postgres://admin:7866@order_db:5432/order?sslmode=disable"
       SESSION_CLIENT: sessionservice:8080
+      WEBSOCKET_URL: websocketservice:8080
     restart: on-failure
   paymentservice:
     build:

@@ -1,7 +1,10 @@
 package ws
 
 import (
+	"context"
+	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 	"sync"
@@ -34,17 +37,56 @@ func NewManager() *Manager {
 }
 
 func (m *Manager) setupEventHandlers() {
-	m.handlers[EventSendMessage] = SendMessage
+	// m.handlers[EventSendMessage] = SendMessage
+	m.handlers[EventOrderPlaced] = OrderPlaced
 }
 
-func SendMessage(event Event, c *Client) error {
-	log.Println(event)
+func OrderPlaced(event Event, m *Manager, to string) error {
+	var chatevent OrderPlacedEvent
+
+	if err := json.Unmarshal(event.Payload, &chatevent); err != nil {
+		return fmt.Errorf("bad payload in request: %v", err)
+	}
+
+	data, err := json.Marshal(chatevent)
+	if err != nil {
+		return fmt.Errorf("failed to marshal chatevent message: %v", err)
+	}
+
+	outgoingEvent := Event{
+		Payload: data,
+		Type:    EventOrderPlaced,
+	}
+
+	for client := range m.clients {
+		if client.id == to {
+			client.egress <- outgoingEvent
+			break
+		}
+	}
+
 	return nil
 }
 
-func (m *Manager) routeEvent(event Event, c *Client) error {
+// call it directly to send
+// to and event type send here inside event
+func (m *Manager) RouteEvent(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+	if r.Method != http.MethodPost {
+		return fmt.Errorf("invalid http method")
+	}
+
+	event := Event{}
+	if err := json.NewDecoder(r.Body).Decode(&event); err != nil {
+		return fmt.Errorf("invalid req payload, err: %v", err)
+	}
 	if handler, ok := m.handlers[event.Type]; ok {
-		if err := handler(event, c); err != nil {
+		var reqPayload struct {
+			ID string `json:"id"`
+		}
+		if err := json.Unmarshal(event.Payload, &reqPayload); err != nil {
+			return err
+		}
+		if err := handler(event, m, reqPayload.ID); err != nil {
 			return err
 		}
 		return nil
@@ -53,7 +95,25 @@ func (m *Manager) routeEvent(event Event, c *Client) error {
 	}
 }
 
+// func (m *Manager) routeEvent(event Event, c *Client) error {
+// 	if handler, ok := m.handlers[event.Type]; ok {
+// 		if err := handler(event, c); err != nil {
+// 			return err
+// 		}
+// 		return nil
+// 	} else {
+// 		return errors.New("invalid event type")
+// 	}
+// 	return nil
+// }
+
 func (m *Manager) ServeWS(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Query().Get("id")
+	if id == "" {
+		log.Println("Missing id query param")
+		return
+	}
+
 	log.Println("new connection")
 
 	conn, err := websocketUpgrader.Upgrade(w, r, nil)
@@ -62,7 +122,7 @@ func (m *Manager) ServeWS(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	client := NewClient(conn, m)
+	client := NewClient(id, conn, m)
 	m.addClient(client)
 }
 

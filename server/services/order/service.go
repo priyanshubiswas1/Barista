@@ -1,9 +1,12 @@
 package order
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
 	"log"
+	"net/http"
 	"time"
 
 	"github.com/google/uuid"
@@ -23,12 +26,14 @@ type IService interface {
 type service struct {
 	repository IRepository
 	client     client.ISessionClient
+	ws         string
 }
 
-func NewService(repository IRepository, client client.ISessionClient) (IService, error) {
+func NewService(repository IRepository, client client.ISessionClient, ws string) (IService, error) {
 	return &service{
 		repository: repository,
 		client:     client,
+		ws:         ws,
 	}, nil
 }
 
@@ -86,6 +91,12 @@ func (s *service) CreateOrder(ctx context.Context, order pkg.OrderReq) (pkg.Crea
 		log.Println("failed to UpdateSession error: ", err)
 		return pkg.CreateOrderRes{}, err
 	}
+	session, err := s.client.GetSessionById(ctx, order.SessionId)
+	if err != nil {
+		log.Println("failed to get session error: ", err)
+		return pkg.CreateOrderRes{}, err
+	}
+	SendPlaceOrderEvent(session.ShopId, s.ws+"/send-event")
 	if succ {
 		return res, err
 	}
@@ -177,4 +188,44 @@ func (s *service) CancelOrder(ctx context.Context, orderId string) bool {
 		return false
 	}
 	return succ
+}
+
+func SendPlaceOrderEvent(id, url string) {
+	payload := map[string]string{
+		"to": id,
+	}
+	payloadBytes, err := json.Marshal(payload)
+	if err != nil {
+		log.Println("Error marshaling payload: ", err)
+		return
+	}
+	event := struct {
+		Type    string          `json:"type"`
+		Payload json.RawMessage `json:"payload"`
+	}{
+		Type:    "order_placed",
+		Payload: json.RawMessage(payloadBytes),
+	}
+
+	eventBytes, err := json.Marshal(event)
+	if err != nil {
+		log.Println("Error marshaling event: ", err)
+		return
+	}
+
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(eventBytes))
+	if err != nil {
+		log.Println("Error creating request:", err)
+		return
+	}
+	req.Header.Set("Content-Type", "application/json")
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Println("Error sending request:", err)
+		return
+	}
+	defer resp.Body.Close()
+
+	log.Println("Response status:", resp.Status)
 }

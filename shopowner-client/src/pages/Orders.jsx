@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { IoFilter } from "react-icons/io5";
 import { Plus } from "phosphor-react";
 import { FaEllipsis } from "react-icons/fa6";
@@ -69,6 +69,35 @@ const TableCard = ({ session }) => {
     queryKey: ["order-items", session.tableId],
     queryFn: () => fetchOrdersBySessionId(session.sessionId),
   });
+
+  useEffect(() => {
+    const ws = new WebSocket(
+      `ws://localhost:8081/ws?id=${localStorage.getItem("shopId")}`
+    );
+    ws.onopen = () => {
+      console.log("WebSocket connected");
+    };
+    ws.onmessage = (event) => {
+      const message = JSON.parse(event.data);
+
+      if (message.event === "order_placed") {
+        console.log("Order placed event received");
+        queryClient.invalidateQueries(["order-items", session.tableId]);
+      }
+    };
+    ws.onerror = (err) => {
+      console.error("WebSocket error", err);
+    };
+
+    ws.onclose = () => {
+      console.log("WebSocket disconnected");
+    };
+
+    return () => {
+      ws.close();
+    };
+  }, []);
+
   if (isLoading) return <p>Loading tables...</p>;
   if (error) return <p>Error: {error.message}</p>;
 

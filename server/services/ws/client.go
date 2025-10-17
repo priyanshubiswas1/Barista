@@ -16,13 +16,15 @@ var (
 type ClientList map[*Client]bool
 
 type Client struct {
+	id         string
 	connection *websocket.Conn
 	manager    *Manager
 	egress     chan Event
 }
 
-func NewClient(conn *websocket.Conn, manager *Manager) *Client {
+func NewClient(id string, conn *websocket.Conn, manager *Manager) *Client {
 	return &Client{
+		id:         id,
 		connection: conn,
 		manager:    manager,
 		egress:     make(chan Event),
@@ -41,29 +43,29 @@ func (c *Client) readMessages() {
 	c.connection.SetReadLimit(512)
 	c.connection.SetPongHandler(c.pongHandler)
 
-	for {
-		_, payload, err := c.connection.ReadMessage()
-		if err != nil {
-			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
-				log.Println("error reading message: ", err)
-			}
-			break
-		}
-		var request Event
-		if err := json.Unmarshal(payload, &request); err != nil {
-			log.Println("error marshalling event: ", err)
-		}
+	// for {
+	// 	_, payload, err := c.connection.ReadMessage()
+	// 	if err != nil {
+	// 		if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
+	// 			log.Println("error reading message: ", err)
+	// 		}
+	// 		break
+	// 	}
+	// 	var request Event
+	// 	if err := json.Unmarshal(payload, &request); err != nil {
+	// 		log.Println("error marshalling event: ", err)
+	// 	}
 
-		if err := c.manager.routeEvent(request, c); err != nil {
-			log.Println("error handling message: ", err)
-		}
+	// 	if err := c.manager.routeEvent(request, c); err != nil {
+	// 		log.Println("error handling message: ", err)
+	// 	}
 
-		// for wsclient := range c.manager.clients {
-		// 	wsclient.egress <- payload
-		// }
-		// log.Println(messageType)
-		// log.Println(string(payload))
-	}
+	// 	// for wsclient := range c.manager.clients {
+	// 	// 	wsclient.egress <- payload
+	// 	// }
+	// 	// log.Println(messageType)
+	// 	// log.Println(string(payload))
+	// }
 }
 
 func (c *Client) writeMessages() {

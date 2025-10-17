@@ -34,7 +34,7 @@ func main() {
 	}
 	log.Println("session grpc client created")
 
-	service, err := order.NewService(r, sessionClient)
+	service, err := order.NewService(r, sessionClient, cfg.WebSocketService)
 	if err != nil {
 		log.Fatal("failed to create service: ", err)
 	}
