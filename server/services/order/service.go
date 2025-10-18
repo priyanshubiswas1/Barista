@@ -7,6 +7,7 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -211,6 +212,9 @@ func SendPlaceOrderEvent(id, url string) {
 	if err != nil {
 		log.Println("Error marshaling event: ", err)
 		return
+	}
+	if !strings.HasPrefix(url, "http://") && !strings.HasPrefix(url, "https://") {
+		url = "http://" + strings.TrimPrefix(url, "/")
 	}
 
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(eventBytes))

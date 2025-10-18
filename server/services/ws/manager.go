@@ -37,7 +37,6 @@ func NewManager() *Manager {
 }
 
 func (m *Manager) setupEventHandlers() {
-	// m.handlers[EventSendMessage] = SendMessage
 	m.handlers[EventOrderPlaced] = OrderPlaced
 }
 
@@ -81,7 +80,7 @@ func (m *Manager) RouteEvent(ctx context.Context, w http.ResponseWriter, r *http
 	}
 	if handler, ok := m.handlers[event.Type]; ok {
 		var reqPayload struct {
-			ID string `json:"id"`
+			ID string `json:"to"`
 		}
 		if err := json.Unmarshal(event.Payload, &reqPayload); err != nil {
 			return err
@@ -94,18 +93,6 @@ func (m *Manager) RouteEvent(ctx context.Context, w http.ResponseWriter, r *http
 		return errors.New("invalid event type")
 	}
 }
-
-// func (m *Manager) routeEvent(event Event, c *Client) error {
-// 	if handler, ok := m.handlers[event.Type]; ok {
-// 		if err := handler(event, c); err != nil {
-// 			return err
-// 		}
-// 		return nil
-// 	} else {
-// 		return errors.New("invalid event type")
-// 	}
-// 	return nil
-// }
 
 func (m *Manager) ServeWS(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
@@ -124,6 +111,9 @@ func (m *Manager) ServeWS(w http.ResponseWriter, r *http.Request) {
 
 	client := NewClient(id, conn, m)
 	m.addClient(client)
+
+	go client.readMessages()
+	go client.writeMessages()
 }
 
 func (m *Manager) addClient(client *Client) {
@@ -131,8 +121,6 @@ func (m *Manager) addClient(client *Client) {
 	defer m.Unlock()
 
 	m.clients[client] = true
-	go client.readMessages()
-	go client.writeMessages()
 }
 
 func (m *Manager) removeClient(client *Client) {

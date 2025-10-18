@@ -43,29 +43,15 @@ func (c *Client) readMessages() {
 	c.connection.SetReadLimit(512)
 	c.connection.SetPongHandler(c.pongHandler)
 
-	// for {
-	// 	_, payload, err := c.connection.ReadMessage()
-	// 	if err != nil {
-	// 		if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
-	// 			log.Println("error reading message: ", err)
-	// 		}
-	// 		break
-	// 	}
-	// 	var request Event
-	// 	if err := json.Unmarshal(payload, &request); err != nil {
-	// 		log.Println("error marshalling event: ", err)
-	// 	}
-
-	// 	if err := c.manager.routeEvent(request, c); err != nil {
-	// 		log.Println("error handling message: ", err)
-	// 	}
-
-	// 	// for wsclient := range c.manager.clients {
-	// 	// 	wsclient.egress <- payload
-	// 	// }
-	// 	// log.Println(messageType)
-	// 	// log.Println(string(payload))
-	// }
+	for {
+		_, _, err := c.connection.ReadMessage()
+		if err != nil {
+			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
+				log.Println("error reading message: ", err)
+			}
+			break
+		}
+	}
 }
 
 func (c *Client) writeMessages() {

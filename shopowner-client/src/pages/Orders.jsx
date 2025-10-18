@@ -11,7 +11,7 @@ import Searchbar from "../components/Searchbar.jsx";
 import Button from "../components/Button.jsx";
 import { useOverlay } from "../store/overlayStore.js";
 import { OverlaySidebar } from "../components/overlaysidebar/OverlaySidebar";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchActiveSessions, fetchOrdersBySessionId } from "../api/api.js";
 
 const OrderSubHeader = ({ onAddNewOrderClick }) => {
@@ -65,6 +65,8 @@ const OrderCard = ({ orderId, orderItems, index }) => {
 };
 
 const TableCard = ({ session }) => {
+  const queryClient = useQueryClient();
+
   const { data, isLoading, error } = useQuery({
     queryKey: ["order-items", session.tableId],
     queryFn: () => fetchOrdersBySessionId(session.sessionId),
@@ -80,7 +82,7 @@ const TableCard = ({ session }) => {
     ws.onmessage = (event) => {
       const message = JSON.parse(event.data);
 
-      if (message.event === "order_placed") {
+      if (message.type === "order_placed") {
         console.log("Order placed event received");
         queryClient.invalidateQueries(["order-items", session.tableId]);
       }
