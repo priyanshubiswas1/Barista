@@ -28,6 +28,11 @@ export const loginUser = async (credentials) => {
     return response.status === 200 ? response.data : null
 }
 
+export const verifyUser = async () => {
+    const response = await api.get(`/auth/verify`);
+    return response.status === 200 ? true : false
+}
+
 export const fetchTablesByShopId = async (shopId) => {
     const response = await api.get(`/tables/${shopId}`);
     return response.status === 200 ? response.data : null

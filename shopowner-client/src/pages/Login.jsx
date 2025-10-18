@@ -4,6 +4,7 @@ import Button from "../components/Button";
 import { useMutation } from "@tanstack/react-query";
 import { loginUser } from "../api/api";
 import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "../store/authStore";
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
@@ -15,6 +16,7 @@ const Login = () => {
     onSuccess: (data) => {
       // alert("Logged in ✅");
       localStorage.setItem("token", data.token);
+      useAuthStore.setState({ isAuth: true });
       navigate("/menu");
     },
     onError: (error) => {

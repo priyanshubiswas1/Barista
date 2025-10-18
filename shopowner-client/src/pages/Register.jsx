@@ -4,6 +4,7 @@ import Button from "../components/Button";
 import { useMutation } from "@tanstack/react-query";
 import { registerUser } from "../api/api";
 import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "../store/authStore";
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -29,6 +30,8 @@ const Register = () => {
       localStorage.setItem("token", data.token);
       localStorage.setItem("shopId", data.shopId);
       localStorage.setItem("menuId", data.menuId);
+      useAuthStore.setState({ isAuth: true });
+
       navigate("/menu");
     },
     onError: (error) => {

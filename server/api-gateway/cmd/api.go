@@ -97,6 +97,7 @@ func (s *APIServer) ListenServer(port string) error {
 	session.Use(middleware.SessionMiddleware)
 
 	//USER
+	protected.HandleFunc("/api/auth/verify", http.HandlerFunc(VerifyHandler)).Methods("GET")
 	protected.HandleFunc("/api/auth/user", makeHttpHandleFunc(authClient.GetUserHandler)).Methods("GET")
 	protected.HandleFunc("/api/auth/user", makeHttpHandleFunc(authClient.UpdateUserHandler)).Methods("PUT")
 	protected.HandleFunc("/api/auth/user", makeHttpHandleFunc(authClient.DeleteUserHandler)).Methods("DELETE")
@@ -181,4 +182,16 @@ func makeHttpHandleFunc(apiFunc APIFunc) http.HandlerFunc {
 func writeJSON(w http.ResponseWriter, s int, data any) error {
 	w.WriteHeader(s)
 	return json.NewEncoder(w).Encode(data)
+}
+
+func VerifyHandler(w http.ResponseWriter, r *http.Request) {
+	if id := r.Context().Value(middleware.CtxKeyID); id != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`"Verification successful"`))
+		return
+	}
+
+	w.WriteHeader(http.StatusUnauthorized)
+	w.Write([]byte(`"Unauthorized"`))
 }
