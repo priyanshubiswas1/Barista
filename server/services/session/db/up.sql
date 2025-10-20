@@ -1,6 +1,7 @@
 CREATE TYPE session_status AS ENUM ('active','closed');
 CREATE TABLE session (
     id UUID PRIMARY KEY,
+    session_number INTEGER NOT NULL,
     shop_id UUID NOT NULL,
     table_id UUID NOT NULL,
     otp TEXT NOT NULL,

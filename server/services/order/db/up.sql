@@ -2,6 +2,7 @@ CREATE TYPE order_status AS ENUM ('pending','in_progress','ready','served','canc
 CREATE TABLE "order" (
     id UUID PRIMARY KEY,
     session_id UUID NOT NULL,
+    order_number INTEGER NOT NULL,
     status order_status NOT NULL DEFAULT 'pending',
     special_notes TEXT,
     active BOOLEAN NOT NULL DEFAULT TRUE,

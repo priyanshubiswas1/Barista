@@ -109,9 +109,15 @@ func (r *postgresRepository) CreateOrder(ctx context.Context, id, sessionId, spe
 			txErr = tx.Commit()
 		}
 	}()
-	query := `INSERT INTO "order" (id,session_id,status,special_notes,active,created_at,updated_at)
-				VALUES ($1,$2,$3,$4,$5,$6,$7)
-			`
+	query := `
+		WITH last_order AS (
+			SELECT MAX(order_number) AS max_order_number
+			FROM "order"
+			WHERE session_id = $2 AND created_at::DATE = CURRENT_DATE
+		)
+		INSERT INTO "order" (id, session_id, order_number, status, special_notes, active, created_at, updated_at)
+		VALUES ($1, $2, COALESCE((SELECT max_order_number + 1 FROM last_order), 1), $3, $4, $5, $6, $7)
+	`
 	res, err := tx.ExecContext(ctx, query, id, sessionId, "pending", specialNotes, true, createdAt, createdAt)
 	if err != nil {
 		txErr = err

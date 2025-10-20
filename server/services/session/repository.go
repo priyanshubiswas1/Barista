@@ -149,8 +149,14 @@ func (r *postgresRepository) GetSessionById(ctx context.Context, sessionId strin
 }
 
 func (r *postgresRepository) CreateSession(ctx context.Context, id, shopId, tableId, status, paymentMethod, otp, phoneNumber string, totalAmount float32, isPaid, active bool, createdAt time.Time) error {
-	query := `INSERT INTO session (id,shop_id,table_id,otp,status,total_amount,is_paid,payment_method,active,phone_number,created_at,updated_at)
-				VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
+	query := `
+				WITH last_session AS (
+					SELECT MAX(session_number) AS max_session_number
+					FROM "session"
+					WHERE shop_id = $2 AND created_at::DATE = CURRENT_DATE
+				)
+				INSERT INTO session (id,session_number,shop_id,table_id,otp,status,total_amount,is_paid,payment_method,active,phone_number,created_at,updated_at)
+				VALUES ($1, COALESCE((SELECT session_number + 1 FROM last_session), 1), $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
 			`
 	res, err := r.db.ExecContext(ctx, query, id, shopId, tableId, otp, status, totalAmount, isPaid, paymentMethod, active, phoneNumber, createdAt, createdAt)
 	if err != nil {
