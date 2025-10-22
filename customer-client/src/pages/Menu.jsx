@@ -3,6 +3,7 @@ import About from "../components/About";
 import Navbar from "../components/Navbar";
 import Searchbar from "../components/Searchbar";
 import { IoEllipseSharp, IoTriangleSharp } from "react-icons/io5";
+import { IoMdArrowDropright, IoMdArrowDropdown } from "react-icons/io";
 
 const VegNonVegSelect = ({ value, onChange }) => (
   <div className="flex gap-2 pt-3 pb-2">
@@ -70,18 +71,40 @@ const Search = () => {
 };
 
 const Category = () => {
+  // const isExpanded = expandedCategories[category] ?? false;
+  const isExpanded = true;
   return (
-    <div className="">
-      <div className="">Shakes</div>
-      <div className="">
-        <Item />
+    <div className="p-4">
+      <div className="bg-gray-200 border border-gray-300 rounded-md">
+        <div className="flex items-center justify-between p-2">
+          <div className="flex items-center gap-4">
+            <h2 className="font-medium">Shakes</h2>
+            <div className="bg-white border border-gray-300 rounded-sm h-5 w-5 flex justify-center items-center text-gray-600 text-sm">
+              6
+            </div>
+          </div>
+          <div className="">
+            {isExpanded ? (
+              <IoMdArrowDropdown size={25} className="text-gray-800" />
+            ) : (
+              <IoMdArrowDropright size={25} className="text-gray-800" />
+            )}
+          </div>
+        </div>
+        <div className="">
+          <Item />
+        </div>
       </div>
     </div>
   );
 };
 
 const Item = () => {
-  return <div className="">Veg Salad</div>;
+  return (
+    <div className="px-3 pb-2">
+      <div className="bg-white border border-gray-200 rounded-md">Veg</div>
+    </div>
+  );
 };
 
 const Content = () => {

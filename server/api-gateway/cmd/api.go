@@ -78,7 +78,7 @@ func (s *APIServer) ListenServer(port string) error {
 	router := mux.NewRouter()
 
 	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:5173"},
+		AllowedOrigins:   []string{"http://localhost:5173", "http://localhost:5174"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Content-Type", "Authorization"},
 		AllowCredentials: true,
@@ -88,6 +88,12 @@ func (s *APIServer) ListenServer(port string) error {
 	router.HandleFunc("/api/auth/onboard", makeHttpHandleFunc(authClient.RegisterWithShopMenuHandler)).Methods("POST")
 	router.HandleFunc("/api/auth/register", makeHttpHandleFunc(authClient.RegisterHandler)).Methods("POST")
 	router.HandleFunc("/api/auth/login", makeHttpHandleFunc(authClient.LoginHandler)).Methods("POST")
+
+	// unprotected SESSION paths
+	router.HandleFunc("/api/sessions", makeHttpHandleFunc(sessionClient.GetActiveSession)).Methods("GET").Queries("shopid", "{shopid}", "tableid", "{tableid}")
+	router.HandleFunc("/api/sessions/send-otp", makeHttpHandleFunc(sessionClient.SendSessionOTP)).Methods("POST")
+	router.HandleFunc("/api/sessions", makeHttpHandleFunc(sessionClient.CreateSession)).Methods("POST")
+	router.HandleFunc("/api/sessions/join", makeHttpHandleFunc(sessionClient.JoinSession)).Methods("POST")
 
 	protected := router.PathPrefix("/").Subrouter()
 	protected.Use(middleware.AuthMiddleware)
@@ -144,11 +150,7 @@ func (s *APIServer) ListenServer(port string) error {
 	//SESSIONS
 	protected.HandleFunc("/api/sessions", makeHttpHandleFunc(sessionClient.GetAllSessions)).Methods("GET").Queries("shopid", "{shopid}")
 	protected.HandleFunc("/api/active-sessions", makeHttpHandleFunc(sessionClient.GetAllActiveSessions)).Methods("GET").Queries("shopid", "{shopid}")
-	protected.HandleFunc("/api/sessions", makeHttpHandleFunc(sessionClient.GetActiveSession)).Methods("GET").Queries("shopid", "{shopid}", "tableid", "{tableid}")
 	protected.HandleFunc("/api/sessions/{sessionid}", makeHttpHandleFunc(sessionClient.GetSessionById)).Methods("GET")
-	router.HandleFunc("/api/sessions/send-otp", makeHttpHandleFunc(sessionClient.SendSessionOTP)).Methods("POST")           //generate otp
-	router.HandleFunc("/api/sessions", makeHttpHandleFunc(sessionClient.CreateSession)).Methods("POST")                     //create after validating against redis.
-	router.HandleFunc("/api/sessions/join", makeHttpHandleFunc(sessionClient.JoinSession)).Methods("POST")                  //validate otp with db then join session
 	protected.HandleFunc("/api/sessions/create-join", makeHttpHandleFunc(sessionClient.CreateSessionAdmin)).Methods("POST") //create or join session admin
 	protected.HandleFunc("/api/sessions", makeHttpHandleFunc(sessionClient.UpdateSession)).Methods("PUT")
 
