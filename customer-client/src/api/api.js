@@ -11,17 +11,7 @@ const api = axios.create({
 api.interceptors.request.use((config) => {
     const token = localStorage.getItem("session-token");
     if (token) {
-        // Only add Session header for endpoints that require it
-        // Skip for unprotected endpoints like /sessions (GET with shopid and tableid)
-        const url = config.url;
-        const isUnprotectedSessionEndpoint = url.includes('/sessions') && 
-                                           config.method === 'get' && 
-                                           url.includes('shopid') && 
-                                           url.includes('tableid');
-        
-        if (!isUnprotectedSessionEndpoint) {
-            config.headers.Session = `${token}`;
-        }
+        config.headers.Session = `${token}`;
     }
     return config;
 }, (error) => {
