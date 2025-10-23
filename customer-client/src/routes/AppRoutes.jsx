@@ -28,23 +28,9 @@ function AppRoutes() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/:shopid/:tableid/session" element={<Session />} />
-        <Route
-          path="/:shopid/:tableid/"
-          element={
-            <Protected>
-              <Menu />
-            </Protected>
-          }
-        />
-        <Route
-          path="/:shopid/:tableid/view-order"
-          element={
-            <Protected>
-              <ViewOrder />
-            </Protected>
-          }
-        />
+        <Route path="/:shopid/:tableid/" element={<Menu />} />
+        <Route path="/:shopid/:tableid/view-order" element={<ViewOrder />} />
+        {/* <Route path="/:shopid/:tableid/session" element={<Session />} /> */}
         <Route
           path="/:shopid/:tableid/orders"
           element={

@@ -90,6 +90,7 @@ func (s *APIServer) ListenServer(port string) error {
 	router.HandleFunc("/api/auth/login", makeHttpHandleFunc(authClient.LoginHandler)).Methods("POST")
 
 	// unprotected SESSION paths
+	router.HandleFunc("/api/items/{shopid}", makeHttpHandleFunc(menuClient.GetItems)).Methods("GET")
 	router.HandleFunc("/api/sessions", makeHttpHandleFunc(sessionClient.GetActiveSession)).Methods("GET").Queries("shopid", "{shopid}", "tableid", "{tableid}")
 	router.HandleFunc("/api/sessions/send-otp", makeHttpHandleFunc(sessionClient.SendSessionOTP)).Methods("POST")
 	router.HandleFunc("/api/sessions", makeHttpHandleFunc(sessionClient.CreateSession)).Methods("POST")
@@ -124,7 +125,7 @@ func (s *APIServer) ListenServer(port string) error {
 	//ITEMS
 	protected.HandleFunc("/api/item", makeHttpHandleFunc(menuClient.CreateItem)).Methods("POST")
 	protected.HandleFunc("/api/item/{itemid}", makeHttpHandleFunc(menuClient.GetItem)).Methods("GET")
-	protected.HandleFunc("/api/items/{shopid}", makeHttpHandleFunc(menuClient.GetItems)).Methods("GET")
+	// protected.HandleFunc("/api/items/{shopid}", makeHttpHandleFunc(menuClient.GetItems)).Methods("GET")
 	protected.HandleFunc("/api/item", makeHttpHandleFunc(menuClient.UpdateItem)).Methods("PUT")
 	protected.HandleFunc("/api/item/{itemid}", makeHttpHandleFunc(menuClient.DeleteItem)).Methods("DELETE")
 

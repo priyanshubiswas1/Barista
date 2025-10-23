@@ -35,10 +35,15 @@ export const joinSession = async (payload) => {
 
 export const getSession = async ({ shopid, tableid }) => {
     const response = await api.get(`/sessions?shopid=${shopid}&tableid=${tableid}`);
-    return response.status === 200 ? true : false
+    return response.status === 200 ? response.data : null
 }
 
 export const verifyUser = async () => {
     const response = await api.get(`/auth/verify`);
     return response.status === 200 ? true : false
 }
+
+export const fetchItemsByShopId = async (id) => {
+    const response = await api.get(`/items/${id}`);
+    return response.status === 200 ? response.data : null
+};
