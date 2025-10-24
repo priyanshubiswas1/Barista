@@ -11,7 +11,7 @@ import Navbar from "../components/Navbar";
 import Searchbar from "../components/Searchbar";
 import { fetchItemsByShopId } from "../api/api";
 import { useAuthStore } from "../store/authStore";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 
 const VegNonVegSelect = ({ value, onChange }) => (
@@ -121,6 +121,7 @@ const Category = ({
 );
 
 const Item = ({ item, orderItems, setOrderItems }) => {
+  const { setPlaceOrderItems } = useAuthStore();
   const currentItem = orderItems.find((i) => i.itemId === item.itemId);
   const count = currentItem ? currentItem.quantity : 0;
 
@@ -144,6 +145,7 @@ const Item = ({ item, orderItems, setOrderItems }) => {
           ];
       return newOrderItems.filter((i) => i.quantity > 0);
     });
+    setPlaceOrderItems(orderItems);
   };
 
   return (
@@ -222,7 +224,9 @@ const Content = ({
 };
 
 const Menu = () => {
-  const { shopid } = useParams();
+  const navigate = useNavigate();
+
+  const { shopid, tableid } = useParams();
   const { shopId, setShopId } = useAuthStore();
   if (shopid !== shopId) setShopId(shopid);
 
@@ -272,7 +276,10 @@ const Menu = () => {
                 : "Item"}{" "}
               added | <span className="font-medium">₹ {totalPrice}</span>
             </span>
-            <button className="px-4 py-2 rounded-md font-semibold text-sm">
+            <button
+              onClick={() => navigate(`/${shopid}/${tableid}/view-order`)}
+              className="px-4 py-2 rounded-md font-semibold text-sm"
+            >
               View Order
             </button>
           </div>

@@ -7,4 +7,6 @@ export const useAuthStore = create((set) => ({
     setShopId: (shopId) => set({ shopId: shopId }),
     tableId: "",
     setTableId: (tableId) => set({ tableId: tableId }),
+    placeOrderItems: [],
+    setPlaceOrderItems: (items) => set({ placeOrderItems: items })
 }))
