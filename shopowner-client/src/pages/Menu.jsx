@@ -71,7 +71,7 @@ const Menu = () => {
           onManageCategoryClick={() => setOverlay(Overlays.MANAGECAT)}
         />
         {items.length > 0 ? (
-          <div className="pt-5 flex-grow flex flex-col gap-2">
+          <div className="pt-5 flex-grow flex flex-col gap-4">
             {Object.entries(groupedItems).map(
               ([category, categoryItems], index) => (
                 <MenuContent

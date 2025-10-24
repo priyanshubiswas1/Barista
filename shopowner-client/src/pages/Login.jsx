@@ -33,10 +33,10 @@ const Login = () => {
     e.preventDefault();
     const newError = { email: "", password: "" };
 
-    if (!formData.email) newError.email = "Email is required";
+    if (!formData.email) newError.email = "Please enter your email";
     else if (!formData.email.includes("@"))
       newError.email = "Enter a valid email";
-    if (!formData.password) newError.password = "Password is required";
+    if (!formData.password) newError.password = "Please enter your password";
 
     setErr(newError);
     if (newError.email || newError.password) return;

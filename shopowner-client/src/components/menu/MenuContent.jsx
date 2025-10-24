@@ -1,5 +1,4 @@
-import { IoMdArrowDropdown } from "react-icons/io";
-import { FaEllipsis } from "react-icons/fa6";
+import { CaretDown, DotsThree } from "phosphor-react";
 
 import { useState } from "react";
 
@@ -11,13 +10,13 @@ const Toggle = () => {
     <div className="flex justify-center items-center">
       <div
         onClick={toggleSwitch}
-        className={`w-12 h-7 rounded-full flex items-center cursor-pointer transition-all duration-300 ease-in-out ${
+        className={`relative w-7 h-4 rounded-full cursor-pointer transition-all duration-300 ease-in-out ${
           isOn ? "bg-gray-800" : "bg-gray-300"
         }`}
       >
         <div
-          className={`w-5 h-5 rounded-full bg-white transition-transform duration-300 ease-in-out ${
-            isOn ? "transform translate-x-6" : "translate-x-1"
+          className={`absolute top-[2px] left-[2px] w-3 h-3 bg-white rounded-full transition-all duration-300 ease-in-out ${
+            isOn ? "translate-x-[12px]" : "translate-x-0"
           }`}
         />
       </div>
@@ -28,69 +27,91 @@ const Toggle = () => {
 const MenuContentHeader = ({ category, count }) => {
   return (
     <div className="flex items-center gap-3">
-      <IoMdArrowDropdown className="text-3xl" />
-      <h2 className="font-semibold text-lg">{category}</h2>
-      <div className="bg-gray-200 border border-gray-50 rounded-sm h-6 w-6 flex items-center justify-center">
+      <CaretDown size={14} weight="fill" className="text-gray-800" />
+      <h3>{category}</h3>
+      <div className="bg-gray-50 border border-gray-100 rounded-sm h-6 w-6 flex items-center justify-center text-xs font-medium">
         {count}
       </div>
-      <FaEllipsis className="text-gray-500" />
+      <DotsThree size={16} weight="bold" className="text-gray-500" />
     </div>
   );
 };
 
 const MenuContentBody = ({ items }) => {
   return (
-    <div className="flex flex-col w-full items-center">
-      <div className="flex w-full text-gray-400 items-center px-10 pt-4 pb-2">
-        <div className="flex flex-1 items-center gap-4">
-          <span className="w-9 h-9 ml-5" />
-          <h2>Item Name</h2>
-        </div>
-        <div className="flex flex-1 items-center justify-around gap-12">
-          <h2>price</h2>
-          <h2>veg/non-veg</h2>
-          <h2>availability</h2>
-          <h2></h2>
-        </div>
-      </div>
-      <div className="flex w-full text-gray-100 border rounded"></div>
-      {items.map((item, index) => {
-        return (
-          <div key={index} className="flex w-full pt-2 px-10">
-            <div className="flex flex-1 items-center gap-4">
-              <div className="w-9 h-9 ml-5 bg-gray-800 rounded-full"></div>
-              <div>{item.itemName}</div>
-            </div>
-            <div className="flex flex-1 items-center justify-around gap-12">
-              <div className="flex justify-center items-center">
-                ₹ {item.price}
-              </div>
-              <div className="w-20 flex justify-center">
-                {!item ? (
-                  <div className="bg-green-100 text-green-700 text-sm font-semibold rounded-sm flex items-center justify-center px-2">
-                    veg
+    <div className="w-full ">
+      <table className="w-full text-sm border-collapse table-fixed">
+        {/* Header */}
+        <thead>
+          <tr className="text-gray-500 border-b border-gray-200">
+            <th className="pl-10 py-3 font-medium text-left w-[40%]">
+              Item Name
+            </th>
+            <th className="py-3 font-medium text-left w-[15%]">Price</th>
+            <th className="py-3 font-medium text-left w-[15%]">
+              Veg / Non-veg
+            </th>
+            <th className="py-3 font-medium text-left w-[12%]">Availability</th>
+            <th className="py-3 font-medium text-left w-[8%]"></th>
+          </tr>
+        </thead>
+
+        {/* Body */}
+        <tbody>
+          {items.map((item, index) => (
+            <tr
+              key={index}
+              className={`text-gray-900 ${
+                index !== items.length - 1 ? "border-b border-gray-200" : ""
+              }`}
+              style={{ height: "48px" }}
+            >
+              {/* Item name */}
+              <td className="pl-10">
+                <div className="flex items-center gap-4">
+                  <div className="w-9 h-9 bg-gray-300 rounded-full"></div>
+                  <div>{item.itemName}</div>
+                </div>
+              </td>
+
+              {/* Price */}
+              <td>₹ {item.price}</td>
+
+              {/* Veg / Non-veg */}
+              <td>
+                {item.isVeg ? (
+                  <div className="bg-green-100 text-green-700 text-xs font-semibold rounded-sm px-2 py-0.5 inline-block">
+                    Veg
                   </div>
                 ) : (
-                  <div className="bg-red-100 text-red-700 text-sm font-semibold rounded-sm flex items-center justify-center px-2">
-                    non-veg
+                  <div className="bg-red-100 text-red-700 text-xs font-semibold rounded-sm px-2 py-0.5 inline-block">
+                    Non-veg
                   </div>
                 )}
-              </div>
-              <div>
-                <Toggle />
-              </div>
-              <FaEllipsis className="text-gray-500" />
-            </div>
-          </div>
-        );
-      })}
+              </td>
+
+              {/* Availability */}
+              <td>
+                <div className="flex items-center">
+                  <Toggle />
+                </div>
+              </td>
+
+              {/* Actions */}
+              <td>
+                <DotsThree size={16} weight="bold" className="text-gray-500" />
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 };
 
 const MenuContent = ({ category, items }) => {
   return (
-    <div className="w-full bg-white p-4 rounded-md">
+    <div className="w-full bg-white p-4 rounded-lg border-1 border-gray-200">
       <MenuContentHeader category={category} count={items.length} />
       <MenuContentBody items={items} />
     </div>
