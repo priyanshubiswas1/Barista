@@ -6,6 +6,8 @@ import { Plus } from "phosphor-react";
 import Button from "../components/Button";
 
 const OrderDetails = () => {
+  const navigate = useNavigate();
+  const { shopid, tableid } = useParams();
   const Items = () => {
     return (
       <div className="flex items-center justify-between py-1">
@@ -44,7 +46,11 @@ const OrderDetails = () => {
         <h2 className="text-sm font-medium">Order Details</h2>
         <Items />
         <div className="pt-2">
-          <Button variant="outline" icon={Plus}>
+          <Button
+            onClick={() => navigate(`/${shopid}/${tableid}`)}
+            variant="outline"
+            icon={Plus}
+          >
             Add More Items
           </Button>
         </div>
