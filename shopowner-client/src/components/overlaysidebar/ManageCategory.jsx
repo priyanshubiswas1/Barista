@@ -1,4 +1,4 @@
-import { IoClose } from "react-icons/io5";
+import { X } from "phosphor-react";
 import { LuCirclePlus } from "react-icons/lu";
 import { AiOutlineDelete } from "react-icons/ai";
 import { PiPencilSimpleLight } from "react-icons/pi";
@@ -88,14 +88,14 @@ const ManageCategory = ({ header }) => {
 
   return (
     <div className="flex flex-col w-full h-full">
-      <div className="px-6 pt-6 pb-4 flex justify-between items-start">
-        {header && <h2 className="font-semibold text-2xl">{header}</h2>}
+      <div className="px-8 py-4 flex justify-between items-center">
+        {header && <h2>{header}</h2>}
         <button
           onClick={() => setOverlay("")}
-          className="text-gray-600 hover:text-gray-900"
+          className="text-gray-600 hover:text-gray-900 cursor-pointer"
           aria-label="Close overlay"
         >
-          <IoClose size={24} />
+          <X size={16} weight="bold" />
         </button>
       </div>
       <div className="w-full h-px bg-gray-200" />

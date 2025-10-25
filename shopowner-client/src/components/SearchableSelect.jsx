@@ -44,7 +44,8 @@ const SearchableSelect = ({
   };
 
   return (
-    <div className="w-64 relative" ref={wrapperRef}>
+    <div className="w-full relative" ref={wrapperRef}>
+      {/* Label */}
       {label && (
         <label
           className={`block text-xs font-medium mb-1 ${
@@ -55,6 +56,7 @@ const SearchableSelect = ({
         </label>
       )}
 
+      {/* Input container */}
       <div
         className={`relative flex items-center w-full rounded-md px-3 h-8
           ${
@@ -65,6 +67,9 @@ const SearchableSelect = ({
               : "border border-gray-200 focus-within:ring-2 focus-within:ring-gray-800"
           }
           bg-gray-50`}
+        onClick={() => {
+          if (!disabled) setIsOpen(true);
+        }}
       >
         <input
           type="text"
@@ -79,12 +84,12 @@ const SearchableSelect = ({
           className="flex-1 bg-transparent outline-none text-sm text-gray-800 placeholder:text-gray-400 disabled:placeholder:text-gray-300 h-full"
         />
 
-        {/* CaretDown icon (rotates when open) */}
+        {/* CaretDown icon */}
         <CaretDown
           size={14}
           weight="bold"
-          className={`text-gray-400 absolute right-3 top-1/2 -translate-y-1/2 transition-transform duration-200 ${
-            isOpen ? "rotate-180" : "rotate-0"
+          className={`absolute right-3 top-1/2 -translate-y-1/2 ${
+            isOpen ? "text-gray-800" : "text-gray-400"
           }`}
         />
       </div>
@@ -92,10 +97,7 @@ const SearchableSelect = ({
       {/* Dropdown */}
       {isOpen && !disabled && (
         <div
-          className={`absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-sm max-h-48 overflow-auto p-1 
-            transition-all duration-200 ease-in-out
-            ${isOpen ? "opacity-100 scale-100" : "opacity-0 scale-95"}
-          `}
+          className={`absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-sm max-h-48 overflow-auto p-1`}
         >
           {filtered.length > 0 ? (
             filtered.map((opt) => (
