@@ -121,41 +121,31 @@ const Category = ({
 );
 
 const Item = ({ item, orderItems, setOrderItems }) => {
-  const { setPlaceOrderItems } = useAuthStore();
   const currentItem = orderItems.find((i) => i.itemId === item.itemId);
   const count = currentItem ? currentItem.quantity : 0;
 
-  useEffect(() => {
-    if (orderItems.length > 0) {
-      setPlaceOrderItems(orderItems.filter((i) => i.quantity > 0));
-    }
-  }, [orderItems, setPlaceOrderItems]);
-
   const updateOrderItems = (newQuantity) => {
-    setOrderItems((prev) => {
-      const exists = prev.find((i) => i.itemId === item.itemId);
-      if (!exists && newQuantity === 0) return prev;
+    const exists = orderItems.find((i) => i.itemId === item.itemId);
+    if (!exists && newQuantity === 0) return;
 
-      const newOrderItems = exists
-        ? prev.map((i) =>
-            i.itemId === item.itemId
-              ? { ...i, quantity: newQuantity, priceAtOrderTime: item.price }
-              : i
-          )
+    const newOrderItems = exists
+      ? orderItems.map((i) =>
+          i.itemId === item.itemId
+            ? { ...i, quantity: newQuantity, priceAtOrderTime: item.price }
+            : i
+        )
         : [
-            ...prev,
+            ...orderItems,
             {
               itemId: item.itemId,
+              itemName: item.itemName,
               quantity: newQuantity,
               priceAtOrderTime: item.price,
             },
           ];
 
-      console.log("Updated order items:", newOrderItems);
-      // setPlaceOrderItems(newOrderItems.filter((i) => i.quantity > 0)); // Ensure place order items is updated with new items
-
-      return newOrderItems.filter((i) => i.quantity > 0);
-    });
+    console.log("Updated order items:", newOrderItems);
+    setOrderItems(newOrderItems.filter((i) => i.quantity > 0));
   };
 
   return (
@@ -239,10 +229,9 @@ const Menu = () => {
   const navigate = useNavigate();
 
   const { shopid, tableid } = useParams();
-  const { placeOrderItems } = useAuthStore();
 
   const [expandedCategories, setExpandedCategories] = useState({});
-  const [orderItems, setOrderItems] = useState(placeOrderItems);
+  const { orderItems, setOrderItems } = useAuthStore();
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["menuItems"],
