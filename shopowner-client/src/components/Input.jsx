@@ -26,7 +26,7 @@ export default function Input({
       )}
 
       <div
-        className={`flex items-center w-full rounded-md border px-3 py-2 bg-gray-50
+        className={`flex items-center w-full h-8 rounded-md border px-3 py-2 bg-gray-50
           ${
             disabled
               ? "bg-gray-100 border-gray-200 cursor-not-allowed"

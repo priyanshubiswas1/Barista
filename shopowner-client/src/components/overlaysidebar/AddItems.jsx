@@ -93,7 +93,7 @@ const AddItems = ({ header }) => {
         {header && <h2>{header}</h2>}
         <button
           onClick={() => setOverlay("")}
-          className="text-gray-600 hover:text-gray-900 cursor-pointer"
+          className="text-gray-600 hover:text-gray-800 cursor-pointer"
           aria-label="Close overlay"
         >
           <X size={16} weight="bold" />

@@ -1,7 +1,7 @@
-import { X } from "phosphor-react";
+import { X, PencilSimple, TrashSimple, PlusCircle } from "phosphor-react";
 import { LuCirclePlus } from "react-icons/lu";
-import { AiOutlineDelete } from "react-icons/ai";
-import { PiPencilSimpleLight } from "react-icons/pi";
+// import { AiOutlineDelete } from "react-icons/ai";
+// import { PiPencilSimpleLight } from "react-icons/pi";
 import { useOverlay } from "../../store/overlayStore";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -15,20 +15,26 @@ import Button from "../Button";
 
 const CategoryItem = ({ name, id, count, onDelete }) => {
   return (
-    <div className="w-full pt-3">
-      <div className="flex justify-between items-center px-6 pb-3">
-        <div className="flex text-xl text-gray-900 gap-3">
-          <div>{name}</div>
-          <div className="bg-gray-100 border border-gray-200 w-7 h-7 rounded flex items-center justify-center">
-            <h2>{count}</h2>
+    <div className="w-full">
+      <div className="flex justify-between items-center px-8 py-3 border-b-1 border-gray-200">
+        <div className="flex  gap-3">
+          <div className="text-sm text-gray-600 font-medium">{name}</div>
+          <div className="bg-gray-100 border border-gray-200 w-5 h-5 rounded flex items-center justify-center">
+            <div className="text-xs text-gray-700 font-medium">{count}</div>
           </div>
         </div>
-        <div className="flex text-gray-500 text-xl gap-3">
-          <PiPencilSimpleLight />
-          <AiOutlineDelete onClick={() => onDelete(id)} />
+        <div className="flex text-gray-400 gap-3">
+          <PencilSimple
+            size={16}
+            className="hover:text-gray-800 cursor-pointer"
+          />
+          <TrashSimple
+            size={16}
+            className="hover:text-red-800 cursor-pointer"
+            onClick={() => onDelete(id)}
+          />
         </div>
       </div>
-      <div className="w-full h-px bg-gray-200" />
     </div>
   );
 };
@@ -92,7 +98,7 @@ const ManageCategory = ({ header }) => {
         {header && <h2>{header}</h2>}
         <button
           onClick={() => setOverlay("")}
-          className="text-gray-600 hover:text-gray-900 cursor-pointer"
+          className="text-gray-600 hover:text-gray-800 cursor-pointer"
           aria-label="Close overlay"
         >
           <X size={16} weight="bold" />
@@ -100,7 +106,7 @@ const ManageCategory = ({ header }) => {
       </div>
       <div className="w-full h-px bg-gray-200" />
       <div className="flex flex-col w-full h-full">
-        <div className="pt-5">
+        <div className="pt-6">
           {categories.map((category, index) => (
             <CategoryItem
               key={index}
@@ -115,7 +121,7 @@ const ManageCategory = ({ header }) => {
           {addCategory ? (
             <form
               onSubmit={handleSubmit}
-              className="flex justify-between items-center gap-2 px-6 pt-4"
+              className="flex justify-between items-center gap-3 px-8 py-2"
             >
               <Input
                 label="New Category Name"
@@ -132,10 +138,10 @@ const ManageCategory = ({ header }) => {
           ) : (
             <button
               onClick={() => setAddCategory(true)}
-              className="flex items-center gap-3 px-6"
+              className="flex items-center gap-2 px-8 cursor-pointer"
             >
-              <LuCirclePlus />
-              <h2 className="text-lg font-medium">Add New Category</h2>
+              <PlusCircle />
+              <p className="text-sm font-semibold">Add New Category</p>
             </button>
           )}
         </div>
