@@ -1,10 +1,13 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { IoClose } from "react-icons/io5";
+import { X } from "phosphor-react";
 import { useOverlay } from "../../store/overlayStore";
 import Input from "../Input";
 import Button from "../Button";
 import { addItem, fetchCategoriesByShopId } from "../../api/api";
+import Radio from "../Radio";
+import ImageUploader from "../ImageUploader";
+import SearchableSelect from "../SearchableSelect";
 
 const AddItems = ({ header }) => {
   const { setOverlay } = useOverlay();
@@ -14,6 +17,8 @@ const AddItems = ({ header }) => {
     categoryId: "",
     price: 0.0,
   });
+
+  const [selected, setSelected] = useState("veg");
 
   const [err, setErr] = useState({
     name: "",
@@ -84,69 +89,95 @@ const AddItems = ({ header }) => {
 
   return (
     <div className="flex flex-col w-full h-full">
-      <div className="px-6 pt-6 pb-4 flex justify-between items-start">
-        {header && <h2 className="font-semibold text-2xl">{header}</h2>}
+      <div className="px-8 py-4 flex justify-between items-center">
+        {header && <h2>{header}</h2>}
         <button
           onClick={() => setOverlay("")}
-          className="text-gray-600 hover:text-gray-900"
+          className="text-gray-600 hover:text-gray-800 cursor-pointer"
           aria-label="Close overlay"
         >
-          <IoClose size={24} />
+          <X size={16} weight="bold" />
         </button>
       </div>
 
       <div className="w-full h-px bg-gray-200" />
 
-      <form className="flex flex-col gap-2 px-6 pt-4">
-        <Input
-          label="Name"
-          type="text"
-          name="name"
-          placeholder="Enter item name"
-          helperText={err.name}
-          error={!!err.name}
-          value={formData.name}
-          onChange={handleChange}
+      <form className="flex flex-col gap-6 px-8 py-6">
+        <ImageUploader
+          label="Image"
+          details="Supports JPEGs & PNGS under 5mb."
         />
-
-        <div className="flex flex-col">
-          <label className="text-xs font-medium text-gray-800 mb-1">
-            Category
-          </label>
-          <select
-            className="w-full rounded-md border px-3 py-2 bg-gray-50 border-gray-200 outline-none text-sm text-gray-800"
-            name="categoryId"
-            value={formData.categoryId}
+        <div className="flex flex-col gap-2">
+          <Input
+            label="Name"
+            type="text"
+            name="name"
+            placeholder="Enter item name"
+            helperText={err.name}
+            error={!!err.name}
+            value={formData.name}
             onChange={handleChange}
-          >
-            <option value="" disabled className="text-gray-400">
-              Select category
-            </option>
-            {categories.map((cat) => (
-              <option key={cat.categoryId} value={cat.categoryId}>
-                {cat.name}
-              </option>
-            ))}
-          </select>
-          {err.categoryId && (
-            <p className="mt-1 text-xs text-red-700">{err.categoryId}</p>
-          )}
-        </div>
+          />
+          <SearchableSelect
+            label="Category"
+            placeholder="Search or select category"
+          ></SearchableSelect>
 
-        <Input
-          label="Price"
-          type="number"
-          name="price"
-          placeholder="0.00"
-          prefix="₹"
-          helperText={err.price}
-          error={!!err.price}
-          value={formData.price}
-          onChange={handleChange}
-        />
+          <div className="flex flex-col">
+            <label className="text-xs font-medium text-gray-800 mb-1">
+              Category
+            </label>
+            <select
+              className="w-full rounded-md border px-3 py-2 bg-gray-50 border-gray-200 outline-none text-sm text-gray-800"
+              name="categoryId"
+              value={formData.categoryId}
+              onChange={handleChange}
+            >
+              <option value="" disabled className="text-gray-400">
+                Select category
+              </option>
+              {categories.map((cat) => (
+                <option key={cat.categoryId} value={cat.categoryId}>
+                  {cat.name}
+                </option>
+              ))}
+            </select>
+            {err.categoryId && (
+              <p className="mt-1 text-xs text-red-700">{err.categoryId}</p>
+            )}
+          </div>
+
+          <Input
+            label="Price"
+            type="number"
+            name="price"
+            placeholder="0.00"
+            prefix="₹"
+            helperText={err.price}
+            error={!!err.price}
+            value={formData.price}
+            onChange={handleChange}
+          />
+          <div className="flex gap-20">
+            <Radio
+              name="food"
+              value="veg"
+              label="Veg"
+              checked={selected === "veg"}
+              onChange={() => setSelected("veg")}
+            />
+            <Radio
+              name="food"
+              value="nonveg"
+              label="Non-Veg"
+              checked={selected === "nonveg"}
+              onChange={() => setSelected("nonveg")}
+            />
+          </div>
+        </div>
       </form>
 
-      <div className="flex justify-between px-6 mt-4">
+      <div className="flex justify-between px-8">
         <Button
           onClick={() =>
             setFormData({
