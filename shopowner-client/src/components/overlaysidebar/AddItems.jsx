@@ -8,6 +8,7 @@ import { addItem, fetchCategoriesByShopId } from "../../api/api";
 import Radio from "../Radio";
 import ImageUploader from "../ImageUploader";
 import SearchableSelect from "../SearchableSelect";
+import { toast } from "react-toastify";
 
 const AddItems = ({ header }) => {
   const { setOverlay } = useOverlay();
@@ -46,7 +47,7 @@ const AddItems = ({ header }) => {
   } = useMutation({
     mutationFn: addItem,
     onSuccess: () => {
-      alert("Item added✅");
+      toast("Item has been added");
       queryClient.invalidateQueries({ queryKey: ["menuItems"] });
     },
     onError: (error) => {
