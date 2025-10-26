@@ -5,6 +5,7 @@ import { useMutation } from "@tanstack/react-query";
 import { loginUser } from "../api/api";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
+import { toast } from "react-toastify";
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
@@ -15,6 +16,7 @@ const Login = () => {
     mutationFn: loginUser,
     onSuccess: (data) => {
       // alert("Logged in ✅");
+      toast("Logged in ✅");
       localStorage.setItem("token", data.token);
       useAuthStore.setState({ isAuth: true });
       navigate("/menu");
