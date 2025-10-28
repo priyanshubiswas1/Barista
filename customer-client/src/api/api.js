@@ -47,6 +47,11 @@ export const placeOrder = async (payload) => {
     return response.status === 200 ? response.data : null
 }
 
+export const getOrderByOrderId = async (id) => {
+    const response = await api.get(`/order/${id}`);
+    return response.status === 200 ? response.data : null
+};
+
 export const verifyUser = async () => {
     const response = await api.get(`/auth/verify`);
     return response.status === 200 ? true : false

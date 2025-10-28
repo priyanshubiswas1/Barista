@@ -344,17 +344,24 @@ const VerifyAndJoinSession = ({
   );
 };
 
-const OrderPlaced = () => (
-  <div className="flex flex-col gap-4 items-center pt-20">
-    <div className="bg-emerald-500 rounded-full w-10 h-10 text-white flex justify-center items-center text-2xl">
-      <FaCheck />
+const OrderPlaced = ({ placedOrderId }) => {
+  const navigate = useNavigate();
+  console.log(placedOrderId);
+  return (
+    <div className="flex flex-col gap-4 items-center pt-20">
+      <div className="bg-emerald-500 rounded-full w-10 h-10 text-white flex justify-center items-center text-2xl">
+        <FaCheck />
+      </div>
+      <h2 className="font-semibold">Your Order has been placed!</h2>
+      <button
+        onClick={() => navigate(`/order/${placedOrderId}`)}
+        className="bg-emerald-700 rounded-md text-white px-10 py-2"
+      >
+        View Order Details
+      </button>
     </div>
-    <h2 className="font-semibold">Your Order has been placed!</h2>
-    <button className="bg-emerald-700 rounded-md text-white px-10 py-2">
-      View Order Details
-    </button>
-  </div>
-);
+  );
+};
 
 const ViewOrder = () => {
   const { shopid, tableid } = useParams();
@@ -363,6 +370,8 @@ const ViewOrder = () => {
   const [phoneNo, setPhoneNo] = useState("");
   const [isVerifying, setIsVerifying] = useState(false);
   const [isOrderPlaced, setIsOrderPlaced] = useState(false);
+
+  const [placedOrderId, setPlacedOrderId] = useState("");
 
   const tableData = useQuery({
     queryKey: ["table", shopid, tableid],
@@ -378,7 +387,15 @@ const ViewOrder = () => {
 
   const placeOrderMutation = useMutation({
     mutationFn: placeOrder,
-    onSuccess: () => setIsOrderPlaced(true),
+    onSuccess: (data) => {
+      const orderId = data?.order?.orderId;
+      if (orderId) {
+        setPlacedOrderId(orderId);
+        setIsOrderPlaced(true);
+      } else {
+        console.error("Something went wrong.");
+      }
+    },
   });
 
   const totalPrice = orderItems.reduce(
@@ -404,7 +421,7 @@ const ViewOrder = () => {
       <Navbar />
 
       {isOrderPlaced ? (
-        <OrderPlaced />
+        <OrderPlaced placedOrderId={placedOrderId} />
       ) : isVerifying ? (
         !sessionData.data ? (
           <VerifyAndCreateSession

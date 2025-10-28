@@ -3,9 +3,10 @@ import Menu from "../pages/Menu";
 import ViewOrder from "../pages/ViewOrder";
 import Orders from "../pages/Orders";
 import Session from "../pages/Session";
+import OrderSummary from "../pages/OrderSummary";
 
 function Protected({ children }) {
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("session-token");
   if (!token) return <Navigate to="/session" />;
 
   // const { data, isLoading } = useQuery({
@@ -36,6 +37,14 @@ function AppRoutes() {
           element={
             <Protected>
               <Orders />
+            </Protected>
+          }
+        />
+        <Route
+          path="/order/:orderid"
+          element={
+            <Protected>
+              <OrderSummary />
             </Protected>
           }
         />
