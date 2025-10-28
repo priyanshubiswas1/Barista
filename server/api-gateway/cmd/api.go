@@ -80,7 +80,7 @@ func (s *APIServer) ListenServer(port string) error {
 	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{"http://localhost:5173", "http://localhost:5174"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowedHeaders:   []string{"Content-Type", "Authorization"},
+		AllowedHeaders:   []string{"Content-Type", "Authorization", "Session"},
 		AllowCredentials: true,
 	})
 	handler := c.Handler(router)
@@ -95,6 +95,7 @@ func (s *APIServer) ListenServer(port string) error {
 	router.HandleFunc("/api/sessions/send-otp", makeHttpHandleFunc(sessionClient.SendSessionOTP)).Methods("POST")
 	router.HandleFunc("/api/sessions", makeHttpHandleFunc(sessionClient.CreateSession)).Methods("POST")
 	router.HandleFunc("/api/sessions/join", makeHttpHandleFunc(sessionClient.JoinSession)).Methods("POST")
+	router.HandleFunc("/api/customer/table/{tableid}", makeHttpHandleFunc(tableClient.GetTable)).Methods("GET")
 
 	protected := router.PathPrefix("/").Subrouter()
 	protected.Use(middleware.AuthMiddleware)

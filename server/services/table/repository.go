@@ -12,7 +12,7 @@ import (
 
 type IRepository interface {
 	CreateTable(ctx context.Context, tableId, shopId, tableNumber, qr string, active bool, createdAt time.Time) error
-	GetTable(ctx context.Context, tableId, shopId string) (pkg.Table, error)
+	GetTable(ctx context.Context, tableId string) (pkg.Table, error)
 	GetTables(ctx context.Context, shopId string) ([]pkg.Table, error)
 	UpdateTable(ctx context.Context, tableId, shopId, tableNumber string, active bool, updatedAt time.Time) error
 	DeleteTable(ctx context.Context, tableId, shopId string) error
@@ -59,13 +59,13 @@ func (r *postgresRepository) CreateTable(ctx context.Context, tableId, shopId, t
 	return nil
 }
 
-func (r *postgresRepository) GetTable(ctx context.Context, tableId, shopId string) (pkg.Table, error) {
+func (r *postgresRepository) GetTable(ctx context.Context, tableId string) (pkg.Table, error) {
 	query := `SELECT id,shop_id,table_number,qr_code_url
 			FROM "table"
-			WHERE id=$1 and shop_id=$2
+			WHERE id=$1
 			`
 	table := pkg.Table{}
-	if err := r.db.QueryRowContext(ctx, query, tableId, shopId).Scan(&table.TableId, &table.ShopId, &table.TableNumber, &table.QR); err != nil {
+	if err := r.db.QueryRowContext(ctx, query, tableId).Scan(&table.TableId, &table.ShopId, &table.TableNumber, &table.QR); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return pkg.Table{}, nil
 		}

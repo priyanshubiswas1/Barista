@@ -34,7 +34,16 @@ export const joinSession = async (payload) => {
 }
 
 export const getSession = async ({ shopid, tableid }) => {
-    const response = await api.get(`/sessions?shopid=${shopid}&tableid=${tableid}`);
+    try {
+        const response = await api.get(`/sessions?shopid=${shopid}&tableid=${tableid}`);
+        return response.status === 200 ? response.data : null
+    } catch (err) {
+        return null;
+    }
+}
+
+export const placeOrder = async (payload) => {
+    const response = await api.post(`/order`, payload);
     return response.status === 200 ? response.data : null
 }
 
@@ -45,5 +54,12 @@ export const verifyUser = async () => {
 
 export const fetchItemsByShopId = async (id) => {
     const response = await api.get(`/items/${id}`);
+    return response.status === 200 ? response.data : null
+};
+
+export const fetchTableByTableId = async ({ shopid, tableid }) => {
+    const response = await api.get(`/customer/table/${tableid}`, {
+        "shopId": shopid
+    });
     return response.status === 200 ? response.data : null
 };

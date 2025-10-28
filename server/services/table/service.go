@@ -17,7 +17,7 @@ import (
 
 type IService interface {
 	CreateTable(ctx context.Context, shopId, tableNumber string) (pkg.Table, error)
-	GetTable(ctx context.Context, tableId, shopId string) (pkg.Table, error)
+	GetTable(ctx context.Context, tableId string) (pkg.Table, error)
 	GetTables(ctx context.Context, shopId string) ([]pkg.Table, error)
 	UpdateTable(ctx context.Context, table pkg.Table) error
 	DeleteTable(ctx context.Context, tableId, shopId string) error
@@ -124,8 +124,8 @@ func (s *service) CreateTable(ctx context.Context, shopId, tableNumber string) (
 	}, nil
 }
 
-func (s *service) GetTable(ctx context.Context, tableId, shopId string) (pkg.Table, error) {
-	return s.repository.GetTable(ctx, tableId, shopId)
+func (s *service) GetTable(ctx context.Context, tableId string) (pkg.Table, error) {
+	return s.repository.GetTable(ctx, tableId)
 }
 
 func (s *service) GetTables(ctx context.Context, shopId string) ([]pkg.Table, error) {

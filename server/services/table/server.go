@@ -45,7 +45,7 @@ func (s *gRPCserver) CreateTable(ctx context.Context, req *table.CreateTableRequ
 }
 
 func (s *gRPCserver) GetTable(ctx context.Context, req *table.GetTableRequest) (*table.GetTableResponse, error) {
-	pkgTable, err := s.service.GetTable(ctx, req.Id, req.ShopId)
+	pkgTable, err := s.service.GetTable(ctx, req.Id)
 	if err != nil {
 		return nil, err
 	}

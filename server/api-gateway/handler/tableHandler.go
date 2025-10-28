@@ -61,13 +61,8 @@ func (c *TableClient) CreateTable(ctx context.Context, w http.ResponseWriter, r 
 func (c *TableClient) GetTable(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 	vars := mux.Vars(r)
 	tableId := vars["tableid"]
-	req := pkg.GetTablesRequest{}
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		return err
-	}
 	res, err := c.service.GetTable(ctx, &table.GetTableRequest{
-		Id:     tableId,
-		ShopId: req.ShopId,
+		Id: tableId,
 	})
 	if err != nil {
 		return err
