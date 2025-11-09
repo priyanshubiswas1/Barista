@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
+	"strconv"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
@@ -35,16 +36,18 @@ type IService interface {
 }
 
 type service struct {
-	repository  IRepository
-	redisClient IRedisClient
-	tableClient client.ITableClient
+	repository    IRepository
+	redisClient   IRedisClient
+	tableClient   client.ITableClient
+	historyClient client.IHistoryClient
 }
 
-func NewService(repository IRepository, redisClient IRedisClient, tableClient client.ITableClient) (IService, error) {
+func NewService(repository IRepository, redisClient IRedisClient, tableClient client.ITableClient, historyClient client.IHistoryClient) (IService, error) {
 	return &service{
-		repository:  repository,
-		redisClient: redisClient,
-		tableClient: tableClient,
+		repository:    repository,
+		redisClient:   redisClient,
+		tableClient:   tableClient,
+		historyClient: historyClient,
 	}, nil
 }
 
@@ -170,7 +173,12 @@ func (s *service) CreateSession(ctx context.Context, shopId, tableId, status, pa
 		return "", "", "", errors.New("session already active")
 	}
 
-	if err := s.repository.CreateSession(ctx, id, shopId, tableId, status, paymentMethod, otp, phoneNumber, totalAmount, isPaid, true, time.Now()); err != nil {
+	sessionNoStr, err := s.repository.CreateSession(ctx, id, shopId, tableId, status, paymentMethod, otp, phoneNumber, totalAmount, isPaid, true, time.Now())
+	if err != nil {
+		return "", "", "", err
+	}
+	sessionNo, err := strconv.Atoi(sessionNoStr)
+	if err != nil {
 		return "", "", "", err
 	}
 	tokenString, err := GenerateToken(id)
@@ -179,6 +187,10 @@ func (s *service) CreateSession(ctx context.Context, shopId, tableId, status, pa
 		return "", "", "", err
 	}
 	s.redisClient.DeleteKey(ctx, tableId)
+
+	if err := s.historyClient.CreateSession(ctx, id, session.ShopId, int32(sessionNo)); err != nil {
+		return "", "", "", err
+	}
 	return id, tokenString, phoneNumber, nil
 }
 
@@ -202,13 +214,22 @@ func (s *service) CreateOrJoinSessionAdmin(ctx context.Context, shopId, tableId,
 		otp := generateOTP()
 		//create session
 		id := uuid.New().String()
-		if err := s.repository.CreateSession(ctx, id, shopId, tableId, status, paymentMethod, otp, phoneNumber, totalAmount, isPaid, true, time.Now()); err != nil {
+		sessionNoStr, err := s.repository.CreateSession(ctx, id, shopId, tableId, status, paymentMethod, otp, phoneNumber, totalAmount, isPaid, true, time.Now())
+		if err != nil {
+			return pkg.Session{}, "", err
+		}
+		sessionNo, err := strconv.Atoi(sessionNoStr)
+		if err != nil {
 			return pkg.Session{}, "", err
 		}
 		tokenString, err := GenerateToken(id)
 		if err != nil {
 			log.Println("error generating token")
 			return pkg.Session{}, tokenString, err
+		}
+
+		if err := s.historyClient.CreateSession(ctx, id, session.ShopId, int32(sessionNo)); err != nil {
+			return pkg.Session{}, "", err
 		}
 		return pkg.Session{
 			Id:            id,
@@ -239,7 +260,22 @@ func (s *service) JoinSession(ctx context.Context, shopId, tableId, otp string) 
 }
 
 func (s *service) UpdateSession(ctx context.Context, id, status, paymentMethod string, totalAmount float32, isPaid bool, active bool) error {
-	return s.repository.UpdateSession(ctx, id, status, paymentMethod, totalAmount, isPaid, active, time.Now())
+	err := s.repository.UpdateSession(ctx, id, status, paymentMethod, totalAmount, isPaid, active, time.Now())
+	if err != nil {
+		return err
+	}
+	if !active {
+		err := s.historyClient.CloseSession(ctx, id)
+		if err != nil {
+			return err
+		}
+	} else {
+		err := s.historyClient.UpdateSession(ctx, id, totalAmount)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func GenerateToken(id string) (string, error) {

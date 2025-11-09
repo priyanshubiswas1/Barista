@@ -16,6 +16,12 @@ github.com/priyanshubiswas1/baristacontracts v1.2.9 h1:sjD+/0nMxqa4Sp/lPYQFWBIkR
 github.com/priyanshubiswas1/baristacontracts v1.2.9/go.mod h1:N7UXzkHyyqBCbe1qs0+IzVgTVKK88rBUx2WiJIM1FVc=
 github.com/priyanshubiswas1/baristacontracts v1.4.0 h1:LsyrYZs0CqE5K1JrbtjnuRdnW8ArhuRcsoDUnKRl+KQ=
 github.com/priyanshubiswas1/baristacontracts v1.4.0/go.mod h1:N7UXzkHyyqBCbe1qs0+IzVgTVKK88rBUx2WiJIM1FVc=
+github.com/priyanshubiswas1/baristacontracts v1.4.1 h1:d8No8ihm+r4Rdd8IXKSsimsr45XP6NnFYeCT40F16zk=
+github.com/priyanshubiswas1/baristacontracts v1.4.1/go.mod h1:N7UXzkHyyqBCbe1qs0+IzVgTVKK88rBUx2WiJIM1FVc=
+github.com/priyanshubiswas1/baristacontracts v1.4.2 h1:/jurZC5SkTSfS5Nl9wDxH+QIP+n7djuLqzPnVwX9G0s=
+github.com/priyanshubiswas1/baristacontracts v1.4.2/go.mod h1:N7UXzkHyyqBCbe1qs0+IzVgTVKK88rBUx2WiJIM1FVc=
+github.com/priyanshubiswas1/baristacontracts v1.4.3 h1:bpmmrv9rw6t0e/p42lkdSS6VOJRxtds1bLBAO7raoRk=
+github.com/priyanshubiswas1/baristacontracts v1.4.3/go.mod h1:N7UXzkHyyqBCbe1qs0+IzVgTVKK88rBUx2WiJIM1FVc=
 github.com/tinrab/retry v1.0.0 h1:u1x0cMZszwG44AaEeH8xx3Z1guNt8syzULeOsDhzg9s=
 github.com/tinrab/retry v1.0.0/go.mod h1:PWRlqYOz5dCyuZbxKhtQ60GN6OwSLwMxnjMqof4LIso=
 golang.org/x/net v0.41.0 h1:vBTly1HeNPEn3wtREYfy4GZ/NECgw2Cnl+nK6Nz3uvw=

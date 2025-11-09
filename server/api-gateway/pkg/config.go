@@ -13,6 +13,7 @@ type Config struct {
 	SessionClient string `envconfig:"SESSION_CLIENT" default:"localhost:8084"`
 	OrderClient   string `envconfig:"ORDER_CLIENT" default:"localhost:8085"`
 	PaymentClient string `envconfig:"PAYMENT_CLIENT" default:"localhost:8086"`
+	HistoryClient string `envconfig:"HISTORY_CLIENT" default:"localhost:8087"`
 	JwtKey        string `envconfig:"JWT_KEY" default:"key"`
 }
 

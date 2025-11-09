@@ -1,0 +1,74 @@
+syntax = "proto3";
+package history;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "/history";
+
+message SessionSummary{
+    string id = 1;
+    string sessionId = 2;
+    string shopId = 3;
+    int32 sessionNumber = 4;
+    float totalAmount = 5;
+    google.protobuf.Timestamp createdAt = 6;
+    google.protobuf.Timestamp updatedAt = 7;
+    repeated OrderItems orderItems = 8;
+}
+
+message OrderItems{
+    string orderItemId = 1;
+    string orderId = 2;
+    float itemPrice = 3;
+    int32 quantity = 4;
+}
+
+message SessionSummaryRequest{
+    string shopId = 1;
+    int32 offset = 2;
+    int32 limit = 3;         
+}
+
+message SessionSummaryResponse{
+    repeated SessionSummary sessionSummary = 1;
+}
+
+message CreateSessionRequest {
+    string sessionId = 1;
+    string shopId = 2;
+    int32 sessionNumber = 3;
+}
+
+message UpdateSessionRequest {
+    string sessionId = 1;
+    float totalAmount = 2;
+}
+
+message CloseSessionRequest {
+    string sessionId = 1;
+}
+
+message AddOrderRequest {
+    string sessionId = 1;
+    string orderId = 2;
+    repeated OrderItems orderItems = 3;
+}
+
+message RemoveOrderItemsRequest { //to remove entire order, send all orderItemIds in that order
+    string sessionId = 1;
+    repeated string orderItemId = 2;
+}
+
+message StatusResponse {
+    bool success = 1;
+    string message = 2;
+}
+
+service HistoryService {
+    rpc GetSessionSummary(SessionSummaryRequest) returns (SessionSummaryResponse);
+    rpc CreateSession(CreateSessionRequest) returns (SessionSummary);
+    rpc UpdateSession(UpdateSessionRequest) returns (SessionSummary);
+    rpc CloseSession(CloseSessionRequest) returns (StatusResponse);
+    rpc AddOrder(AddOrderRequest) returns (SessionSummary);
+    rpc RemoveOrderItems(RemoveOrderItemsRequest) returns (StatusResponse);
+}

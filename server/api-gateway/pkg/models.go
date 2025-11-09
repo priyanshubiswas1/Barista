@@ -1,5 +1,7 @@
 package pkg
 
+import "time"
+
 //USER
 type User struct {
 	Name    string `json:"name"`
@@ -427,4 +429,55 @@ type PaymentRequest struct {
 }
 type GetPaymentRequest struct {
 	SessionId string `json:"sessionId"`
+}
+
+//HISTORY
+type OrderedItems struct {
+	OrderItemId string  `json:"orderItemId"`
+	ItemPrice   float32 `json:"itemPrice"`
+	Quantity    int32   `json:"quantity"`
+}
+
+type SessionSummary struct {
+	Id            string         `json:"id"`
+	ShopId        string         `json:"shopId"`
+	SessionId     string         `json:"sessionId"`
+	SessionNumber int32          `json:"sessionNumber"`
+	TotalAmount   float32        `json:"totalAmount"`
+	CreatedAt     time.Time      `json:"createdAt"`
+	UpdatedAt     time.Time      `json:"updatedAt"`
+	OrderedItems  []OrderedItems `json:"orderedItems"`
+}
+
+type StatusRespone struct {
+	Success bool   `json:"success"`
+	Message string `json:"message"`
+}
+
+type GetSessionSummaryResponse struct {
+	SessionSummaries []SessionSummary `json:"sessionSummaries"`
+}
+
+type CreateSessionSummaryRequest struct {
+	SessionId     string `json:"sessionId"`
+	ShopId        string `json:"shopId"`
+	SessionNumber int32  `json:"sessionNumber"`
+}
+
+type CreateSessionSummaryResponse struct {
+	SessionSummary SessionSummary `json:"sessionSummary"`
+}
+
+type CloseSessionSummaryRequest struct {
+	SessionId string `json:"sessionId"`
+}
+
+type AddOrderSummaryRequest struct {
+	SessionId    string         `json:"sessionId"`
+	OrderedItems []OrderedItems `json:"orderedItems"`
+}
+
+type RemoveOrderSummaryRequest struct {
+	SessionId    string   `json:"sessionId"`
+	OrderItemIds []string `json:"orderItemIds"`
 }

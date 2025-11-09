@@ -23,6 +23,7 @@ type APIServer struct {
 	sessionClientUrl string
 	orderClientUrl   string
 	paymentClientUrl string
+	historyClientUrl string
 }
 
 func NewAPIServer(
@@ -32,7 +33,8 @@ func NewAPIServer(
 	tableClientUrl,
 	sessionClientUrl,
 	orderClientUrl,
-	paymentClientUrl string,
+	paymentClientUrl,
+	historyClientUrl string,
 ) (*APIServer, error) {
 	return &APIServer{
 		authClientUrl:    authClient,
@@ -42,6 +44,7 @@ func NewAPIServer(
 		sessionClientUrl: sessionClientUrl,
 		orderClientUrl:   orderClientUrl,
 		paymentClientUrl: paymentClientUrl,
+		historyClientUrl: historyClientUrl,
 	}, nil
 }
 
@@ -71,6 +74,10 @@ func (s *APIServer) ListenServer(port string) error {
 		return err
 	}
 	paymentClient, err := handler.NewPayment(s.paymentClientUrl)
+	if err != nil {
+		return err
+	}
+	historyClient, err := handler.NewHistory(s.paymentClientUrl)
 	if err != nil {
 		return err
 	}
@@ -169,6 +176,9 @@ func (s *APIServer) ListenServer(port string) error {
 	//PAYMENTS
 	protected.HandleFunc("/api/payment", makeHttpHandleFunc(paymentClient.CreatePayment)).Methods("POST")
 	session.HandleFunc("/api/payment", makeHttpHandleFunc(paymentClient.GetPayment)).Methods("GET")
+
+	//HISTORY
+	protected.HandleFunc("/api/history", makeHttpHandleFunc(historyClient.GetSessionSummary)).Methods("GET").Queries("shopid", "{shopid}", "offset", "{offset}", "limit", "{limit}")
 
 	return http.ListenAndServe(fmt.Sprintf(":%s", port), handler)
 }

@@ -41,7 +41,14 @@ func main() {
 	}
 	log.Println("table grpc client created")
 
-	service, err := session.NewService(r, redisClient, tableClient)
+	log.Println("creating history grpc client")
+	historyClient, err := client.NewHistory(cfg.HistoryClient)
+	if err != nil {
+		log.Fatal("failed to create history grpc client: ", err)
+	}
+	log.Println("history grpc client created")
+
+	service, err := session.NewService(r, redisClient, tableClient, historyClient)
 	if err != nil {
 		log.Fatal("failed to create service: ", err)
 	}
