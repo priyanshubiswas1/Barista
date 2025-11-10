@@ -7,11 +7,11 @@ type Config struct {
 	DbUrl string `json:"DB_URL" default:"postgres://admin:7866@history_db:5432/history?sslmode=disable"`
 }
 
-func GetConfig() (Config, error) {
+func GetConfig() (*Config, error) {
 	cfg := Config{}
-	err := envconfig.Process("", cfg)
+	err := envconfig.Process("", &cfg)
 	if err != nil {
-		return Config{}, err
+		return nil, err
 	}
-	return cfg, nil
+	return &cfg, nil
 }

@@ -7,7 +7,7 @@ type Config struct {
 	DbUrl         string `json:"DB_URL" default:"postgres://admin:7866@session_db:5432/session?sslmode=disable"`
 	RedisUrl      string `json:"REDIS_URL" default:"redis:6379"`
 	TableClient   string `envconfig:"TABLE_CLIENT" default:"localhost:8083"`
-	HistoryClient string `envconfig:"HISTORY_CLIENT" default:"localhost:8084"`
+	HistoryClient string `envconfig:"HISTORY_CLIENT" default:"localhost:8087"`
 }
 
 func GetConfig() (Config, error) {

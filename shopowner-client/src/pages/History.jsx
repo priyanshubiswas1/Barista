@@ -7,6 +7,8 @@ import Searchbar from "../components/Searchbar";
 import { TabHeader } from "../components/TabHeader";
 import LeftSidebar from "../components/LeftSidebar";
 import { Tabs } from "../constants/constants";
+import { useQuery } from "@tanstack/react-query";
+import { getSessionSummary } from "../api/api";
 
 const HistorySubHeader = ({ selectedFilter, setSelectedFilter }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -113,6 +115,20 @@ const SessionsSummaryCard = ({ filter }) => {
 };
 
 const HistoryContent = () => {
+  const payload = {
+    shopId: localStorage.getItem("shopId"),
+    offset: 1,
+    limit: 5,
+  };
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["history"],
+    queryFn: () => getSessionSummary(payload),
+  });
+  if (isLoading) return <p>Loading history...</p>;
+  if (error) return <p>Error: {error.message}</p>;
+
+  console.log(data);
+  // const sessions = data.sessions;
   const orderData = [
     { orderId: "002", items: 5, session: "1h45m", amount: "120.00" },
     { orderId: "002", items: 5, session: "1h45m", amount: "120.00" },

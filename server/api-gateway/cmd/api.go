@@ -77,7 +77,7 @@ func (s *APIServer) ListenServer(port string) error {
 	if err != nil {
 		return err
 	}
-	historyClient, err := handler.NewHistory(s.paymentClientUrl)
+	historyClient, err := handler.NewHistory(s.historyClientUrl)
 	if err != nil {
 		return err
 	}

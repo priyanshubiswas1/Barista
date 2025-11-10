@@ -157,7 +157,6 @@ const OrderContent = () => {
   if (isLoading) return <p>Loading tables...</p>;
   if (error) return <p>Error: {error.message}</p>;
 
-  console.log(data);
   const sessions = data.sessions;
   return (
     <div className="bg-gray-100 w-full h-full overflow-x-auto overflow-y-auto flex">

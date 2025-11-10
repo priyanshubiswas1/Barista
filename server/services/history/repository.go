@@ -9,6 +9,7 @@ import (
 	"log"
 	"time"
 
+	_ "github.com/lib/pq"
 	"github.com/priyanshubiswas1/barista/historyservice/pkg"
 )
 

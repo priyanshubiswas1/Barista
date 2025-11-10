@@ -92,3 +92,8 @@ export const createOrder = async (payload) => {
     const response = await api.post(`/order-admin`, payload);
     return response.status === 200 ? response.data : null
 };
+
+export const getSessionSummary = async (payload) => {
+    const response = await api.get(`/history?shopid=${payload.shopId}&offset=${payload.offset}&limit=${payload.limit}`);
+    return response.status === 200 ? response.data : null
+};

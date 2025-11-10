@@ -95,7 +95,7 @@ services:
       SESSION_CLIENT: sessionservice:8080
       ORDER_CLIENT: orderservice:8080
       PAYMENT_CLIENT: paymentservice:8080
-      HISTORY_CLIENT: historyservice:8087
+      HISTORY_CLIENT: historyservice:8080
     restart: on-failure
   rabbitmqservice:
     build:
