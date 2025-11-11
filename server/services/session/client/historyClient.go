@@ -2,6 +2,7 @@ package client
 
 import (
 	"context"
+	"log"
 
 	history "github.com/priyanshubiswas1/baristacontracts/gen/history"
 	"google.golang.org/grpc"
@@ -31,6 +32,7 @@ func NewHistory(url string) (IHistoryClient, error) {
 }
 
 func (c *historyClient) CreateSession(ctx context.Context, sessionId, shopId string, sessionNumber int32) error {
+	log.Println("SessionService: History Client Create Session")
 	_, err := c.service.CreateSession(ctx, &history.CreateSessionRequest{
 		SessionId:     sessionId,
 		ShopId:        shopId,

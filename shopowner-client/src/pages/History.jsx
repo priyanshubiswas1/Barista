@@ -114,28 +114,20 @@ const SessionsSummaryCard = ({ filter }) => {
   );
 };
 
-const HistoryContent = () => {
-  const payload = {
-    shopId: localStorage.getItem("shopId"),
-    offset: 1,
-    limit: 5,
-  };
-  const { data, isLoading, error } = useQuery({
-    queryKey: ["history"],
-    queryFn: () => getSessionSummary(payload),
-  });
-  if (isLoading) return <p>Loading history...</p>;
-  if (error) return <p>Error: {error.message}</p>;
+const HistoryContent = ({ data }) => {
+  // Extract session summaries from the provided data
+  const sessionSummaries = data.sessionSummaries;
 
-  console.log(data);
-  // const sessions = data.sessions;
-  const orderData = [
-    { orderId: "002", items: 5, session: "1h45m", amount: "120.00" },
-    { orderId: "002", items: 5, session: "1h45m", amount: "120.00" },
-    { orderId: "002", items: 5, session: "1h45m", amount: "120.00" },
-    { orderId: "002", items: 5, session: "1h45m", amount: "120.00" },
-    { orderId: "002", items: 5, session: "1h45m", amount: "120.00" },
-  ];
+  const calculateSessionTime = (createdAt, updatedAt) => {
+    const createdDate = new Date(createdAt);
+    const updatedDate = new Date(updatedAt);
+    const timeDiff = updatedDate - createdDate; // Time difference in milliseconds
+
+    const hours = Math.floor(timeDiff / (1000 * 60 * 60)); // hours
+    const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60)); // minutes
+
+    return `${hours}h${minutes}m`;
+  };
 
   return (
     <div className="flex flex-col p-2">
@@ -146,15 +138,17 @@ const HistoryContent = () => {
         <div className="flex-1">Amount</div>
       </div>
       <div className="w-full h-full flex flex-col gap-2">
-        {orderData.map((order, index) => (
+        {sessionSummaries.map((session, index) => (
           <div
             key={index}
             className="flex bg-white p-2 text-sm text-gray-700 border-b border-gray-200 rounded-md"
           >
-            <div className="flex-2">{order.orderId}</div>
-            <div className="flex-1">{order.items}</div>
-            <div className="flex-1">{order.session}</div>
-            <div className="flex-1">{order.amount}</div>
+            <div className="flex-2">{session.sessionNumber}</div>
+            <div className="flex-1">{session.orderedItems.length}</div>
+            <div className="flex-1">
+              {calculateSessionTime(session.createdAt, session.updatedAt)}
+            </div>
+            <div className="flex-1">${session.totalAmount.toFixed(2)}</div>
           </div>
         ))}
       </div>
@@ -170,6 +164,18 @@ const History = () => {
     setIsSidebarCollapsed((prev) => !prev);
   };
 
+  const payload = {
+    shopId: localStorage.getItem("shopId"),
+    offset: 1,
+    limit: 5,
+  };
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["history"],
+    queryFn: () => getSessionSummary(payload),
+  });
+  if (isLoading) return <p>Loading history...</p>;
+  if (error) return <p>Error: {error.message}</p>;
+
   return (
     <div className="flex h-screen">
       <LeftSidebar collapsed={isSidebarCollapesed} tab={Tabs.HISTORY} />
@@ -183,7 +189,7 @@ const History = () => {
           <SalesSummaryCard filter={selectedFilter} />
           <SessionsSummaryCard filter={selectedFilter} />
         </div>
-        <HistoryContent />
+        <HistoryContent data={data} />
       </div>
     </div>
   );

@@ -3,6 +3,7 @@ package history
 import (
 	"context"
 	"errors"
+	"log"
 	"time"
 
 	"github.com/google/uuid"
@@ -11,7 +12,7 @@ import (
 
 type IService interface {
 	GetSessionSummary(ctx context.Context, shopId string) ([]pkg.Summary, error)
-	CreateSession(ctx context.Context, shopId, sessionId string, totalAmount float32, orderedItems []byte) (string, time.Time, error)
+	CreateSession(ctx context.Context, shopId, sessionId string, sessionNumber int32, totalAmount float32, orderedItems []byte) (string, time.Time, error)
 	UpdateSession(ctx context.Context, sessionId string, totalAmount float32) (string, time.Time, error)
 	CloseSession(ctx context.Context, sessionId string) error
 	AddOrder(ctx context.Context, sessionId string, newItems []pkg.OrderedItem) (pkg.Summary, error)
@@ -38,7 +39,8 @@ func (s *service) GetSessionSummary(ctx context.Context, shopId string) ([]pkg.S
 	return s.repository.GetSessionSummary(ctx, shopId)
 }
 
-func (s *service) CreateSession(ctx context.Context, shopId, sessionId string, totalAmount float32, orderedItems []byte) (string, time.Time, error) {
+func (s *service) CreateSession(ctx context.Context, shopId, sessionId string, sessionNumber int32, totalAmount float32, orderedItems []byte) (string, time.Time, error) {
+	log.Println("HistoryService: CreateSession called")
 	id := uuid.New().String()
 	if shopId == "" {
 		return "", time.Time{}, errors.New("shop ID is required")
@@ -53,7 +55,7 @@ func (s *service) CreateSession(ctx context.Context, shopId, sessionId string, t
 		return "", time.Time{}, errors.New("invalid session ID format")
 	}
 	createdAt := time.Now()
-	if err := s.repository.CreateSession(ctx, id, shopId, sessionId, totalAmount, orderedItems, false, createdAt); err != nil {
+	if err := s.repository.CreateSession(ctx, id, shopId, sessionId, sessionNumber, totalAmount, orderedItems, false, createdAt); err != nil {
 		return "", time.Time{}, err
 	}
 	return id, createdAt, nil

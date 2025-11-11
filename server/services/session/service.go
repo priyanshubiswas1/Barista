@@ -188,7 +188,8 @@ func (s *service) CreateSession(ctx context.Context, shopId, tableId, status, pa
 	}
 	s.redisClient.DeleteKey(ctx, tableId)
 
-	if err := s.historyClient.CreateSession(ctx, id, session.ShopId, int32(sessionNo)); err != nil {
+	if err := s.historyClient.CreateSession(ctx, id, shopId, int32(sessionNo)); err != nil {
+		log.Printf("error creating session in history service: %v", err)
 		return "", "", "", err
 	}
 	return id, tokenString, phoneNumber, nil
@@ -228,7 +229,8 @@ func (s *service) CreateOrJoinSessionAdmin(ctx context.Context, shopId, tableId,
 			return pkg.Session{}, tokenString, err
 		}
 
-		if err := s.historyClient.CreateSession(ctx, id, session.ShopId, int32(sessionNo)); err != nil {
+		if err := s.historyClient.CreateSession(ctx, id, shopId, int32(sessionNo)); err != nil {
+			log.Printf("error creating session in history service: %v", err)
 			return pkg.Session{}, "", err
 		}
 		return pkg.Session{

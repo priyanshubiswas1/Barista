@@ -176,11 +176,13 @@ services:
       dockerfile: ./app.dockerfile
     depends_on:
       - session_db
+      - historyservice
     environment:
       PORT: "8080"
       DB_URL: "postgres://admin:7866@session_db:5432/session?sslmode=disable"
       REDIS_URL: redis:6379
       TABLE_CLIENT: tableservice:8080
+      HISTORY_CLIENT: historyservice:8080
     restart: on-failure
   orderservice:
     build:

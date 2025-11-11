@@ -15,7 +15,7 @@ import (
 
 type IRepository interface {
 	GetSessionSummary(ctx context.Context, shopId string) ([]pkg.Summary, error)
-	CreateSession(ctx context.Context, summaryId, shopId, sessionId string, totalAmount float32, orderedItems []byte, sessionClosed bool, createdAt time.Time) error
+	CreateSession(ctx context.Context, summaryId, shopId, sessionId string, sessionNumber int32, totalAmount float32, orderedItems []byte, sessionClosed bool, createdAt time.Time) error
 	CloseSession(ctx context.Context, sessionId string, sessionClosed bool, updatedAt time.Time) error
 	UpdateSession(ctx context.Context, sessionId string, totalAmount float32, updatedAt time.Time) (string, error)
 	AddOrder(ctx context.Context, sessionId string, newItems []pkg.OrderedItem) (pkg.Summary, error)
@@ -38,7 +38,7 @@ func NewPostgresRepository(url string) (IRepository, error) {
 }
 
 func (s *postgresRepository) GetSessionSummary(ctx context.Context, shopId string) ([]pkg.Summary, error) {
-	query := `SELECT summary_id, shop_id, session_id, session_number, session_total_amount, session_create_date, session_update_date, ordered_items, created_at, updated_at
+	query := `SELECT summary_id, shop_id, session_id, session_number, session_total_amount, ordered_items, created_at, updated_at
 				FROM session_summary
 				WHERE shop_id = $1 AND session_closed = true;
 			`
@@ -82,11 +82,15 @@ func (s *postgresRepository) GetSessionSummary(ctx context.Context, shopId strin
 	return summaries, nil
 }
 
-func (s *postgresRepository) CreateSession(ctx context.Context, summaryId, shopId, sessionId string, totalAmount float32, orderedItems []byte, sessionClosed bool, createdAt time.Time) error {
+func (s *postgresRepository) CreateSession(ctx context.Context, summaryId, shopId, sessionId string, sessionNumber int32, totalAmount float32, orderedItems []byte, sessionClosed bool, createdAt time.Time) error {
+	// Convert nil to empty JSON array for PostgreSQL JSONB
+	if orderedItems == nil {
+		orderedItems = []byte("[]")
+	}
 	query := `INSERT INTO session_summary (summary_id, shop_id, session_id, session_number, session_total_amount, ordered_items,session_closed, created_at, updated_at)
-				VALUES ($1,$2,$3,$4,$5,$6,$7,$8);
+				VALUES ($1,$2,$3,$4,$5,$6::jsonb,$7,$8,$9);
 			`
-	res, err := s.db.ExecContext(ctx, query, summaryId, shopId, sessionId, totalAmount, orderedItems, sessionClosed, createdAt, createdAt)
+	res, err := s.db.ExecContext(ctx, query, summaryId, shopId, sessionId, sessionNumber, totalAmount, orderedItems, sessionClosed, createdAt, createdAt)
 	if err != nil {
 		return err
 	}
@@ -122,7 +126,6 @@ func (s *postgresRepository) UpdateSession(ctx context.Context, sessionId string
 
 func (s *postgresRepository) CloseSession(ctx context.Context, sessionId string, sessionClosed bool, updatedAt time.Time) error {
 	query := `UPDATE session_summary SET session_closed = $1, updated_at = $2
-				VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
 				WHERE session_id = $3;
 			`
 	res, err := s.db.ExecContext(ctx, query, sessionClosed, updatedAt, sessionId)
@@ -155,7 +158,7 @@ func (s *postgresRepository) AddOrder(ctx context.Context, sessionId string, new
 	query := `
 		UPDATE session_summary
 		SET ordered_items = ordered_items || $2::jsonb,
-			session_total_amount = session_total_amount + $3
+			session_total_amount = session_total_amount + $3,
 			updated_at = NOW()
 		WHERE session_id = $1
 		RETURNING summary_id,shop_id,session_id,session_number,session_total_amount,ordered_items,created_at,updated_at;

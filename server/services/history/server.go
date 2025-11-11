@@ -62,7 +62,7 @@ func (s *gRPCserver) GetSessionSummary(ctx context.Context, req *history.Session
 }
 
 func (s *gRPCserver) CreateSession(ctx context.Context, req *history.CreateSessionRequest) (*history.SessionSummary, error) {
-	id, createdAt, err := s.service.CreateSession(ctx, req.ShopId, req.SessionId, 0, nil)
+	id, createdAt, err := s.service.CreateSession(ctx, req.ShopId, req.SessionId, req.SessionNumber, 0, nil)
 	if err != nil {
 		return nil, err
 	}
