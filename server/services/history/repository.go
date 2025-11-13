@@ -150,11 +150,14 @@ func (s *postgresRepository) AddOrder(ctx context.Context, sessionId string, new
 
 	var totalAmount float32
 	totalAmount = 0
+	log.Println("Adding the following orders")
 	for _, items := range newItems {
+		log.Println(items)
 		totalAmount += items.ItemPrice * float32(items.Quantity)
 	}
 
 	var summary pkg.Summary
+	var orderedItemsJSON []byte
 	query := `
 		UPDATE session_summary
 		SET ordered_items = ordered_items || $2::jsonb,
@@ -164,9 +167,19 @@ func (s *postgresRepository) AddOrder(ctx context.Context, sessionId string, new
 		RETURNING summary_id,shop_id,session_id,session_number,session_total_amount,ordered_items,created_at,updated_at;
 	`
 
-	err = s.db.QueryRowContext(ctx, query, sessionId, itemsJSON, totalAmount).Scan(&summary.Id, &summary.ShopId, &summary.SessionId, &summary.SessionNumber, &summary.TotalAmount, &summary.OrderedItems, &summary.CreatedAt, &summary.UpdatedAt)
+	err = s.db.QueryRowContext(ctx, query, sessionId, itemsJSON, totalAmount).Scan(&summary.Id, &summary.ShopId, &summary.SessionId, &summary.SessionNumber, &summary.TotalAmount, &orderedItemsJSON, &summary.CreatedAt, &summary.UpdatedAt)
 	if err != nil {
 		return pkg.Summary{}, fmt.Errorf("failed to update ordered_items: %w", err)
+	}
+
+	if len(orderedItemsJSON) > 0 {
+		var orderedItems []pkg.OrderedItem
+		err = json.Unmarshal(orderedItemsJSON, &orderedItems)
+		if err != nil {
+			log.Printf("failed to unmarshal ordered_items for summary %s: %v", summary.Id, err)
+			orderedItems = []pkg.OrderedItem{}
+		}
+		summary.OrderedItems = orderedItems
 	}
 
 	return summary, nil

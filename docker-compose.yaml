@@ -190,10 +190,12 @@ services:
       dockerfile: ./app.dockerfile
     depends_on:
       - order_db
+      - historyservice
     environment:
       PORT: "8080"
       DB_URL: "postgres://admin:7866@order_db:5432/order?sslmode=disable"
       SESSION_CLIENT: sessionservice:8080
+      HISTORY_CLIENT: historyservice:8080
       WEBSOCKET_URL: websocketservice:8080
     restart: on-failure
   paymentservice:

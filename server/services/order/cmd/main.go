@@ -34,7 +34,14 @@ func main() {
 	}
 	log.Println("session grpc client created")
 
-	service, err := order.NewService(r, sessionClient, cfg.WebSocketService)
+	log.Println("creating history grpc client")
+	historyClient, err := client.NewHistory(cfg.HistoryClient)
+	if err != nil {
+		log.Fatal("failed to create history grpc client: ", err)
+	}
+	log.Println("history grpc client created")
+
+	service, err := order.NewService(r, sessionClient, historyClient, cfg.WebSocketService)
 	if err != nil {
 		log.Fatal("failed to create service: ", err)
 	}

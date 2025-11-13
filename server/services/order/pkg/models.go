@@ -56,3 +56,10 @@ type Session struct {
 type UpdateSessionRequest struct {
 	Session Session `json:"session"`
 }
+
+type AddOrderHistoryReq struct {
+	OrderItemId string  `json:"orderItemId"`
+	OrderId     string  `json:"orderId"`
+	ItemPrice   float32 `json:"itemPrice"`
+	Quantity    int32   `json:"quantity"`
+}

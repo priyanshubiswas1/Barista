@@ -25,16 +25,18 @@ type IService interface {
 }
 
 type service struct {
-	repository IRepository
-	client     client.ISessionClient
-	ws         string
+	repository    IRepository
+	sessionClient client.ISessionClient
+	historyClient client.IHistoryClient
+	ws            string
 }
 
-func NewService(repository IRepository, client client.ISessionClient, ws string) (IService, error) {
+func NewService(repository IRepository, sessionClient client.ISessionClient, historyClient client.IHistoryClient, ws string) (IService, error) {
 	return &service{
-		repository: repository,
-		client:     client,
-		ws:         ws,
+		repository:    repository,
+		sessionClient: sessionClient,
+		historyClient: historyClient,
+		ws:            ws,
 	}, nil
 }
 
@@ -74,7 +76,7 @@ func (s *service) CreateOrder(ctx context.Context, order pkg.OrderReq) (pkg.Crea
 	for _, oi := range order.OrderItems {
 		orderAmount += oi.PriceAtOrderTime * float32(oi.Quantity)
 	}
-	succ, err := s.client.UpdateSession(ctx, pkg.UpdateSessionRequest{
+	succ, err := s.sessionClient.UpdateSession(ctx, pkg.UpdateSessionRequest{
 		Session: pkg.Session{
 			Id:            order.SessionId,
 			ShopId:        "",
@@ -92,20 +94,33 @@ func (s *service) CreateOrder(ctx context.Context, order pkg.OrderReq) (pkg.Crea
 		log.Println("failed to UpdateSession error: ", err)
 		return pkg.CreateOrderRes{}, err
 	}
-	session, err := s.client.GetSessionById(ctx, order.SessionId)
+	session, err := s.sessionClient.GetSessionById(ctx, order.SessionId)
 	if err != nil {
 		log.Println("failed to get session error: ", err)
 		return pkg.CreateOrderRes{}, err
 	}
 	SendPlaceOrderEvent(session.ShopId, s.ws+"/send-event")
 	if succ {
+		var hisOrdItemsReq []pkg.AddOrderHistoryReq
+		for _, hOi := range res.OrderItems {
+			hisOrdItemsReq = append(hisOrdItemsReq, pkg.AddOrderHistoryReq{
+				OrderItemId: hOi.Id,
+				OrderId:     id,
+				ItemPrice:   hOi.PriceAtOrderTime,
+				Quantity:    hOi.Quantity,
+			})
+		}
+		if err := s.historyClient.AddOrder(ctx, order.SessionId, hisOrdItemsReq); err != nil {
+			log.Printf("error creating session in history service: %v", err)
+			return pkg.CreateOrderRes{}, err
+		}
 		return res, err
 	}
 	return res, errors.New("failed to update session table")
 }
 
 func (s *service) CreateOrderAdmin(ctx context.Context, order pkg.OrderAdminReq) (pkg.CreateOrderRes, error) {
-	session, _, err := s.client.CreateSessionAdmin(ctx, order.ShopId, order.TableId, "active", "", "0000000000", 0, false, true)
+	session, _, err := s.sessionClient.CreateSessionAdmin(ctx, order.ShopId, order.TableId, "active", "", "0000000000", 0, false, true)
 	if err != nil {
 		log.Println("failed to Create or Join Session error: ", err)
 		return pkg.CreateOrderRes{}, err
@@ -120,7 +135,7 @@ func (s *service) CreateOrderAdmin(ctx context.Context, order pkg.OrderAdminReq)
 	for _, oi := range order.OrderItems {
 		orderAmount += oi.PriceAtOrderTime * float32(oi.Quantity)
 	}
-	succ, err := s.client.UpdateSession(ctx, pkg.UpdateSessionRequest{
+	succ, err := s.sessionClient.UpdateSession(ctx, pkg.UpdateSessionRequest{
 		Session: pkg.Session{
 			Id:            session.Id,
 			ShopId:        "",
@@ -139,6 +154,19 @@ func (s *service) CreateOrderAdmin(ctx context.Context, order pkg.OrderAdminReq)
 		return pkg.CreateOrderRes{}, err
 	}
 	if succ {
+		var hisOrdItemsReq []pkg.AddOrderHistoryReq
+		for _, hOi := range res.OrderItems {
+			hisOrdItemsReq = append(hisOrdItemsReq, pkg.AddOrderHistoryReq{
+				OrderItemId: hOi.Id,
+				OrderId:     id,
+				ItemPrice:   hOi.PriceAtOrderTime,
+				Quantity:    hOi.Quantity,
+			})
+		}
+		if err := s.historyClient.AddOrder(ctx, session.Id, hisOrdItemsReq); err != nil {
+			log.Printf("error creating session in history service: %v", err)
+			return pkg.CreateOrderRes{}, err
+		}
 		return res, err
 	}
 	return res, errors.New("failed to update session table")
@@ -154,7 +182,7 @@ func (s *service) UpdateOrder(ctx context.Context, orderId, orderStatus string) 
 }
 
 func (s *service) CancelOrder(ctx context.Context, orderId string) bool {
-	_, cancelAmount, err := s.GetOrderById(ctx, orderId)
+	orderItems, cancelAmount, err := s.GetOrderById(ctx, orderId)
 	if err != nil {
 		log.Println("failed to GetOrderById error: ", err)
 		return false
@@ -170,7 +198,7 @@ func (s *service) CancelOrder(ctx context.Context, orderId string) bool {
 		log.Println("failed to CancelOrder error: ", err)
 		return false
 	}
-	succ, err := s.client.UpdateSession(ctx, pkg.UpdateSessionRequest{
+	succ, err := s.sessionClient.UpdateSession(ctx, pkg.UpdateSessionRequest{
 		Session: pkg.Session{
 			Id:            sessionId,
 			ShopId:        "",
@@ -186,6 +214,15 @@ func (s *service) CancelOrder(ctx context.Context, orderId string) bool {
 	})
 	if err != nil {
 		log.Println("failed to UpdateSession error: ", err)
+		return false
+	}
+
+	var orderItemsIds []string
+	for _, oi := range orderItems {
+		orderItemsIds = append(orderItemsIds, oi.Id)
+	}
+	if err := s.historyClient.RemoveOrderItems(ctx, sessionId, orderItemsIds); err != nil {
+		log.Println("failed to CancelOrder error: ", err)
 		return false
 	}
 	return succ

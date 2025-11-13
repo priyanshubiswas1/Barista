@@ -106,16 +106,17 @@ func (s *gRPCserver) CloseSession(ctx context.Context, req *history.CloseSession
 
 func (s *gRPCserver) AddOrder(ctx context.Context, req *history.AddOrderRequest) (*history.SessionSummary, error) {
 	var orderedItems []pkg.OrderedItem
-	for _, oi := range req.OrderItems {
+	orderItemsList := req.GetOrderItems()
+	for _, oi := range orderItemsList {
 		orderedItems = append(orderedItems, pkg.OrderedItem{
-			OrderItemId: oi.OrderItemId,
-			OrderId:     req.OrderId,
-			ItemPrice:   oi.ItemPrice,
-			Quantity:    oi.Quantity,
+			OrderItemId: oi.GetOrderItemId(),
+			OrderId:     oi.GetOrderId(),
+			ItemPrice:   oi.GetItemPrice(),
+			Quantity:    oi.GetQuantity(),
 		})
 	}
 
-	summary, err := s.service.AddOrder(ctx, req.SessionId, orderedItems)
+	summary, err := s.service.AddOrder(ctx, req.GetSessionId(), orderedItems)
 	if err != nil {
 		return nil, err
 	}
@@ -141,7 +142,7 @@ func (s *gRPCserver) AddOrder(ctx context.Context, req *history.AddOrderRequest)
 }
 
 func (s *gRPCserver) RemoveOrderItems(ctx context.Context, req *history.RemoveOrderItemsRequest) (*history.StatusResponse, error) {
-	err := s.service.RemoveOrderItems(ctx, req.SessionId, req.OrderItemId)
+	err := s.service.RemoveOrderItems(ctx, req.SessionId, req.OrderItemIds)
 	if err != nil {
 		return &history.StatusResponse{
 			Success: false,

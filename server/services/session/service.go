@@ -271,12 +271,13 @@ func (s *service) UpdateSession(ctx context.Context, id, status, paymentMethod s
 		if err != nil {
 			return err
 		}
-	} else {
-		err := s.historyClient.UpdateSession(ctx, id, totalAmount)
-		if err != nil {
-			return err
-		}
 	}
+	// else {
+	// 	err := s.historyClient.UpdateSession(ctx, id, totalAmount)
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	// }
 	return nil
 }
 

@@ -7,6 +7,7 @@ type Config struct {
 	DbUrl            string `json:"DB_URL" default:"postgres://admin:7866@order_db:5432/order?sslmode=disable"`
 	SessionClient    string `envconfig:"SESSION_CLIENT" default:"localhost:8084"`
 	WebSocketService string `envconfig:"WEBSOCKET_URL" default:"localhost:8087"`
+	HistoryClient    string `envconfig:"HISTORY_CLIENT" default:"localhost:8087"`
 }
 
 func GetConfig() (Config, error) {
