@@ -456,6 +456,8 @@ type StatusRespone struct {
 
 type GetSessionSummaryResponse struct {
 	SessionSummaries []SessionSummary `json:"sessionSummaries"`
+	TotalAmount      int32            `json:"totalAmount"`
+	TotalSessions    int32            `json:"totalSessions"`
 }
 
 type CreateSessionSummaryRequest struct {

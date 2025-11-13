@@ -94,6 +94,10 @@ export const createOrder = async (payload) => {
 };
 
 export const getSessionSummary = async (payload) => {
-    const response = await api.get(`/history?shopid=${payload.shopId}&offset=${payload.offset}&limit=${payload.limit}`);
+    let url = `/history?shopid=${payload.shopId}&offset=${payload.offset}&limit=${payload.limit}`;
+    if (payload.timeRange) {
+        url += `&time-range=${payload.timeRange}`;
+    }
+    const response = await api.get(url);
     return response.status === 200 ? response.data : null
 };

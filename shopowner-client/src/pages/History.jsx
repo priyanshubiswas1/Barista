@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { IoFilter } from "react-icons/io5";
 import { IoCalendarClearOutline } from "react-icons/io5";
 import { IoIosArrowDown } from "react-icons/io";
+import { IoChevronBack, IoChevronForward } from "react-icons/io5";
 import Button from "../components/Button";
 import Searchbar from "../components/Searchbar";
 import { TabHeader } from "../components/TabHeader";
@@ -81,7 +82,7 @@ const HistorySubHeader = ({ selectedFilter, setSelectedFilter }) => {
   );
 };
 
-const SalesSummaryCard = ({ filter }) => {
+const SalesSummaryCard = ({ filter, totalAmount }) => {
   return (
     <div className="bg-white border-2 p-3 border-gray-200 hover:border-gray-300 rounded-md flex flex-col gap-y-5 w-65">
       <div className="flex justify-between gap-10 text-xs font-medium items-center">
@@ -91,13 +92,12 @@ const SalesSummaryCard = ({ filter }) => {
         </h2>
       </div>
       <div className="flex justify-between items-center">
-        <h1 className="font-semibold">₹4000</h1>
-        <h2 className="text-green-800 text-xs">+30%</h2>
+        <h1 className="font-semibold">₹{totalAmount || 0}</h1>
       </div>
     </div>
   );
 };
-const SessionsSummaryCard = ({ filter }) => {
+const SessionsSummaryCard = ({ filter, totalSessions }) => {
   return (
     <div className="bg-white border-2 p-3 border-gray-200 hover:border-gray-300 rounded-md flex flex-col gap-y-5 w-65">
       <div className="flex justify-between gap-10 text-xs font-medium items-center">
@@ -107,24 +107,29 @@ const SessionsSummaryCard = ({ filter }) => {
         </h2>
       </div>
       <div className="flex justify-between items-center">
-        <h1 className="font-semibold">₹4000</h1>
-        <h2 className="text-green-800 text-xs">+30%</h2>
+        <h1 className="font-semibold">{totalSessions || 0}</h1>
       </div>
     </div>
   );
 };
 
-const HistoryContent = ({ data }) => {
-  // Extract session summaries from the provided data
-  const sessionSummaries = data.sessionSummaries;
+const HistoryContent = ({
+  data,
+  onPageChange,
+  currentPage,
+  limit,
+  totalSessions,
+}) => {
+  const sessionSummaries = data?.sessionSummaries || [];
+  const totalPages = Math.ceil((totalSessions || 0) / limit);
 
   const calculateSessionTime = (createdAt, updatedAt) => {
     const createdDate = new Date(createdAt);
     const updatedDate = new Date(updatedAt);
-    const timeDiff = updatedDate - createdDate; // Time difference in milliseconds
+    const timeDiff = updatedDate - createdDate;
 
-    const hours = Math.floor(timeDiff / (1000 * 60 * 60)); // hours
-    const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60)); // minutes
+    const hours = Math.floor(timeDiff / (1000 * 60 * 60));
+    const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
 
     return `${hours}h${minutes}m`;
   };
@@ -152,6 +157,37 @@ const HistoryContent = ({ data }) => {
           </div>
         ))}
       </div>
+      {totalPages > 1 && (
+        <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-200">
+          <button
+            onClick={() => onPageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+            className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium ${
+              currentPage === 1
+                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+            }`}
+          >
+            <IoChevronBack size={16} />
+            Previous
+          </button>
+          <span className="text-sm text-gray-600">
+            Page {currentPage} of {totalPages}
+          </span>
+          <button
+            onClick={() => onPageChange(currentPage + 1)}
+            disabled={currentPage >= totalPages}
+            className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium ${
+              currentPage >= totalPages
+                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+            }`}
+          >
+            Next
+            <IoChevronForward size={16} />
+          </button>
+        </div>
+      )}
     </div>
   );
 };
@@ -159,20 +195,47 @@ const HistoryContent = ({ data }) => {
 const History = () => {
   const [isSidebarCollapesed, setIsSidebarCollapsed] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState("Today");
+  const [currentPage, setCurrentPage] = useState(1);
+  const limit = 5;
 
   const toggleSidebar = () => {
     setIsSidebarCollapsed((prev) => !prev);
   };
 
+  const mapFilterToTimeRange = (filter) => {
+    const filterMap = {
+      Today: "today",
+      "Last Week": "last-week",
+      "Last Month": "last-month",
+      "Last 3 Months": "last-three-months",
+    };
+    return filterMap[filter] || "today";
+  };
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1) {
+      setCurrentPage(newPage);
+    }
+  };
+
+  const handleFilterChange = (filter) => {
+    setSelectedFilter(filter);
+    setCurrentPage(1);
+  };
+
+  const offset = (currentPage - 1) * limit;
   const payload = {
     shopId: localStorage.getItem("shopId"),
-    offset: 1,
-    limit: 5,
+    offset: offset,
+    limit: limit,
+    timeRange: mapFilterToTimeRange(selectedFilter),
   };
+
   const { data, isLoading, error } = useQuery({
-    queryKey: ["history"],
+    queryKey: ["history", selectedFilter, currentPage, limit],
     queryFn: () => getSessionSummary(payload),
   });
+
   if (isLoading) return <p>Loading history...</p>;
   if (error) return <p>Error: {error.message}</p>;
 
@@ -183,13 +246,25 @@ const History = () => {
         <TabHeader toggleSidebar={toggleSidebar} tab={Tabs.HISTORY} />
         <HistorySubHeader
           selectedFilter={selectedFilter}
-          setSelectedFilter={setSelectedFilter}
+          setSelectedFilter={handleFilterChange}
         />
         <div className="flex gap-3 py-3">
-          <SalesSummaryCard filter={selectedFilter} />
-          <SessionsSummaryCard filter={selectedFilter} />
+          <SalesSummaryCard
+            filter={selectedFilter}
+            totalAmount={data?.totalAmount || 0}
+          />
+          <SessionsSummaryCard
+            filter={selectedFilter}
+            totalSessions={data?.totalSessions || 0}
+          />
         </div>
-        <HistoryContent data={data} />
+        <HistoryContent
+          data={data}
+          onPageChange={handlePageChange}
+          currentPage={currentPage}
+          limit={limit}
+          totalSessions={data?.totalSessions || 0}
+        />
       </div>
     </div>
   );

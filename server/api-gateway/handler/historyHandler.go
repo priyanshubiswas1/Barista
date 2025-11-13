@@ -55,12 +55,14 @@ func (c *HistoryClient) GetSessionSummary(ctx context.Context, w http.ResponseWr
 	switch timeRange {
 	case "today":
 		timeRangeNum = 0
-	case "this-week":
+	case "last-week":
 		timeRangeNum = 1
-	case "this-month":
+	case "last-month":
+		timeRangeNum = 2
+	case "last-three-months":
 		timeRangeNum = 3
-	case "last-three-month":
-		timeRangeNum = 4
+	default:
+		timeRangeNum = 0
 	}
 
 	res, err := c.service.GetSessionSummary(ctx, &history.SessionSummaryRequest{
@@ -96,6 +98,8 @@ func (c *HistoryClient) GetSessionSummary(ctx context.Context, w http.ResponseWr
 
 	return pkg.WriteJSON(w, http.StatusOK, pkg.GetSessionSummaryResponse{
 		SessionSummaries: summaries,
+		TotalAmount:      res.TotalAmount,
+		TotalSessions:    res.TotalSessions,
 	})
 }
 
