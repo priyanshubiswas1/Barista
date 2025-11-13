@@ -41,6 +41,7 @@ func (c *HistoryClient) GetSessionSummary(ctx context.Context, w http.ResponseWr
 	shopId := params.Get("shopid")
 	offset := params.Get("offset")
 	limit := params.Get("limit")
+	timeRange := params.Get("time-range")
 
 	offsetNum, err := strconv.Atoi(offset)
 	if err != nil {
@@ -50,11 +51,23 @@ func (c *HistoryClient) GetSessionSummary(ctx context.Context, w http.ResponseWr
 	if err != nil {
 		return err
 	}
+	var timeRangeNum int32
+	switch timeRange {
+	case "today":
+		timeRangeNum = 0
+	case "this-week":
+		timeRangeNum = 1
+	case "this-month":
+		timeRangeNum = 3
+	case "last-three-month":
+		timeRangeNum = 4
+	}
 
 	res, err := c.service.GetSessionSummary(ctx, &history.SessionSummaryRequest{
-		ShopId: shopId,
-		Offset: int32(offsetNum),
-		Limit:  int32(limitNum),
+		ShopId:    shopId,
+		Offset:    int32(offsetNum),
+		Limit:     int32(limitNum),
+		TimeRange: history.TimeRange(timeRangeNum),
 	})
 	if err != nil {
 		return err
@@ -199,8 +212,8 @@ func (c *HistoryClient) RemoveOrderSummary(ctx context.Context, w http.ResponseW
 	orderItemIds = append(orderItemIds, payload.OrderItemIds...)
 
 	res, err := c.service.RemoveOrderItems(ctx, &history.RemoveOrderItemsRequest{
-		SessionId:   payload.SessionId,
-		OrderItemId: orderItemIds,
+		SessionId:    payload.SessionId,
+		OrderItemIds: orderItemIds,
 	})
 	if err != nil {
 		return err

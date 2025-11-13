@@ -11,10 +11,11 @@ import (
 
 	_ "github.com/lib/pq"
 	"github.com/priyanshubiswas1/barista/historyservice/pkg"
+	history "github.com/priyanshubiswas1/baristacontracts/gen/history"
 )
 
 type IRepository interface {
-	GetSessionSummary(ctx context.Context, shopId string) ([]pkg.Summary, error)
+	GetSessionSummary(ctx context.Context, offset, limit int32, shopId string, timeRange history.TimeRange) ([]pkg.Summary, int32, int32, error)
 	CreateSession(ctx context.Context, summaryId, shopId, sessionId string, sessionNumber int32, totalAmount float32, orderedItems []byte, sessionClosed bool, createdAt time.Time) error
 	CloseSession(ctx context.Context, sessionId string, sessionClosed bool, updatedAt time.Time) error
 	UpdateSession(ctx context.Context, sessionId string, totalAmount float32, updatedAt time.Time) (string, error)
@@ -37,16 +38,65 @@ func NewPostgresRepository(url string) (IRepository, error) {
 	}, nil
 }
 
-func (s *postgresRepository) GetSessionSummary(ctx context.Context, shopId string) ([]pkg.Summary, error) {
-	query := `SELECT summary_id, shop_id, session_id, session_number, session_total_amount, ordered_items, created_at, updated_at
-				FROM session_summary
-				WHERE shop_id = $1 AND session_closed = true;
-			`
-	rows, err := s.db.QueryContext(ctx, query, shopId)
+func (s *postgresRepository) GetSessionSummary(ctx context.Context, offset, limit int32, shopId string, timeRange history.TimeRange) ([]pkg.Summary, int32, int32, error) {
+	now := time.Now()
+	var startDate time.Time
+
+	switch timeRange {
+	case history.TimeRange_TODAY:
+		startDate = time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
+	case history.TimeRange_LAST_WEEK:
+		startDate = now.AddDate(0, 0, -7)
+	case history.TimeRange_LAST_MONTH:
+		startDate = now.AddDate(0, -1, 0)
+	case history.TimeRange_LAST_3_MONTHS:
+		startDate = now.AddDate(0, -3, 0)
+	default:
+		startDate = time.Time{}
+	}
+
+	baseQuery := `FROM session_summary
+				  WHERE shop_id = $1 AND session_closed = true`
+	baseArgs := []interface{}{shopId}
+	argIndex := 2
+
+	if !startDate.IsZero() {
+		baseQuery += fmt.Sprintf(" AND created_at >= $%d", argIndex)
+		baseArgs = append(baseArgs, startDate)
+		argIndex++
+	}
+
+	countQuery := `SELECT COUNT(*), COALESCE(SUM(session_total_amount), 0) ` + baseQuery
+	var totalSessions int32
+	var totalAmount float64
+	err := s.db.QueryRowContext(ctx, countQuery, baseArgs...).Scan(&totalSessions, &totalAmount)
 	if err != nil {
-		return nil, nil
+		return nil, 0, 0, fmt.Errorf("failed to get totals: %w", err)
+	}
+
+	query := `SELECT summary_id, shop_id, session_id, session_number, session_total_amount, ordered_items, created_at, updated_at ` +
+		baseQuery + ` ORDER BY created_at DESC`
+	
+	queryArgs := make([]interface{}, len(baseArgs))
+	copy(queryArgs, baseArgs)
+	currentArgIndex := argIndex
+	
+	if limit > 0 {
+		query += fmt.Sprintf(" LIMIT $%d", currentArgIndex)
+		queryArgs = append(queryArgs, limit)
+		currentArgIndex++
+	}
+	if offset > 0 {
+		query += fmt.Sprintf(" OFFSET $%d", currentArgIndex)
+		queryArgs = append(queryArgs, offset)
+	}
+
+	rows, err := s.db.QueryContext(ctx, query, queryArgs...)
+	if err != nil {
+		return nil, 0, 0, err
 	}
 	defer rows.Close()
+
 	var summaries []pkg.Summary
 	for rows.Next() {
 		var summary pkg.Summary
@@ -63,7 +113,7 @@ func (s *postgresRepository) GetSessionSummary(ctx context.Context, shopId strin
 			&summary.UpdatedAt,
 		)
 		if err != nil {
-			return nil, err
+			return nil, 0, 0, err
 		}
 		if len(orderedItemsJSON) > 0 {
 			var orderedItems []pkg.OrderedItem
@@ -77,9 +127,10 @@ func (s *postgresRepository) GetSessionSummary(ctx context.Context, shopId strin
 		summaries = append(summaries, summary)
 	}
 	if err := rows.Err(); err != nil {
-		return nil, err
+		return nil, 0, 0, err
 	}
-	return summaries, nil
+
+	return summaries, int32(totalAmount), totalSessions, nil
 }
 
 func (s *postgresRepository) CreateSession(ctx context.Context, summaryId, shopId, sessionId string, sessionNumber int32, totalAmount float32, orderedItems []byte, sessionClosed bool, createdAt time.Time) error {

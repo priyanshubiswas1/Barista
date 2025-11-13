@@ -8,10 +8,11 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/priyanshubiswas1/barista/historyservice/pkg"
+	history "github.com/priyanshubiswas1/baristacontracts/gen/history"
 )
 
 type IService interface {
-	GetSessionSummary(ctx context.Context, shopId string) ([]pkg.Summary, error)
+	GetSessionSummary(ctx context.Context, offset, limit int32, shopId string, timeRange history.TimeRange) ([]pkg.Summary, int32, int32, error)
 	CreateSession(ctx context.Context, shopId, sessionId string, sessionNumber int32, totalAmount float32, orderedItems []byte) (string, time.Time, error)
 	UpdateSession(ctx context.Context, sessionId string, totalAmount float32) (string, time.Time, error)
 	CloseSession(ctx context.Context, sessionId string) error
@@ -29,14 +30,14 @@ func NewService(repository IRepository) (IService, error) {
 	}, nil
 }
 
-func (s *service) GetSessionSummary(ctx context.Context, shopId string) ([]pkg.Summary, error) {
+func (s *service) GetSessionSummary(ctx context.Context, offset, limit int32, shopId string, timeRange history.TimeRange) ([]pkg.Summary, int32, int32, error) {
 	if shopId == "" {
-		return nil, errors.New("shop ID is required")
+		return nil, 0, 0, errors.New("shop ID is required")
 	}
 	if _, err := uuid.Parse(shopId); err != nil {
-		return nil, errors.New("invalid shop ID format")
+		return nil, 0, 0, errors.New("invalid shop ID format")
 	}
-	return s.repository.GetSessionSummary(ctx, shopId)
+	return s.repository.GetSessionSummary(ctx, offset, limit, shopId, timeRange)
 }
 
 func (s *service) CreateSession(ctx context.Context, shopId, sessionId string, sessionNumber int32, totalAmount float32, orderedItems []byte) (string, time.Time, error) {

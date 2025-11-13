@@ -31,12 +31,12 @@ func ListenGRPC(service IService, port string) error {
 }
 
 func (s *gRPCserver) GetSessionSummary(ctx context.Context, req *history.SessionSummaryRequest) (*history.SessionSummaryResponse, error) {
-	res, err := s.service.GetSessionSummary(ctx, req.ShopId)
+	summ, totalAmount, totalSessions, err := s.service.GetSessionSummary(ctx, req.Offset, req.Limit, req.ShopId, req.GetTimeRange())
 	if err != nil {
 		return nil, err
 	}
 	var summaries []*history.SessionSummary
-	for _, summary := range res {
+	for _, summary := range summ {
 		var orderItems []*history.OrderItems
 		for _, oi := range summary.OrderedItems {
 			orderItems = append(orderItems, &history.OrderItems{
@@ -57,6 +57,8 @@ func (s *gRPCserver) GetSessionSummary(ctx context.Context, req *history.Session
 		})
 	}
 	return &history.SessionSummaryResponse{
+		TotalAmount:    totalAmount,
+		TotalSessions:  totalSessions,
 		SessionSummary: summaries,
 	}, nil
 }

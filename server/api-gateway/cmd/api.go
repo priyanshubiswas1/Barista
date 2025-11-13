@@ -178,7 +178,7 @@ func (s *APIServer) ListenServer(port string) error {
 	session.HandleFunc("/api/payment", makeHttpHandleFunc(paymentClient.GetPayment)).Methods("GET")
 
 	//HISTORY
-	protected.HandleFunc("/api/history", makeHttpHandleFunc(historyClient.GetSessionSummary)).Methods("GET").Queries("shopid", "{shopid}", "offset", "{offset}", "limit", "{limit}")
+	protected.HandleFunc("/api/history", makeHttpHandleFunc(historyClient.GetSessionSummary)).Methods("GET").Queries("shopid", "{shopid}", "offset", "{offset}", "limit", "{limit}", "time-range", "{time-range}")
 
 	return http.ListenAndServe(fmt.Sprintf(":%s", port), handler)
 }
