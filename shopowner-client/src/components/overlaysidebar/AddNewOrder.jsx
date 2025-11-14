@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { IoAdd, IoRemove, IoClose } from "react-icons/io5";
 import { IoMdArrowDropright, IoMdArrowDropdown } from "react-icons/io";
 import { IoEllipseSharp, IoTriangleSharp } from "react-icons/io5";
+import { Plus } from "phosphor-react";
 import { useOverlay } from "../../store/overlayStore";
 import { PiNotepadBold, PiQrCodeBold } from "react-icons/pi";
 import Button from "../Button";
@@ -25,6 +26,8 @@ const AddNewOrder = ({ header }) => {
     tableId: "",
     orderItems: "",
   });
+
+  const [viewOrder, setViewOrder] = useState(false);
 
   const [orderItems, setOrderItems] = useState([]);
   const [expandedCategories, setExpandedCategories] = useState({});
@@ -207,6 +210,7 @@ const AddNewOrder = ({ header }) => {
                 i.itemId === item.itemId
                   ? {
                       ...i,
+                      itemName: item.itemName,
                       quantity: i.quantity + 1,
                       priceAtOrderTime: item.price,
                     }
@@ -216,6 +220,7 @@ const AddNewOrder = ({ header }) => {
                 ...prev,
                 {
                   itemId: item.itemId,
+                  itemName: item.itemName,
                   quantity: 1,
                   priceAtOrderTime: item.price,
                 },
@@ -347,6 +352,157 @@ const AddNewOrder = ({ header }) => {
     );
   };
 
+  const AddOrder = () => {
+    return (
+      <form className="flex flex-col gap-2 px-6 pt-4">
+        <div className="flex flex-col gap-5">
+          <TableSelect />
+          <div className="-mx-6 h-px bg-gray-200" />
+          <div className="flex gap-3">
+            <Searchbar />
+            <Button variant="primary" icon={PiNotepadBold} type="button">
+              Menu
+            </Button>
+          </div>
+          <VegNonVegSelect
+            value={foodType}
+            onChange={(e) => setFoodType(e.target.value)}
+          />
+          <Menu
+            orderItems={orderItems}
+            setOrderItems={setOrderItems}
+            expandedCategories={expandedCategories}
+            setExpandedCategories={setExpandedCategories}
+          />
+          {err.orderItems && (
+            <p className="mt-1 text-xs text-red-700">{err.orderItems}</p>
+          )}
+        </div>
+      </form>
+    );
+  };
+
+  const ViewOrder = () => {
+    const increment = (item) => {
+      setOrderItems((prev) =>
+        prev.map((i) =>
+          i.itemId === item.itemId ? { ...i, quantity: i.quantity + 1 } : i
+        )
+      );
+    };
+
+    const decrement = (item) => {
+      setOrderItems((prev) =>
+        prev
+          .map((i) =>
+            i.itemId === item.itemId ? { ...i, quantity: i.quantity - 1 } : i
+          )
+          .filter((i) => i.quantity > 0)
+      );
+    };
+
+    const BasicDetails = () => {
+      return (
+        <div className="flex flex-col justify-between border border-gray-200 rounded-xl p-3 gap-2">
+          <h2 className="font-semibold">Basic Details</h2>
+          <div className="flex justify-between">
+            <p>Order Status</p>
+            <div className="bg-blue-400 text-white border rounded-md px-4">
+              new
+            </div>
+          </div>
+          <div className="flex justify-between">
+            <p>Table No.</p>
+            <p>
+              {tables.find((t) => t.tableId === tableId)?.tableNumber || "-"}
+            </p>
+          </div>
+          <div className="flex justify-between">
+            <p>Date</p>
+            <p>{new Date().toLocaleDateString()}</p>
+          </div>
+        </div>
+      );
+    };
+
+    const OrderDetails = () => {
+      return (
+        <div className="flex flex-col justify-between border border-gray-200 rounded-xl p-3 gap-3">
+          <h2 className="font-semibold">Order Details</h2>
+
+          {orderItems.map((item) => (
+            <div
+              key={item.itemId}
+              className="flex justify-between items-center"
+            >
+              <p>{item.itemName}</p>
+
+              <div className="flex items-center gap-3">
+                <div className="relative w-22 flex items-center justify-center">
+                  <div className="bg-rose-100 border border-rose-300 rounded-md flex justify-between items-center px-2 py-1 gap-2 shadow-sm w-full">
+                    <button
+                      type="button"
+                      onClick={() => decrement(item)}
+                      className="text-rose-700 text-xl leading-none"
+                    >
+                      <IoRemove />
+                    </button>
+                    <span className="text-rose-700 text-sm font-medium">
+                      {item.quantity}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => increment(item)}
+                      className="text-rose-700 text-xl leading-none"
+                    >
+                      <IoAdd />
+                    </button>
+                  </div>
+                </div>
+
+                <p>₹ {item.priceAtOrderTime * item.quantity}</p>
+              </div>
+            </div>
+          ))}
+
+          <div className="mt-4">
+            <Button
+              variant="outline"
+              icon={Plus}
+              type="button"
+              onClick={() => setViewOrder(false)}
+            >
+              Add More Items
+            </Button>
+          </div>
+        </div>
+      );
+    };
+
+    const BillingDetails = () => {
+      const total = orderItems.reduce(
+        (acc, item) => acc + item.priceAtOrderTime * item.quantity,
+        0
+      );
+      return (
+        <div className="flex flex-col justify-between border border-gray-200 rounded-xl p-3 gap-2">
+          <h2 className="font-semibold">Billing Details</h2>
+          <div className="flex justify-between">
+            <p>Subtotal</p>
+            <p>₹ {total}</p>
+          </div>
+        </div>
+      );
+    };
+    return (
+      <div className="w-full h-full flex flex-col p-4 gap-3">
+        <BasicDetails />
+        <OrderDetails />
+        <BillingDetails />
+      </div>
+    );
+  };
+
   return (
     <div className="flex flex-col w-full h-full">
       <div className="flex flex-col w-full h-full overflow-auto">
@@ -363,33 +519,17 @@ const AddNewOrder = ({ header }) => {
 
         <div className="w-full h-px bg-gray-200" />
 
-        <form className="flex flex-col gap-2 px-6 pt-4" onSubmit={handleSubmit}>
-          <div className="flex flex-col gap-5">
-            <TableSelect />
-            <div className="-mx-6 h-px bg-gray-200" />
-            <div className="flex gap-3">
-              <Searchbar />
-              <Button variant="primary" icon={PiNotepadBold} type="button">
-                Menu
-              </Button>
-            </div>
-            <VegNonVegSelect
-              value={foodType}
-              onChange={(e) => setFoodType(e.target.value)}
-            />
-            <Menu
-              orderItems={orderItems}
-              setOrderItems={setOrderItems}
-              expandedCategories={expandedCategories}
-              setExpandedCategories={setExpandedCategories}
-            />
-            {err.orderItems && (
-              <p className="mt-1 text-xs text-red-700">{err.orderItems}</p>
-            )}
-          </div>
-          <button type="submit" className="hidden" />
-        </form>
+        {viewOrder ? (
+          <ViewOrder
+            orderItems={orderItems}
+            setOrderItems={setOrderItems}
+            setViewOrder={setViewOrder}
+          />
+        ) : (
+          <AddOrder />
+        )}
       </div>
+
       <div className="bg-emerald-700 text-white flex justify-around items-center py-8">
         <h2>
           Items added | ₹{" "}
@@ -398,9 +538,13 @@ const AddNewOrder = ({ header }) => {
             0
           )}
         </h2>
-        <button onClick={handleSubmit} disabled={mutation.isLoading}>
-          {mutation.isLoading ? "Submitting..." : "View Order"}
-        </button>
+        {!viewOrder ? (
+          <button onClick={() => setViewOrder(true)}>View Order</button>
+        ) : (
+          <button onClick={handleSubmit} disabled={mutation.isLoading}>
+            {mutation.isLoading ? "Submitting..." : "Place Order"}
+          </button>
+        )}
       </div>
     </div>
   );
