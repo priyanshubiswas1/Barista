@@ -4,7 +4,11 @@ import { X } from "phosphor-react";
 import { useOverlay } from "../../store/overlayStore";
 import Input from "../Input";
 import Button from "../Button";
-import { addItem, fetchCategoriesByShopId } from "../../api/api";
+import {
+  addItem,
+  fetchCategoriesByShopId,
+  createCategory,
+} from "../../api/api";
 import Radio from "../Radio";
 import ImageUploader from "../ImageUploader";
 import SearchableSelect from "../SearchableSelect";
@@ -55,6 +59,20 @@ const AddItems = ({ header }) => {
     },
   });
 
+  const createCategoryMutation = useMutation({
+    mutationFn: createCategory,
+    onSuccess: (res) => {
+      const newCat = res?.category || res;
+      toast("Category added✅");
+      setFormData((prev) => ({ ...prev, categoryId: newCat.categoryId }));
+      queryClient.invalidateQueries({ queryKey: ["categories"] });
+      queryClient.invalidateQueries({ queryKey: ["categoryItems"] });
+    },
+    onError: () => {
+      toast("Failed to add category");
+    },
+  });
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -87,6 +105,11 @@ const AddItems = ({ header }) => {
   if (categoryError) return <p>Error: {categoryError.message}</p>;
 
   const categories = data.categories;
+
+  const nameToId = Object.fromEntries(
+    categories.map((c) => [c.name, c.categoryId])
+  );
+  const categoryOptions = categories.map((c) => c.name);
 
   return (
     <div className="flex flex-col w-full h-full">
@@ -122,31 +145,22 @@ const AddItems = ({ header }) => {
           <SearchableSelect
             label="Category"
             placeholder="Search or select category"
-          ></SearchableSelect>
-
-          <div className="flex flex-col">
-            <label className="text-xs font-medium text-gray-800 mb-1">
-              Category
-            </label>
-            <select
-              className="w-full rounded-md border px-3 py-2 bg-gray-50 border-gray-200 outline-none text-sm text-gray-800"
-              name="categoryId"
-              value={formData.categoryId}
-              onChange={handleChange}
-            >
-              <option value="" disabled className="text-gray-400">
-                Select category
-              </option>
-              {categories.map((cat) => (
-                <option key={cat.categoryId} value={cat.categoryId}>
-                  {cat.name}
-                </option>
-              ))}
-            </select>
-            {err.categoryId && (
-              <p className="mt-1 text-xs text-red-700">{err.categoryId}</p>
-            )}
-          </div>
+            initialOptions={categoryOptions}
+            onSelect={(name) => {
+              setFormData((prev) => ({
+                ...prev,
+                categoryId: nameToId[name] || "",
+              }));
+            }}
+            onAdd={(name) => {
+              createCategoryMutation.mutate({
+                name,
+                shopId: localStorage.getItem("shopId"),
+              });
+            }}
+            helperText={err.categoryId}
+            error={!!err.categoryId}
+          />
 
           <Input
             label="Price"

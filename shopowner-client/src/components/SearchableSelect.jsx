@@ -4,6 +4,7 @@ import { CaretDown, PlusCircle } from "phosphor-react";
 const SearchableSelect = ({
   initialOptions = [],
   onAdd,
+  onSelect,
   label,
   placeholder = "Select or type...",
   helperText = "",
@@ -14,6 +15,11 @@ const SearchableSelect = ({
   const [query, setQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const wrapperRef = useRef(null);
+
+  // Sync options with initialOptions when they change
+  useEffect(() => {
+    setOptions(initialOptions);
+  }, [initialOptions]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -33,6 +39,7 @@ const SearchableSelect = ({
   const handleSelect = (value) => {
     setQuery(value);
     setIsOpen(false);
+    onSelect?.(value);
   };
 
   const handleAdd = () => {
