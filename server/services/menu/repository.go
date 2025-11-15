@@ -16,10 +16,10 @@ type IRepository interface {
 	GetMenus(ctx context.Context, shopId string) ([]pkg.Menu, error)
 	SetMenu(ctx context.Context, menuId string) (bool, error)
 	DeleteMenu(ctx context.Context, menuId string) (bool, error)
-	CreateItem(ctx context.Context, itemId, shopId, name, description, categoryId string, price float32, image string, isAvailable, active bool, createdAt time.Time) error
+	CreateItem(ctx context.Context, itemId, shopId, name, description, categoryId string, veg bool, price float32, image string, isAvailable, active bool, createdAt time.Time) error
 	GetItem(ctx context.Context, itemId string) (pkg.Item, error)
 	GetItems(ctx context.Context, menuId string) ([]pkg.Item, error)
-	UpdateItem(ctx context.Context, itemId, shopId, name, description, categoryId string, price float32, image string, isAvailable, active bool, updatedAt time.Time) (bool, error)
+	UpdateItem(ctx context.Context, itemId, shopId, name, description, categoryId string, veg bool, price float32, image string, isAvailable, active bool, updatedAt time.Time) (bool, error)
 	DeleteItem(ctx context.Context, itemId string) (bool, error)
 	CreateMenuItem(ctx context.Context, id, menuId, itemId string) (pkg.MenuItem, error)
 	GetMenuItems(ctx context.Context, menuId string) ([]pkg.Item, error)
@@ -134,12 +134,12 @@ func (r *postgresRepository) DeleteMenu(ctx context.Context, menuId string) (boo
 	return true, nil
 }
 
-func (r *postgresRepository) CreateItem(ctx context.Context, itemId, shopId, name, description, categoryId string, price float32, image string, isAvailable, active bool, createdAt time.Time) error {
+func (r *postgresRepository) CreateItem(ctx context.Context, itemId, shopId, name, description, categoryId string, veg bool, price float32, image string, isAvailable, active bool, createdAt time.Time) error {
 	query := `INSERT INTO item
-			(id,shop_id,name,description,category_id,price,image,is_available,active,created_at,updated_at)
-			VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+			(id,shop_id,name,description,category_id,veg,price,image,is_available,active,created_at,updated_at)
+			VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
 			`
-	res, err := r.db.ExecContext(ctx, query, itemId, shopId, name, description, categoryId, price, image, isAvailable, active, createdAt, createdAt)
+	res, err := r.db.ExecContext(ctx, query, itemId, shopId, name, description, categoryId, veg, price, image, isAvailable, active, createdAt, createdAt)
 	if err != nil {
 		return err
 	}
@@ -160,6 +160,7 @@ func (r *postgresRepository) GetItem(ctx context.Context, itemId string) (pkg.It
 				item.name,
 				item.description,
 				category.name AS category_name,
+				item.veg,
 				item.price,
 				item.image,
 				item.is_available
@@ -172,7 +173,7 @@ func (r *postgresRepository) GetItem(ctx context.Context, itemId string) (pkg.It
 			`
 	res := r.db.QueryRowContext(ctx, query, itemId)
 	item := pkg.Item{}
-	if err := res.Scan(&item.ItemId, &item.ShopId, &item.Name, &item.Description, &item.Category, &item.Price, &item.Image, &item.IsAvailable); err != nil {
+	if err := res.Scan(&item.ItemId, &item.ShopId, &item.Name, &item.Description, &item.Category, &item.Veg, &item.Price, &item.Image, &item.IsAvailable); err != nil {
 		if err == sql.ErrNoRows {
 			return pkg.Item{}, errors.New("menu item not found")
 		}
@@ -188,6 +189,7 @@ func (r *postgresRepository) GetItems(ctx context.Context, shopId string) ([]pkg
 				item.name,
 				item.description,
 				category.name AS category_name,
+				item.veg,
 				item.price,
 				item.image,
 				item.is_available
@@ -206,7 +208,7 @@ func (r *postgresRepository) GetItems(ctx context.Context, shopId string) ([]pkg
 	items := []pkg.Item{}
 	for rows.Next() {
 		item := pkg.Item{}
-		if err := rows.Scan(&item.ItemId, &item.ShopId, &item.Name, &item.Description, &item.Category, &item.Price, &item.Image, &item.IsAvailable); err != nil {
+		if err := rows.Scan(&item.ItemId, &item.ShopId, &item.Name, &item.Description, &item.Category, &item.Veg, &item.Price, &item.Image, &item.IsAvailable); err != nil {
 			return nil, err
 		}
 		items = append(items, item)
@@ -217,12 +219,12 @@ func (r *postgresRepository) GetItems(ctx context.Context, shopId string) ([]pkg
 	return items, nil
 }
 
-func (r *postgresRepository) UpdateItem(ctx context.Context, itemId, shopId, name, description, categoryId string, price float32, image string, isAvailable, active bool, updatedAt time.Time) (bool, error) {
+func (r *postgresRepository) UpdateItem(ctx context.Context, itemId, shopId, name, description, categoryId string, veg bool, price float32, image string, isAvailable, active bool, updatedAt time.Time) (bool, error) {
 	query := `UPDATE item
-			SET shop_id=$1,name=$2,description=$3,category_id=$4,price=$5,image=$6,is_available=$7,active=$8,updated_at=$9
-			WHERE id = $10
+			SET shop_id=$1,name=$2,description=$3,category_id=$4,veg=$5,price=$6,image=$7,is_available=$8,active=$9,updated_at=$10
+			WHERE id = $11
 			`
-	res, err := r.db.ExecContext(ctx, query, shopId, name, description, categoryId, price, image, isAvailable, active, updatedAt, itemId)
+	res, err := r.db.ExecContext(ctx, query, shopId, name, description, categoryId, veg, price, image, isAvailable, active, updatedAt, itemId)
 	if err != nil {
 		return false, err
 	}
@@ -276,6 +278,7 @@ func (r *postgresRepository) GetMenuItems(ctx context.Context, menuId string) ([
 				i.name, 
 				i.description, 
 				category.name AS category_name, 
+				i.veg,
 				i.price, 
 				i.image, 
 				i.is_available
@@ -303,6 +306,7 @@ func (r *postgresRepository) GetMenuItems(ctx context.Context, menuId string) ([
 			&item.Name,
 			&item.Description,
 			&item.Category,
+			&item.Veg,
 			&item.Price,
 			&item.Image,
 			&item.IsAvailable,
@@ -432,6 +436,7 @@ func (r *postgresRepository) GetCategoriesWithItem(ctx context.Context, shopId s
 						'name', i.name,
 						'description', i.description,
 						'categoryId', i.category_id,
+						'veg', i.veg,
 						'price', i.price,
 						'image', i.image,
 						'isAvailable', i.is_available

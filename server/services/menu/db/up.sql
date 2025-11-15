@@ -19,6 +19,7 @@ CREATE TABLE item (
     name TEXT NOT NULL,
     description TEXT,
     category_id UUID,
+    veg BOOLEAN,
     price NUMERIC(10, 2) NOT NULL,
     image TEXT,
     is_available BOOLEAN DEFAULT TRUE,

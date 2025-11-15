@@ -84,7 +84,7 @@ func (s *service) CreateItem(ctx context.Context, item pkg.ItemRequest) (pkg.Ite
 	}
 	item.ItemId = uuid.New().String()
 	if err := s.repository.CreateItem(ctx, item.ItemId, item.ShopId, item.Name, item.Description,
-		item.CategoryId, item.Price, item.Image, item.IsAvailable, true, time.Now()); err != nil {
+		item.CategoryId, item.Veg, item.Price, item.Image, item.IsAvailable, true, time.Now()); err != nil {
 		return pkg.Item{}, err
 	}
 	return pkg.Item{
@@ -93,6 +93,7 @@ func (s *service) CreateItem(ctx context.Context, item pkg.ItemRequest) (pkg.Ite
 		Name:        item.Name,
 		Description: item.Description,
 		Category:    categoryName,
+		Veg:         item.Veg,
 		Price:       item.Price,
 		Image:       item.Image,
 		IsAvailable: item.IsAvailable,
@@ -133,7 +134,7 @@ func (s *service) UpdateItem(ctx context.Context, item pkg.ItemRequest) (bool, e
 	if _, err := s.repository.GetCategoryName(ctx, item.CategoryId, item.ShopId); err != nil {
 		return false, err
 	}
-	return s.repository.UpdateItem(ctx, item.ItemId, item.ShopId, item.Name, item.Description, item.CategoryId, item.Price, item.Image, item.IsAvailable, true, time.Now())
+	return s.repository.UpdateItem(ctx, item.ItemId, item.ShopId, item.Name, item.Description, item.CategoryId, item.Veg, item.Price, item.Image, item.IsAvailable, true, time.Now())
 }
 
 func (s *service) DeleteItem(ctx context.Context, itemId string) (bool, error) {

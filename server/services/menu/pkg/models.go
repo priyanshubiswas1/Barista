@@ -12,6 +12,7 @@ type ItemRequest struct {
 	Name        string  `json:"name"`
 	Description string  `json:"description"`
 	CategoryId  string  `json:"categoryId"`
+	Veg         bool    `json:"veg"`
 	Price       float32 `json:"price"`
 	Image       string  `json:"image"`
 	IsAvailable bool    `json:"isAvailable"`
@@ -23,6 +24,7 @@ type Item struct {
 	Name        string  `json:"name"`
 	Description string  `json:"description"`
 	Category    string  `json:"category"`
+	Veg         bool    `json:"veg"`
 	Price       float32 `json:"price"`
 	Image       string  `json:"image"`
 	IsAvailable bool    `json:"isAvailable"`

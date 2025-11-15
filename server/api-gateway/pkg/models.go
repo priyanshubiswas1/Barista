@@ -107,6 +107,7 @@ type Item struct {
 	ItemName    string  `json:"itemName"`
 	Description string  `json:"description"`
 	Category    string  `json:"category"`
+	Veg         bool    `json:"veg"`
 	Price       float32 `json:"price"`
 	Image       string  `json:"image"`
 	Available   bool    `json:"available"`
@@ -137,6 +138,7 @@ type CreateItemRequest struct {
 	ShopId      string  `json:"shopId"`
 	Description string  `json:"description"`
 	CategoryId  string  `json:"categoryId"`
+	Veg         bool    `json:"veg"`
 	Price       float32 `json:"price"`
 	Image       string  `json:"image"`
 	Available   bool    `json:"available"`
@@ -156,6 +158,7 @@ type UpdateItemRequest struct {
 	ItemName    string  `json:"itemName"`
 	Description string  `json:"description"`
 	CategoryId  string  `json:"categoryId"`
+	Veg         bool    `json:"veg"`
 	Price       float32 `json:"price"`
 	Image       string  `json:"image"`
 	Available   bool    `json:"available"`
