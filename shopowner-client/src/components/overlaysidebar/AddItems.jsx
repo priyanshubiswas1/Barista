@@ -95,6 +95,7 @@ const AddItems = ({ header }) => {
       ...formData,
       price: parseFloat(formData.price),
       shopId: localStorage.getItem("shopId"),
+      veg: selected === "veg",
     };
 
     console.log(payload);

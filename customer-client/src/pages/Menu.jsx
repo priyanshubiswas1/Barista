@@ -152,8 +152,8 @@ const Item = ({ item, orderItems, setOrderItems }) => {
     <div className="flex justify-between bg-white border border-gray-300 rounded-xl p-3">
       <div className="flex flex-col justify-between">
         <div className="flex flex-col items-start gap-1">
-          <div className="text-green-800 border border-green-800 rounded-sm w-4 h-4 flex items-center justify-center">
-            <IoEllipseSharp size={8} />
+          <div className={`${item.veg ? 'text-green-800 border-green-800' : 'text-red-800 border-red-800'} border rounded-sm w-4 h-4 flex items-center justify-center`}>
+            {item.veg ? <IoEllipseSharp size={8} /> : <IoTriangleSharp size={8} />}
           </div>
           <h2 className="font-medium text-gray-800">{item.itemName}</h2>
         </div>

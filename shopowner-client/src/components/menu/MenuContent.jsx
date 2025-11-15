@@ -79,7 +79,7 @@ const MenuContentBody = ({ items }) => {
 
               {/* Veg / Non-veg */}
               <td>
-                {item.isVeg ? (
+                {item.veg ? (
                   <div className="bg-green-100 text-green-700 text-xs font-semibold rounded-sm px-2 py-0.5 inline-block">
                     Veg
                   </div>

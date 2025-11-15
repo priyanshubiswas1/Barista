@@ -73,8 +73,8 @@ export const fetchItemsByShopId = async (id) => {
     return response.status === 200 ? response.data : null
 };
 
-export const addItem = async ({ name, shopId, categoryId, price }) => {
-    const response = await api.post(`/item`, { name: name, shopId: shopId, description: "test", categoryId: categoryId, price: price, image: "url", available: true });
+export const addItem = async ({ name, shopId, categoryId, price, veg }) => {
+    const response = await api.post(`/item`, { name: name, shopId: shopId, description: "test", categoryId: categoryId, veg: veg, price: price, image: "url", available: true });
     return response.status === 200 ? response.data : null
 }
 

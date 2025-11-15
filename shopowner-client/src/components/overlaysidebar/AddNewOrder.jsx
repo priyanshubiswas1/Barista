@@ -129,49 +129,53 @@ const AddNewOrder = ({ header }) => {
     </div>
   );
 
-  const VegNonVegSelect = ({ value, onChange }) => (
-    <div className="flex gap-4">
-      <label className="cursor-pointer">
-        <input
-          type="radio"
-          name="foodType"
-          value="veg"
-          checked={value === "veg"}
-          onChange={onChange}
-          className="hidden"
-        />
-        <div className="text-md font-medium text-gray-800 rounded-4xl border border-gray-200 flex items-center justify-around px-3 py-1 gap-2">
+  const VegNonVegSelect = ({ value, onChange }) => {
+    const toggle = (type) => {
+      if (value === type) onChange("");
+      else onChange(type);
+    };
+
+    return (
+      <div className="flex gap-4">
+        <button
+          type="button"
+          onClick={() => toggle("veg")}
+          className={`text-md font-medium rounded-4xl border flex items-center justify-around px-3 py-1 gap-2 ${
+            value === "veg"
+              ? "bg-green-100 border-green-600 text-green-900"
+              : "border-gray-200 text-gray-800"
+          }`}
+        >
           <div className="text-green-800 border border-green-800 rounded-sm p-1">
             <IoEllipseSharp size={8} />
           </div>
           Veg
-        </div>
-      </label>
+        </button>
 
-      <label className="cursor-pointer">
-        <input
-          type="radio"
-          name="foodType"
-          value="non-veg"
-          checked={value === "non-veg"}
-          onChange={onChange}
-          className="hidden"
-        />
-        <div className="text-md font-medium text-gray-800 rounded-4xl border border-gray-200 flex items-center justify-around px-3 py-1 gap-2">
+        <button
+          type="button"
+          onClick={() => toggle("non-veg")}
+          className={`text-md font-medium rounded-4xl border flex items-center justify-around px-3 py-1 gap-2 ${
+            value === "non-veg"
+              ? "bg-red-100 border-red-600 text-red-900"
+              : "border-gray-200 text-gray-800"
+          }`}
+        >
           <div className="text-red-800 border border-red-800 rounded-sm p-1">
             <IoTriangleSharp size={8} />
           </div>
           Non Veg
-        </div>
-      </label>
-    </div>
-  );
+        </button>
+      </div>
+    );
+  };
 
   const Menu = ({
     orderItems,
     setOrderItems,
     expandedCategories,
     setExpandedCategories,
+    foodType,
   }) => {
     const { data, isLoading, error } = useQuery({
       queryKey: ["menuItems"],
@@ -188,12 +192,14 @@ const AddNewOrder = ({ header }) => {
     if (isLoading) return <p>Loading menu...</p>;
     if (error) return <p>Error: {error.message}</p>;
 
-    const items = data.items;
+    let items = data.items;
+
+    if (foodType === "veg") items = items.filter((item) => item.veg === true);
+    else if (foodType === "non-veg")
+      items = items.filter((item) => item.veg === false);
 
     const groupedItems = items.reduce((acc, item) => {
-      if (!acc[item.category]) {
-        acc[item.category] = [];
-      }
+      if (!acc[item.category]) acc[item.category] = [];
       acc[item.category].push(item);
       return acc;
     }, {});
@@ -262,8 +268,18 @@ const AddNewOrder = ({ header }) => {
         <div className="flex justify-between border border-gray-300 rounded-xl p-3">
           <div className="flex flex-col justify-between">
             <div className="flex items-center gap-2">
-              <div className="text-green-800 border border-green-800 rounded-sm w-4 h-4 flex items-center justify-center">
-                <IoEllipseSharp size={8} />
+              <div
+                className={`${
+                  item.veg
+                    ? "text-green-800 border-green-800"
+                    : "text-red-800 border-red-800"
+                } border rounded-sm w-4 h-4 flex items-center justify-center`}
+              >
+                {item.veg ? (
+                  <IoEllipseSharp size={8} />
+                ) : (
+                  <IoTriangleSharp size={8} />
+                )}
               </div>
               <h2 className="font-medium text-sm text-gray-800">
                 {item.itemName}
@@ -366,13 +382,14 @@ const AddNewOrder = ({ header }) => {
           </div>
           <VegNonVegSelect
             value={foodType}
-            onChange={(e) => setFoodType(e.target.value)}
+            onChange={(val) => setFoodType(val)}
           />
           <Menu
             orderItems={orderItems}
             setOrderItems={setOrderItems}
             expandedCategories={expandedCategories}
             setExpandedCategories={setExpandedCategories}
+            foodType={foodType}
           />
           {err.orderItems && (
             <p className="mt-1 text-xs text-red-700">{err.orderItems}</p>
