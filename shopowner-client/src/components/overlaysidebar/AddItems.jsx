@@ -24,6 +24,7 @@ const AddItems = ({ header }) => {
   });
 
   const [selected, setSelected] = useState("veg");
+  const [selectedCategoryName, setSelectedCategoryName] = useState("");
 
   const [err, setErr] = useState({
     name: "",
@@ -64,6 +65,7 @@ const AddItems = ({ header }) => {
     onSuccess: (res) => {
       const newCat = res?.category || res;
       toast("Category added✅");
+      setSelectedCategoryName(newCat.name);
       setFormData((prev) => ({ ...prev, categoryId: newCat.categoryId }));
       queryClient.invalidateQueries({ queryKey: ["categories"] });
       queryClient.invalidateQueries({ queryKey: ["categoryItems"] });
@@ -148,10 +150,22 @@ const AddItems = ({ header }) => {
             placeholder="Search or select category"
             initialOptions={categoryOptions}
             onSelect={(name) => {
+              setSelectedCategoryName(name);
               setFormData((prev) => ({
                 ...prev,
                 categoryId: nameToId[name] || "",
               }));
+            }}
+            onChange={(value) => {
+              // If the input value doesn't match the selected category name,
+              // clear the categoryId
+              if (value !== selectedCategoryName) {
+                setSelectedCategoryName("");
+                setFormData((prev) => ({
+                  ...prev,
+                  categoryId: "",
+                }));
+              }
             }}
             onAdd={(name) => {
               createCategoryMutation.mutate({
@@ -195,13 +209,14 @@ const AddItems = ({ header }) => {
 
       <div className="flex justify-between px-8">
         <Button
-          onClick={() =>
+          onClick={() => {
             setFormData({
               name: "",
               categoryId: "",
               price: 0.0,
-            })
-          }
+            });
+            setSelectedCategoryName("");
+          }}
           variant="outline"
         >
           Cancel

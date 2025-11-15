@@ -5,6 +5,7 @@ const SearchableSelect = ({
   initialOptions = [],
   onAdd,
   onSelect,
+  onChange,
   label,
   placeholder = "Select or type...",
   helperText = "",
@@ -84,6 +85,7 @@ const SearchableSelect = ({
           onChange={(e) => {
             setQuery(e.target.value);
             setIsOpen(true);
+            onChange?.(e.target.value);
           }}
           onFocus={() => setIsOpen(true)}
           placeholder={placeholder}
