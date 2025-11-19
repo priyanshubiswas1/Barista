@@ -592,7 +592,7 @@ func (r *postgresRepository) GetCategoriesWithItem(ctx context.Context, shopId s
 		FROM
 			category c
 		LEFT JOIN
-			item i ON i.category_id = c.id
+			item i ON i.category_id = c.id AND i.active = true
 		WHERE
 			c.shop_id = $1
 		GROUP BY
