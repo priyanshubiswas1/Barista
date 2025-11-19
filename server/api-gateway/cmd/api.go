@@ -133,8 +133,9 @@ func (s *APIServer) ListenServer(port string) error {
 	//ITEMS
 	protected.HandleFunc("/api/item", makeHttpHandleFunc(menuClient.CreateItem)).Methods("POST")
 	protected.HandleFunc("/api/item/{itemid}", makeHttpHandleFunc(menuClient.GetItem)).Methods("GET")
-	// protected.HandleFunc("/api/items/{shopid}", makeHttpHandleFunc(menuClient.GetItems)).Methods("GET")
+	protected.HandleFunc("/api/items/{shopid}/admin", makeHttpHandleFunc(menuClient.GetItemsAdmin)).Methods("GET")
 	protected.HandleFunc("/api/item", makeHttpHandleFunc(menuClient.UpdateItem)).Methods("PUT")
+	protected.HandleFunc("/api/item-available", makeHttpHandleFunc(menuClient.UpdateItemAvailable)).Methods("PUT")
 	protected.HandleFunc("/api/item/{itemid}", makeHttpHandleFunc(menuClient.DeleteItem)).Methods("DELETE")
 
 	//MENU-ITEMS

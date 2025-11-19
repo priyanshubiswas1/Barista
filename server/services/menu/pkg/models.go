@@ -18,6 +18,12 @@ type ItemRequest struct {
 	IsAvailable bool    `json:"isAvailable"`
 }
 
+type UpdateItemAvailableRequest struct {
+	ItemId      string `json:"menuItemId"`
+	ShopId      string `json:"shopId"`
+	IsAvailable bool   `json:"isAvailable"`
+}
+
 type Item struct {
 	ItemId      string  `json:"menuItemId"`
 	ShopId      string  `json:"shopId"`

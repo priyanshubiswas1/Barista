@@ -17,10 +17,13 @@ type IService interface {
 	CreateItem(ctx context.Context, item pkg.ItemRequest) (pkg.Item, error)
 	GetItem(ctx context.Context, itemId string) (*pkg.Item, error)
 	GetItems(ctx context.Context, shopId string) ([]pkg.Item, error)
+	GetItemsAdmin(ctx context.Context, shopId string) ([]pkg.Item, error)
 	UpdateItem(ctx context.Context, item pkg.ItemRequest) (bool, error)
+	UpdateItemAvailable(ctx context.Context, item pkg.UpdateItemAvailableRequest) (bool, error)
 	DeleteItem(ctx context.Context, itemId string) (bool, error)
 	CreateMenuItem(ctx context.Context, menuItem pkg.MenuItem) (pkg.MenuItem, error)
 	GetMenuItems(ctx context.Context, menuId string) ([]pkg.Item, error)
+	GetMenuItemsAdmin(ctx context.Context, menuId string) ([]pkg.Item, error)
 	DeleteMenuItem(ctx context.Context, menuId, itemId string) (bool, error)
 	DeleteMenuItems(ctx context.Context, menuId string) (bool, error)
 	CreateCategory(ctx context.Context, category pkg.Category) (pkg.Category, error)
@@ -124,6 +127,16 @@ func (s *service) GetItems(ctx context.Context, shopId string) ([]pkg.Item, erro
 	return s.repository.GetItems(ctx, shopId)
 }
 
+func (s *service) GetItemsAdmin(ctx context.Context, shopId string) ([]pkg.Item, error) {
+	if shopId == "" {
+		return nil, errors.New("shop ID is required")
+	}
+	if _, err := uuid.Parse(shopId); err != nil {
+		return nil, errors.New("invalid shop ID format")
+	}
+	return s.repository.GetItemsAdmin(ctx, shopId)
+}
+
 func (s *service) UpdateItem(ctx context.Context, item pkg.ItemRequest) (bool, error) {
 	if item.ItemId == "" {
 		return false, errors.New("item ID is required")
@@ -134,7 +147,17 @@ func (s *service) UpdateItem(ctx context.Context, item pkg.ItemRequest) (bool, e
 	if _, err := s.repository.GetCategoryName(ctx, item.CategoryId, item.ShopId); err != nil {
 		return false, err
 	}
-	return s.repository.UpdateItem(ctx, item.ItemId, item.ShopId, item.Name, item.Description, item.CategoryId, item.Veg, item.Price, item.Image, item.IsAvailable, true, time.Now())
+	return s.repository.UpdateItem(ctx, item.ItemId, item.ShopId, item.Name, item.Description, item.CategoryId, item.Veg, item.Price, item.Image, item.IsAvailable, time.Now())
+}
+
+func (s *service) UpdateItemAvailable(ctx context.Context, item pkg.UpdateItemAvailableRequest) (bool, error) {
+	if item.ItemId == "" {
+		return false, errors.New("item ID is required")
+	}
+	if _, err := uuid.Parse(item.ItemId); err != nil {
+		return false, errors.New("invalid item ID format")
+	}
+	return s.repository.UpdateItemAvailable(ctx, item.ItemId, item.ShopId, item.IsAvailable, time.Now())
 }
 
 func (s *service) DeleteItem(ctx context.Context, itemId string) (bool, error) {
@@ -158,6 +181,16 @@ func (s *service) GetMenuItems(ctx context.Context, menuId string) ([]pkg.Item, 
 		return nil, errors.New("invalid menu ID format")
 	}
 	return s.repository.GetMenuItems(ctx, menuId)
+}
+
+func (s *service) GetMenuItemsAdmin(ctx context.Context, menuId string) ([]pkg.Item, error) {
+	if menuId == "" {
+		return nil, errors.New("menu ID is required")
+	}
+	if _, err := uuid.Parse(menuId); err != nil {
+		return nil, errors.New("invalid menu ID format")
+	}
+	return s.repository.GetMenuItemsAdmin(ctx, menuId)
 }
 
 func (s *service) DeleteMenuItem(ctx context.Context, menuId, itemId string) (bool, error) {

@@ -19,10 +19,13 @@ type IRepository interface {
 	CreateItem(ctx context.Context, itemId, shopId, name, description, categoryId string, veg bool, price float32, image string, isAvailable, active bool, createdAt time.Time) error
 	GetItem(ctx context.Context, itemId string) (pkg.Item, error)
 	GetItems(ctx context.Context, menuId string) ([]pkg.Item, error)
-	UpdateItem(ctx context.Context, itemId, shopId, name, description, categoryId string, veg bool, price float32, image string, isAvailable, active bool, updatedAt time.Time) (bool, error)
+	GetItemsAdmin(ctx context.Context, menuId string) ([]pkg.Item, error)
+	UpdateItem(ctx context.Context, itemId, shopId, name, description, categoryId string, veg bool, price float32, image string, isAvailable bool, updatedAt time.Time) (bool, error)
+	UpdateItemAvailable(ctx context.Context, itemId, shopId string, isAvailable bool, updatedAt time.Time) (bool, error)
 	DeleteItem(ctx context.Context, itemId string) (bool, error)
 	CreateMenuItem(ctx context.Context, id, menuId, itemId string) (pkg.MenuItem, error)
 	GetMenuItems(ctx context.Context, menuId string) ([]pkg.Item, error)
+	GetMenuItemsAdmin(ctx context.Context, menuId string) ([]pkg.Item, error)
 	DeleteMenuItem(ctx context.Context, menuId, itemId string) (bool, error)
 	DeleteMenuItems(ctx context.Context, menuId string) (bool, error)
 	GetCategoryName(ctx context.Context, categoryId, shopId string) (string, error)
@@ -199,6 +202,8 @@ func (r *postgresRepository) GetItems(ctx context.Context, shopId string) ([]pkg
 				category ON item.category_id = category.id
 			WHERE 
 				item.shop_id = $1
+				AND item.active = true
+				AND item.is_available = true
 			`
 	rows, err := r.db.QueryContext(ctx, query, shopId)
 	if err != nil {
@@ -219,12 +224,79 @@ func (r *postgresRepository) GetItems(ctx context.Context, shopId string) ([]pkg
 	return items, nil
 }
 
-func (r *postgresRepository) UpdateItem(ctx context.Context, itemId, shopId, name, description, categoryId string, veg bool, price float32, image string, isAvailable, active bool, updatedAt time.Time) (bool, error) {
-	query := `UPDATE item
-			SET shop_id=$1,name=$2,description=$3,category_id=$4,veg=$5,price=$6,image=$7,is_available=$8,active=$9,updated_at=$10
-			WHERE id = $11
+func (r *postgresRepository) GetItemsAdmin(ctx context.Context, shopId string) ([]pkg.Item, error) {
+	query := `SELECT 
+				item.id,
+				item.shop_id,
+				item.name,
+				item.description,
+				category.name AS category_name,
+				item.veg,
+				item.price,
+				item.image,
+				item.is_available
+			FROM 
+				item
+			LEFT JOIN 
+				category ON item.category_id = category.id
+			WHERE 
+				item.shop_id = $1
+				AND item.active = true
 			`
-	res, err := r.db.ExecContext(ctx, query, shopId, name, description, categoryId, veg, price, image, isAvailable, active, updatedAt, itemId)
+	rows, err := r.db.QueryContext(ctx, query, shopId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []pkg.Item{}
+	for rows.Next() {
+		item := pkg.Item{}
+		if err := rows.Scan(&item.ItemId, &item.ShopId, &item.Name, &item.Description, &item.Category, &item.Veg, &item.Price, &item.Image, &item.IsAvailable); err != nil {
+			return nil, err
+		}
+		items = append(items, item)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+func (r *postgresRepository) UpdateItem(ctx context.Context, itemId, shopId, name, description, categoryId string, veg bool, price float32, image string, isAvailable bool, updatedAt time.Time) (bool, error) {
+	query := `UPDATE item
+			SET shop_id=$1,name=$2,description=$3,category_id=$4,veg=$5,price=$6,image=$7,is_available=$8,updated_at=$9
+			WHERE id = $10
+			`
+	res, err := r.db.ExecContext(ctx, query, shopId, name, description, categoryId, veg, price, image, isAvailable, updatedAt, itemId)
+	if err != nil {
+		return false, err
+	}
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		return false, err
+	}
+	if rowsAffected == 0 {
+		return false, errors.New("failed to update")
+	}
+	return true, nil
+}
+
+func (r *postgresRepository) UpdateItemAvailable(ctx context.Context, itemId, shopId string, isAvailable bool, updatedAt time.Time) (bool, error) {
+	var isCatIdExists bool
+	getCatQuery := `SELECT (category_id IS NOT NULL) AS is_not_null FROM item WHERE id=$1 AND shop_id=$2`
+	resCat := r.db.QueryRowContext(ctx, getCatQuery, itemId, shopId)
+	if err := resCat.Scan(&isCatIdExists); err != nil {
+		return false, err
+	}
+	if !isCatIdExists {
+		return false, errors.New("missing category Id")
+	}
+
+	query := `UPDATE item
+			SET is_available=$1,updated_at=$2
+			WHERE id = $3 AND shop_id = $4
+			`
+	res, err := r.db.ExecContext(ctx, query, isAvailable, updatedAt, itemId, shopId)
 	if err != nil {
 		return false, err
 	}
@@ -239,7 +311,8 @@ func (r *postgresRepository) UpdateItem(ctx context.Context, itemId, shopId, nam
 }
 
 func (r *postgresRepository) DeleteItem(ctx context.Context, itemId string) (bool, error) {
-	query := `DELETE FROM item
+	query := `UPDATE item
+			SET active=false
 			WHERE id = $1
 			`
 	res, err := r.db.ExecContext(ctx, query, itemId)
@@ -291,6 +364,58 @@ func (r *postgresRepository) GetMenuItems(ctx context.Context, menuId string) ([
 			WHERE 
 				mi.menu_id = $1
 				AND i.active = true
+				AND i.is_available = true
+			`
+	rows, err := r.db.QueryContext(ctx, query, menuId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []pkg.Item{}
+	for rows.Next() {
+		item := pkg.Item{}
+		err := rows.Scan(
+			&item.ItemId,
+			&item.ShopId,
+			&item.Name,
+			&item.Description,
+			&item.Category,
+			&item.Veg,
+			&item.Price,
+			&item.Image,
+			&item.IsAvailable,
+		)
+		if err != nil {
+			return nil, err
+		}
+		items = append(items, item)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+func (r *postgresRepository) GetMenuItemsAdmin(ctx context.Context, menuId string) ([]pkg.Item, error) {
+	query := `SELECT 
+				i.id, 
+				i.shop_id, 
+				i.name, 
+				i.description, 
+				category.name AS category_name, 
+				i.veg,
+				i.price, 
+				i.image, 
+				i.is_available
+			FROM 
+				item i
+			JOIN 
+				menu_item mi ON i.id = mi.item_id
+			LEFT JOIN 
+				category ON i.category_id = category.id
+			WHERE 
+				mi.menu_id = $1
+				AND i.active = true
 			`
 	rows, err := r.db.QueryContext(ctx, query, menuId)
 	if err != nil {
@@ -323,7 +448,8 @@ func (r *postgresRepository) GetMenuItems(ctx context.Context, menuId string) ([
 }
 
 func (r *postgresRepository) DeleteMenuItem(ctx context.Context, menuId, itemId string) (bool, error) {
-	query := `DELETE FROM menu_item
+	query := `UPDATE menu_item
+				SET active = false
 			WHERE item_id=$1 AND menu_id = $2 
 			`
 

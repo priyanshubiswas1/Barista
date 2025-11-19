@@ -52,6 +52,7 @@ const Menu = () => {
 
   const items = data.items;
 
+  // Group items by category
   const groupedItems = items.reduce((acc, item) => {
     if (!acc[item.category]) {
       acc[item.category] = [];
@@ -59,7 +60,22 @@ const Menu = () => {
     acc[item.category].push(item);
     return acc;
   }, {});
-  console.log(groupedItems);
+
+  // Sort items within each category by itemName
+  Object.keys(groupedItems).forEach((category) => {
+    groupedItems[category].sort((a, b) => {
+      const nameA = (a.itemName || "").toLowerCase();
+      const nameB = (b.itemName || "").toLowerCase();
+      return nameA.localeCompare(nameB);
+    });
+  });
+
+  // Sort categories alphabetically and create sorted entries
+  const sortedCategoryEntries = Object.entries(groupedItems).sort((a, b) => {
+    const categoryA = (a[0] || "").toLowerCase();
+    const categoryB = (b[0] || "").toLowerCase();
+    return categoryA.localeCompare(categoryB);
+  });
 
   return (
     <div className="flex h-screen">
@@ -72,15 +88,13 @@ const Menu = () => {
         />
         {items.length > 0 ? (
           <div className="pt-5 flex-grow flex flex-col gap-4">
-            {Object.entries(groupedItems).map(
-              ([category, categoryItems], index) => (
-                <MenuContent
-                  key={index}
-                  category={category}
-                  items={categoryItems}
-                />
-              )
-            )}
+            {sortedCategoryEntries.map(([category, categoryItems]) => (
+              <MenuContent
+                key={category}
+                category={category}
+                items={categoryItems}
+              />
+            ))}
           </div>
         ) : (
           <div className="pt-5 flex-grow">

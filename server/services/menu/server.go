@@ -154,6 +154,30 @@ func (s *gRPCserver) GetItems(ctx context.Context, req *menuPb.GetItemsRequest) 
 	}, nil
 }
 
+func (s *gRPCserver) GetItemsAdmin(ctx context.Context, req *menuPb.GetItemsRequest) (*menuPb.GetItemsResponse, error) {
+	pkgItems, err := s.service.GetItemsAdmin(ctx, req.ShopId)
+	if err != nil {
+		return nil, err
+	}
+	items := []*menuPb.Item{}
+	for _, item := range pkgItems {
+		items = append(items, &menuPb.Item{
+			ItemId:      item.ItemId,
+			ShopId:      item.ShopId,
+			Name:        item.Name,
+			Description: item.Description,
+			Category:    item.Category,
+			Veg:         item.Veg,
+			Price:       item.Price,
+			Image:       item.Image,
+			IsAvailable: item.IsAvailable,
+		})
+	}
+	return &menuPb.GetItemsResponse{
+		Items: items,
+	}, nil
+}
+
 func (s *gRPCserver) UpdateItem(ctx context.Context, req *menuPb.UpdateItemRequest) (*menuPb.UpdateItemResponse, error) {
 	res, err := s.service.UpdateItem(ctx, pkg.ItemRequest{
 		ItemId:      req.ItemId,
@@ -170,6 +194,20 @@ func (s *gRPCserver) UpdateItem(ctx context.Context, req *menuPb.UpdateItemReque
 		return nil, err
 	}
 	return &menuPb.UpdateItemResponse{
+		Success: res,
+	}, nil
+}
+
+func (s *gRPCserver) UpdateItemAvailable(ctx context.Context, req *menuPb.UpdateItemAvailableRequest) (*menuPb.UpdateItemAvailableResponse, error) {
+	res, err := s.service.UpdateItemAvailable(ctx, pkg.UpdateItemAvailableRequest{
+		ItemId:      req.ItemId,
+		ShopId:      req.ShopId,
+		IsAvailable: req.IsAvailable,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &menuPb.UpdateItemAvailableResponse{
 		Success: res,
 	}, nil
 }
@@ -204,6 +242,31 @@ func (s *gRPCserver) CreateMenuItem(ctx context.Context, req *menuPb.CreateMenuI
 
 func (s *gRPCserver) GetMenuItems(ctx context.Context, req *menuPb.GetMenuItemsRequest) (*menuPb.GetMenuItemsResponse, error) {
 	pkgItems, err := s.service.GetMenuItems(ctx, req.MenuId)
+	if err != nil {
+		return nil, err
+	}
+	items := []*menuPb.Item{}
+	for _, pkgItem := range pkgItems {
+		item := menuPb.Item{
+			ItemId:      pkgItem.ItemId,
+			ShopId:      pkgItem.ShopId,
+			Name:        pkgItem.Name,
+			Description: pkgItem.Description,
+			Category:    pkgItem.Category,
+			Veg:         pkgItem.Veg,
+			Price:       pkgItem.Price,
+			Image:       pkgItem.Image,
+			IsAvailable: pkgItem.IsAvailable,
+		}
+		items = append(items, &item)
+	}
+	return &menuPb.GetMenuItemsResponse{
+		Items: items,
+	}, nil
+}
+
+func (s *gRPCserver) GetMenuItemsAdmin(ctx context.Context, req *menuPb.GetMenuItemsRequest) (*menuPb.GetMenuItemsResponse, error) {
+	pkgItems, err := s.service.GetMenuItemsAdmin(ctx, req.MenuId)
 	if err != nil {
 		return nil, err
 	}

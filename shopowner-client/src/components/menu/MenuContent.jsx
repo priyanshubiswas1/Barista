@@ -1,10 +1,34 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CaretDown, DotsThree } from "phosphor-react";
 
 import { useState } from "react";
+import { updateItemAvailable } from "../../api/api";
+import { toast } from "react-toastify";
 
-const Toggle = () => {
-  const [isOn, setIsOn] = useState(false);
-  const toggleSwitch = () => setIsOn(!isOn);
+const Toggle = ({ itemId, isAvailable }) => {
+  const queryClient = useQueryClient();
+  const updateAvailability = useMutation({
+    mutationFn: updateItemAvailable,
+    onSuccess: () => {
+      toast("Availability has been updated");
+      queryClient.invalidateQueries({ queryKey: ["menuItems"] });
+    },
+    onError: (error) => {
+      console.log("Availability update failed: ", error);
+      toast.error("Failed to update availability. Please try again.");
+    },
+  });
+
+  const [isOn, setIsOn] = useState(isAvailable);
+  const toggleSwitch = () => {
+    const newValue = !isOn;
+    setIsOn(newValue);
+    updateAvailability.mutate({
+      itemId: itemId,
+      shopId: localStorage.getItem("shopId"),
+      available: newValue,
+    });
+  };
 
   return (
     <div className="flex justify-center items-center">
@@ -93,7 +117,7 @@ const MenuContentBody = ({ items }) => {
               {/* Availability */}
               <td>
                 <div className="flex items-center">
-                  <Toggle />
+                  <Toggle itemId={item.itemId} isAvailable={item.available} />
                 </div>
               </td>
 

@@ -166,6 +166,14 @@ type UpdateItemRequest struct {
 type UpdateItemResponse struct {
 	Success bool `json:"success"`
 }
+type UpdateItemAvailableRequest struct {
+	ItemId    string `json:"itemId"`
+	ShopId    string `json:"shopId"`
+	Available bool   `json:"available"`
+}
+type UpdateItemAvailableResponse struct {
+	Success bool `json:"success"`
+}
 type DeleteItemResponse struct {
 	Success bool `json:"success"`
 }
