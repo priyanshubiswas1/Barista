@@ -83,6 +83,7 @@ const ManageCategory = ({ header }) => {
       setEditingCategoryId(null);
       setEditItemName("");
       queryClient.invalidateQueries({ queryKey: ["categoryItems"] });
+      queryClient.invalidateQueries({ queryKey: ["menuItems"] });
     },
     onError: () => {
       alert("Update failed");

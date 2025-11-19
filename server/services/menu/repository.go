@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"log"
 	"time"
 
 	_ "github.com/lib/pq"
@@ -521,9 +522,10 @@ func (r *postgresRepository) CreateCategory(ctx context.Context, id, shopId, nam
 }
 
 func (r *postgresRepository) UpdateCategory(ctx context.Context, id, shopId, name string) error {
+	log.Println("NAME REPO: ", name)
 	query := `UPDATE category
 			SET name=$3
-			WHERE id=$1,shop_id=$2,
+			WHERE id=$1 AND shop_id=$2
 			`
 	rows, err := r.db.ExecContext(ctx, query, id, shopId, name)
 	if err != nil {
@@ -533,7 +535,7 @@ func (r *postgresRepository) UpdateCategory(ctx context.Context, id, shopId, nam
 	if err != nil {
 		return err
 	} else if rowsAffected == 0 {
-		return errors.New("failed to insert")
+		return errors.New("failed to update")
 	}
 	return nil
 }

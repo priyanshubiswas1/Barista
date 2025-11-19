@@ -3,6 +3,7 @@ package menu
 import (
 	"context"
 	"fmt"
+	"log"
 	"net"
 
 	"github.com/priyanshubiswas1/barista/menuservice/pkg"
@@ -346,6 +347,7 @@ func (s *gRPCserver) GetCategory(ctx context.Context, req *menuPb.GetCategoryReq
 }
 
 func (s *gRPCserver) UpdateCategory(ctx context.Context, req *menuPb.UpdateCategoryRequest) (*menuPb.UpdateCategoryResponse, error) {
+	log.Println("NAME SERVER: ", req.Name)
 	category, err := s.service.UpdateCategory(ctx, pkg.Category{
 		Id:     req.CategoryId,
 		ShopId: req.ShopId,

@@ -3,6 +3,7 @@ package menu
 import (
 	"context"
 	"errors"
+	"log"
 	"time"
 
 	"github.com/google/uuid"
@@ -215,6 +216,7 @@ func (s *service) CreateCategory(ctx context.Context, category pkg.Category) (pk
 }
 
 func (s *service) UpdateCategory(ctx context.Context, category pkg.Category) (pkg.Category, error) {
+	log.Println("NAME SERVICE: ", category.Name)
 	if err := s.repository.UpdateCategory(ctx, category.Id, category.ShopId, category.Name); err != nil {
 		return pkg.Category{}, nil
 	}
