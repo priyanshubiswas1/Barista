@@ -1,9 +1,11 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CaretDown, DotsThree } from "phosphor-react";
 
-import { useState } from "react";
-import { updateItemAvailable } from "../../api/api";
+import { useState, useRef, useEffect } from "react";
+import { deleteItemById, updateItemAvailable } from "../../api/api";
 import { toast } from "react-toastify";
+import { useOverlay } from "../../store/overlayStore";
+import { Overlays } from "../../constants/constants";
 
 const Toggle = ({ itemId, isAvailable }) => {
   const queryClient = useQueryClient();
@@ -57,6 +59,92 @@ const MenuContentHeader = ({ category, count }) => {
         {count}
       </div>
       <DotsThree size={16} weight="bold" className="text-gray-500" />
+    </div>
+  );
+};
+
+const ItemActions = ({ item }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
+  const buttonRef = useRef(null);
+  const queryClient = useQueryClient();
+
+  const { setOverlay } = useOverlay();
+
+  // Delete mutation - hooks must be at top level
+  const deleteItemMutation = useMutation({
+    mutationFn: deleteItemById,
+    onSuccess: () => {
+      toast("Item deleted");
+      queryClient.invalidateQueries({ queryKey: ["menuItems"] });
+    },
+    onError: (error) => {
+      console.log("Delete item failed: ", error);
+      toast.error("Failed to delete item. Please try again.");
+    },
+  });
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target) &&
+        buttonRef.current &&
+        !buttonRef.current.contains(event.target)
+      ) {
+        setIsOpen(false);
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isOpen]);
+
+  const handleEdit = () => {
+    setIsOpen(false);
+    setOverlay(Overlays.UPDATEITEM, item);
+  };
+
+  const handleDelete = () => {
+    setIsOpen(false);
+    deleteItemMutation.mutate({ itemId: item.itemId });
+  };
+
+  return (
+    <div className="relative">
+      <div
+        ref={buttonRef}
+        onClick={() => setIsOpen(!isOpen)}
+        className="cursor-pointer"
+      >
+        <DotsThree size={16} weight="bold" className="text-gray-500" />
+      </div>
+
+      {isOpen && (
+        <div
+          ref={dropdownRef}
+          className="absolute right-0 top-6 z-50 bg-white border border-gray-200 rounded-md shadow-lg min-w-[120px] overflow-hidden"
+        >
+          <button
+            onClick={handleEdit}
+            className="w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left transition-colors"
+          >
+            Edit
+          </button>
+          <button
+            onClick={handleDelete}
+            className="w-full px-4 py-2 text-sm text-red-700 bg-red-100 hover:bg-red-200 text-left transition-colors"
+          >
+            Delete
+          </button>
+        </div>
+      )}
     </div>
   );
 };
@@ -123,7 +211,7 @@ const MenuContentBody = ({ items }) => {
 
               {/* Actions */}
               <td>
-                <DotsThree size={16} weight="bold" className="text-gray-500" />
+                <ItemActions item={item} />
               </td>
             </tr>
           ))}

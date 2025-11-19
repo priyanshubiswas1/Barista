@@ -11,9 +11,10 @@ const SearchableSelect = ({
   helperText = "",
   error = false,
   disabled = false,
+  defaultValue = "",
 }) => {
   const [options, setOptions] = useState(initialOptions);
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(defaultValue);
   const [isOpen, setIsOpen] = useState(false);
   const wrapperRef = useRef(null);
 
@@ -21,6 +22,13 @@ const SearchableSelect = ({
   useEffect(() => {
     setOptions(initialOptions);
   }, [initialOptions]);
+
+  // Sync query with defaultValue when it changes
+  useEffect(() => {
+    if (defaultValue) {
+      setQuery(defaultValue);
+    }
+  }, [defaultValue]);
 
   // Close dropdown when clicking outside
   useEffect(() => {

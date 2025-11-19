@@ -10,6 +10,7 @@ export const Tabs = {
 
 export const Overlays = {
     ADDITEM: 'AddItem',
+    UPDATEITEM: 'UpdateItem',
     MANAGECAT: 'ManageCategory',
     CREATETABLE: 'CreateTable',
     FILTER: 'Filter',

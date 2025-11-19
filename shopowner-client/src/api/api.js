@@ -79,12 +79,17 @@ export const addItem = async ({ name, shopId, categoryId, price, veg }) => {
 }
 
 export const updateItem = async ({ itemId, shopId, itemName, categoryId, price, veg }) => {
-    const response = await api.put(`/item`, { itemId: itemId, shopId: shopId, name: itemName, description: "test", categoryId: categoryId, veg: veg, price: price, image: "url", available: true });
+    const response = await api.put(`/item`, { itemId: itemId, shopId: shopId, itemName: itemName, description: "test", categoryId: categoryId, veg: veg, price: price, image: "url", available: true });
     return response.status === 200 ? response.data : null
 }
 
 export const updateItemAvailable = async ({ itemId, shopId, available }) => {
     const response = await api.put(`/item-available`, { itemId: itemId, shopId: shopId, available: available });
+    return response.status === 200 ? response.data : null
+}
+
+export const deleteItemById = async ({ itemId }) => {
+    const response = await api.delete(`/item/${itemId}`);
     return response.status === 200 ? response.data : null
 }
 
