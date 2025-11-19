@@ -27,6 +27,7 @@ type IService interface {
 	DeleteMenuItem(ctx context.Context, menuId, itemId string) (bool, error)
 	DeleteMenuItems(ctx context.Context, menuId string) (bool, error)
 	CreateCategory(ctx context.Context, category pkg.Category) (pkg.Category, error)
+	UpdateCategory(ctx context.Context, category pkg.Category) (pkg.Category, error)
 	GetCategories(ctx context.Context, shopId string) ([]pkg.Category, error)
 	GetCategoriesWithItem(ctx context.Context, shopId string) ([]pkg.CategoryWithItems, error)
 	DeleteCategory(ctx context.Context, id, shopId string) (bool, error)
@@ -204,6 +205,17 @@ func (s *service) DeleteMenuItems(ctx context.Context, menuId string) (bool, err
 func (s *service) CreateCategory(ctx context.Context, category pkg.Category) (pkg.Category, error) {
 	category.Id = uuid.New().String()
 	if err := s.repository.CreateCategory(ctx, category.Id, category.ShopId, category.Name); err != nil {
+		return pkg.Category{}, nil
+	}
+	return pkg.Category{
+		Id:     category.Id,
+		ShopId: category.ShopId,
+		Name:   category.Name,
+	}, nil
+}
+
+func (s *service) UpdateCategory(ctx context.Context, category pkg.Category) (pkg.Category, error) {
+	if err := s.repository.UpdateCategory(ctx, category.Id, category.ShopId, category.Name); err != nil {
 		return pkg.Category{}, nil
 	}
 	return pkg.Category{

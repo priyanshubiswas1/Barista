@@ -8,12 +8,13 @@ import {
   createCategory,
   deleteCategoryByCategoryId,
   fetchCategoryItemsByShopId,
+  updateCategory,
 } from "../../api/api";
 import Input from "../Input";
 import { useState } from "react";
 import Button from "../Button";
 
-const CategoryItem = ({ name, id, count, onDelete }) => {
+const CategoryItem = ({ name, id, count, onDelete, onEdit }) => {
   return (
     <div className="w-full">
       <div className="flex justify-between items-center px-8 py-3 border-b-1 border-gray-200">
@@ -27,6 +28,7 @@ const CategoryItem = ({ name, id, count, onDelete }) => {
           <PencilSimple
             size={16}
             className="hover:text-gray-800 cursor-pointer"
+            onClick={() => onEdit(id, name)}
           />
           <TrashSimple
             size={16}
@@ -50,6 +52,8 @@ const ManageCategory = ({ header }) => {
 
   const [addCategory, setAddCategory] = useState(false);
   const [addItemName, setAddItemName] = useState("");
+  const [editingCategoryId, setEditingCategoryId] = useState(null);
+  const [editItemName, setEditItemName] = useState("");
 
   const createMutation = useMutation({
     mutationFn: createCategory,
@@ -72,6 +76,19 @@ const ManageCategory = ({ header }) => {
     },
   });
 
+  const updateMutation = useMutation({
+    mutationFn: updateCategory,
+    onSuccess: () => {
+      alert("Category updated✅");
+      setEditingCategoryId(null);
+      setEditItemName("");
+      queryClient.invalidateQueries({ queryKey: ["categoryItems"] });
+    },
+    onError: () => {
+      alert("Update failed");
+    },
+  });
+
   const handleSubmit = (e) => {
     e.preventDefault();
     createMutation.mutate({
@@ -85,6 +102,25 @@ const ManageCategory = ({ header }) => {
       categoryId: id,
       shopId: localStorage.getItem("shopId"),
     });
+  };
+
+  const handleEditCategory = (id, name) => {
+    setEditingCategoryId(id);
+    setEditItemName(name);
+  };
+
+  const handleUpdateSubmit = (e) => {
+    e.preventDefault();
+    updateMutation.mutate({
+      name: editItemName,
+      shopId: localStorage.getItem("shopId"),
+      categoryId: editingCategoryId,
+    });
+  };
+
+  const handleCancelEdit = () => {
+    setEditingCategoryId(null);
+    setEditItemName("");
   };
 
   if (isLoading) return <p>Loading items...</p>;
@@ -108,13 +144,43 @@ const ManageCategory = ({ header }) => {
       <div className="flex flex-col w-full h-full">
         <div className="pt-6">
           {categories.map((category, index) => (
-            <CategoryItem
-              key={index}
-              name={category.name}
-              id={category.categoryId}
-              count={category.items.length}
-              onDelete={handleDeleteCategory}
-            />
+            <div key={index}>
+              {editingCategoryId === category.categoryId ? (
+                <form
+                  onSubmit={handleUpdateSubmit}
+                  className="flex justify-between items-center gap-3 px-8 py-2"
+                >
+                  <Input
+                    label="New Category Name"
+                    type="text"
+                    name="edit category"
+                    placeholder="Enter category name"
+                    value={editItemName}
+                    onChange={(e) => setEditItemName(e.target.value)}
+                  />
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleCancelEdit}
+                    >
+                      Cancel
+                    </Button>
+                    <Button type="submit" variant="primary">
+                      {updateMutation.isPending ? "Saving..." : "Save"}
+                    </Button>
+                  </div>
+                </form>
+              ) : (
+                <CategoryItem
+                  name={category.name}
+                  id={category.categoryId}
+                  count={category.items.length}
+                  onDelete={handleDeleteCategory}
+                  onEdit={handleEditCategory}
+                />
+              )}
+            </div>
           ))}
         </div>
         <div className="pt-3">

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { X } from "phosphor-react";
 import { useOverlay } from "../../store/overlayStore";
@@ -44,22 +44,29 @@ const UpdateItem = ({ header, item }) => {
   });
 
   const queryClient = useQueryClient();
+  const initializedItemIdRef = useRef(null);
 
   // Populate form when item is provided, or reset when item is null
+  // Only initialize when item changes, not when data refetches
   useEffect(() => {
     if (item && data?.categories) {
-      const categories = data.categories;
-      const nameToId = Object.fromEntries(
-        categories.map((c) => [c.name, c.categoryId])
-      );
-      
-      setFormData({
-        name: item.itemName || "",
-        categoryId: nameToId[item.category] || "",
-        price: item.price || 0.0,
-      });
-      setSelected(item.veg ? "veg" : "nonveg");
-      setSelectedCategoryName(item.category || "");
+      const currentItemId = item.itemId;
+      // Only initialize if this is a different item or hasn't been initialized yet
+      if (initializedItemIdRef.current !== currentItemId) {
+        const categories = data.categories;
+        const nameToId = Object.fromEntries(
+          categories.map((c) => [c.name, c.categoryId])
+        );
+
+        setFormData({
+          name: item.itemName || "",
+          categoryId: nameToId[item.category] || "",
+          price: item.price || 0.0,
+        });
+        setSelected(item.veg ? "veg" : "nonveg");
+        setSelectedCategoryName(item.category || "");
+        initializedItemIdRef.current = currentItemId;
+      }
     } else if (!item) {
       // Reset form when no item (add mode)
       setFormData({
@@ -69,6 +76,7 @@ const UpdateItem = ({ header, item }) => {
       });
       setSelected("veg");
       setSelectedCategoryName("");
+      initializedItemIdRef.current = null;
     }
   }, [item, data]);
 
@@ -87,7 +95,9 @@ const UpdateItem = ({ header, item }) => {
     },
     onError: (error) => {
       console.log(`${isEditing ? "Update" : "Add"} Item failed: `, error);
-      toast.error(`Failed to ${isEditing ? "update" : "add"} item. Please try again.`);
+      toast.error(
+        `Failed to ${isEditing ? "update" : "add"} item. Please try again.`
+      );
     },
   });
 
@@ -96,10 +106,10 @@ const UpdateItem = ({ header, item }) => {
     onSuccess: (res) => {
       const newCat = res?.category || res;
       toast("Category added✅");
-      setSelectedCategoryName(newCat.name);
-      setFormData((prev) => ({ ...prev, categoryId: newCat.categoryId }));
       queryClient.invalidateQueries({ queryKey: ["categories"] });
       queryClient.invalidateQueries({ queryKey: ["categoryItems"] });
+      setSelectedCategoryName(newCat.name);
+      setFormData((prev) => ({ ...prev, categoryId: newCat.categoryId }));
     },
     onError: () => {
       toast("Failed to add category");

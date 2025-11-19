@@ -68,6 +68,11 @@ export const createCategory = async ({ name, shopId }) => {
     return response.status === 200 ? response.data : null
 }
 
+export const updateCategory = async ({ name, shopId, categoryId }) => {
+    const response = await api.put(`/category`, { name: name, shopId: shopId, categoryId: categoryId });
+    return response.status === 200 ? response.data : null
+}
+
 export const fetchItemsByShopId = async (id) => {
     const response = await api.get(`/items/${id}/admin`);
     return response.status === 200 ? response.data : null

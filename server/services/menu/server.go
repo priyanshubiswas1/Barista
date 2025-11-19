@@ -345,6 +345,24 @@ func (s *gRPCserver) GetCategory(ctx context.Context, req *menuPb.GetCategoryReq
 	}, nil
 }
 
+func (s *gRPCserver) UpdateCategory(ctx context.Context, req *menuPb.UpdateCategoryRequest) (*menuPb.UpdateCategoryResponse, error) {
+	category, err := s.service.UpdateCategory(ctx, pkg.Category{
+		Id:     req.CategoryId,
+		ShopId: req.ShopId,
+		Name:   req.Name,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &menuPb.UpdateCategoryResponse{
+		Category: &menuPb.Category{
+			Id:     category.Id,
+			ShopId: category.ShopId,
+			Name:   category.Name,
+		},
+	}, nil
+}
+
 func (s *gRPCserver) GetCategoryWithItems(ctx context.Context, req *menuPb.GetCategoryRequest) (*menuPb.GetCategoryWithItemsResponse, error) {
 	pkgCategories, err := s.service.GetCategoriesWithItem(ctx, req.ShopId)
 	if err != nil {

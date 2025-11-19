@@ -37,6 +37,7 @@ type IMenuClient interface {
 
 	//MENU-ITEMS
 	CreateCategory(ctx context.Context, w http.ResponseWriter, r *http.Request) error
+	UpdateCategory(ctx context.Context, w http.ResponseWriter, r *http.Request) error
 	GetCategories(ctx context.Context, w http.ResponseWriter, r *http.Request) error
 	GetCategoriesWithItems(ctx context.Context, w http.ResponseWriter, r *http.Request) error
 	DeleteCategory(ctx context.Context, w http.ResponseWriter, r *http.Request) error
@@ -434,6 +435,28 @@ func (c *MenuClient) CreateCategory(ctx context.Context, w http.ResponseWriter, 
 	res, err := c.service.CreateCategory(ctx, &menu.CreateCategoryRequest{
 		ShopId: req.ShopId,
 		Name:   req.Name,
+	})
+	if err != nil {
+		return err
+	}
+	return pkg.WriteJSON(w, http.StatusOK, pkg.CreateCategoryResponse{
+		Category: pkg.Category{
+			CategoryId: res.Category.Id,
+			ShopId:     res.Category.ShopId,
+			Name:       res.Category.Name,
+		},
+	})
+}
+
+func (c *MenuClient) UpdateCategory(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+	req := pkg.Category{}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		return err
+	}
+	res, err := c.service.UpdateCategory(ctx, &menu.UpdateCategoryRequest{
+		CategoryId: req.CategoryId,
+		ShopId:     req.ShopId,
+		Name:       req.Name,
 	})
 	if err != nil {
 		return err

@@ -30,6 +30,7 @@ type IRepository interface {
 	DeleteMenuItems(ctx context.Context, menuId string) (bool, error)
 	GetCategoryName(ctx context.Context, categoryId, shopId string) (string, error)
 	CreateCategory(ctx context.Context, id, shopId, name string) error
+	UpdateCategory(ctx context.Context, id, shopId, name string) error
 	GetCategories(ctx context.Context, shopId string) ([]pkg.Category, error)
 	GetCategoriesWithItem(ctx context.Context, shopId string) ([]pkg.CategoryWithItems, error)
 	DeleteCategory(ctx context.Context, id, shopId string) (bool, error)
@@ -505,6 +506,24 @@ func (r *postgresRepository) CreateCategory(ctx context.Context, id, shopId, nam
 	query := `INSERT INTO category
 			(id,shop_id,name)
 			VALUES ($1,$2,$3)
+			`
+	rows, err := r.db.ExecContext(ctx, query, id, shopId, name)
+	if err != nil {
+		return err
+	}
+	rowsAffected, err := rows.RowsAffected()
+	if err != nil {
+		return err
+	} else if rowsAffected == 0 {
+		return errors.New("failed to insert")
+	}
+	return nil
+}
+
+func (r *postgresRepository) UpdateCategory(ctx context.Context, id, shopId, name string) error {
+	query := `UPDATE category
+			SET name=$3
+			WHERE id=$1,shop_id=$2,
 			`
 	rows, err := r.db.ExecContext(ctx, query, id, shopId, name)
 	if err != nil {

@@ -36,6 +36,8 @@ github.com/priyanshubiswas1/baristacontracts v1.5.5 h1:icUsvJHZtPQ6AagdZNfQUn7xf
 github.com/priyanshubiswas1/baristacontracts v1.5.5/go.mod h1:N7UXzkHyyqBCbe1qs0+IzVgTVKK88rBUx2WiJIM1FVc=
 github.com/priyanshubiswas1/baristacontracts v1.5.6 h1:a1f+gKFr8+eWBtgx7WUvTPX4caWx322TFJg45q7Eg6A=
 github.com/priyanshubiswas1/baristacontracts v1.5.6/go.mod h1:N7UXzkHyyqBCbe1qs0+IzVgTVKK88rBUx2WiJIM1FVc=
+github.com/priyanshubiswas1/baristacontracts v1.5.7 h1:545MmD3o1S9BFtuP8V5IQTc972eoUz8L5v3nY/qWAe8=
+github.com/priyanshubiswas1/baristacontracts v1.5.7/go.mod h1:N7UXzkHyyqBCbe1qs0+IzVgTVKK88rBUx2WiJIM1FVc=
 github.com/tinrab/retry v1.0.0 h1:u1x0cMZszwG44AaEeH8xx3Z1guNt8syzULeOsDhzg9s=
 github.com/tinrab/retry v1.0.0/go.mod h1:PWRlqYOz5dCyuZbxKhtQ60GN6OwSLwMxnjMqof4LIso=
 go.opentelemetry.io/auto/sdk v1.1.0 h1:cH53jehLUN6UFLY71z+NDOiNJqDdPRaXzTel0sJySYA=
