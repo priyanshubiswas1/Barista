@@ -43,10 +43,10 @@ func (r *postgresRepository) Close() error {
 }
 
 func (r *postgresRepository) GetOrdersBySessionId(ctx context.Context, sessionId string) ([]pkg.OrderItems, error) {
-	query := `SELECT oi.id, oi.order_id, oi.item_id, oi.quantity, oi.price_at_order_time, o.status
+	query := `SELECT oi.id, oi.order_id, o.order_number, oi.item_id, oi.quantity, oi.price_at_order_time, o.status
 				FROM order_item oi
 				JOIN "order" o ON oi.order_id = o.id
-				WHERE o.session_id = $1;
+				WHERE o.session_id = $1 AND o.status <> 'cancelled';
 			`
 	rows, err := r.db.QueryContext(ctx, query, sessionId)
 	if err != nil {
@@ -58,6 +58,7 @@ func (r *postgresRepository) GetOrdersBySessionId(ctx context.Context, sessionId
 		orderItem := pkg.OrderItems{}
 		if err := rows.Scan(&orderItem.Id,
 			&orderItem.OrderId,
+			&orderItem.OrderNumber,
 			&orderItem.ItemId,
 			&orderItem.Quantity,
 			&orderItem.PriceAtOrderTime,
@@ -70,7 +71,7 @@ func (r *postgresRepository) GetOrdersBySessionId(ctx context.Context, sessionId
 }
 
 func (r *postgresRepository) GetOrderById(ctx context.Context, orderId string) ([]pkg.OrderItems, error) {
-	query := `SELECT oi.id,oi.order_id,oi.item_id,oi.quantity,oi.price_at_order_time,o.status
+	query := `SELECT oi.id,oi.order_id,o.order_number,oi.item_id,oi.quantity,oi.price_at_order_time,o.status
 				FROM order_item oi 
 				JOIN "order" o ON oi.order_id = o.id
 				WHERE o.id = $1
@@ -85,6 +86,7 @@ func (r *postgresRepository) GetOrderById(ctx context.Context, orderId string) (
 		orderItem := pkg.OrderItems{}
 		if err := rows.Scan(&orderItem.Id,
 			&orderItem.OrderId,
+			&orderItem.OrderNumber,
 			&orderItem.ItemId,
 			&orderItem.Quantity,
 			&orderItem.PriceAtOrderTime,
@@ -118,7 +120,7 @@ func (r *postgresRepository) CreateOrder(ctx context.Context, id, sessionId, spe
 		INSERT INTO "order" (id, session_id, order_number, status, special_notes, active, created_at, updated_at)
 		VALUES ($1, $2, COALESCE((SELECT max_order_number + 1 FROM last_order), 1), $3, $4, $5, $6, $7)
 	`
-	res, err := tx.ExecContext(ctx, query, id, sessionId, "pending", specialNotes, true, createdAt, createdAt)
+	res, err := tx.ExecContext(ctx, query, id, sessionId, "new", specialNotes, true, createdAt, createdAt)
 	if err != nil {
 		txErr = err
 		return pkg.CreateOrderRes{}, err
@@ -158,7 +160,7 @@ func (r *postgresRepository) CreateOrder(ctx context.Context, id, sessionId, spe
 			ItemId:           oi.ItemId,
 			Quantity:         oi.Quantity,
 			PriceAtOrderTime: oi.PriceAtOrderTime,
-			OrderStatus:      "pending",
+			OrderStatus:      "new",
 		})
 	}
 
@@ -166,7 +168,7 @@ func (r *postgresRepository) CreateOrder(ctx context.Context, id, sessionId, spe
 		Order: pkg.Order{
 			Id:           id,
 			SessionId:    sessionId,
-			OrderStatus:  "pending",
+			OrderStatus:  "new",
 			SpecialNotes: specialNotes,
 		},
 		OrderItems: newOrderItems,

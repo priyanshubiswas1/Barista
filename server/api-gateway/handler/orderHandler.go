@@ -74,6 +74,7 @@ func (c *OrderClient) GetOrdersBySessionId(ctx context.Context, w http.ResponseW
 		orderItems = append(orderItems, pkg.OrderItems{
 			Id:               oi.OrderItemId,
 			OrderId:          oi.OrderId,
+			OrderNumber:      oi.OrderNumber,
 			ItemId:           oi.ItemId,
 			Quantity:         oi.Quantity,
 			PriceAtOrderTime: oi.PriceAtOrderTime,
@@ -104,6 +105,7 @@ func (c *OrderClient) GetOrderById(ctx context.Context, w http.ResponseWriter, r
 		orderItems = append(orderItems, pkg.OrderItems{
 			Id:               oi.OrderItemId,
 			OrderId:          oi.OrderId,
+			OrderNumber:      oi.OrderNumber,
 			ItemId:           oi.ItemId,
 			Quantity:         oi.Quantity,
 			PriceAtOrderTime: oi.PriceAtOrderTime,

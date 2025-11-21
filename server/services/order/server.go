@@ -39,6 +39,7 @@ func (s *gRPCserver) GetOrdersBySessionId(ctx context.Context, req *order.GetOrd
 		orderItems = append(orderItems, &order.OrderItem{
 			OrderItemId:      oi.Id,
 			OrderId:          oi.OrderId,
+			OrderNumber:      oi.OrderNumber,
 			ItemId:           oi.ItemId,
 			Quantity:         oi.Quantity,
 			PriceAtOrderTime: oi.PriceAtOrderTime,
@@ -61,6 +62,7 @@ func (s *gRPCserver) GetOrderById(ctx context.Context, req *order.GetOrderByIdRe
 		orderItems = append(orderItems, &order.OrderItem{
 			OrderItemId:      oi.Id,
 			OrderId:          oi.OrderId,
+			OrderNumber:      oi.OrderNumber,
 			ItemId:           oi.ItemId,
 			Quantity:         oi.Quantity,
 			PriceAtOrderTime: oi.PriceAtOrderTime,

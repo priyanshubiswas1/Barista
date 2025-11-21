@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { IoFilter } from "react-icons/io5";
 import { Plus } from "phosphor-react";
-import { FaEllipsis } from "react-icons/fa6";
 import { LuCirclePlus } from "react-icons/lu";
 import { FaArrowRightLong } from "react-icons/fa6";
 import { Overlays, Tabs } from "../constants/constants";
@@ -32,7 +31,7 @@ const OrderSubHeader = ({ onAddNewOrderClick }) => {
   );
 };
 
-const OrderCard = ({ orderId, orderItems, index }) => {
+const OrderCard = ({ orderId, orderItems, index, onClick }) => {
   const totalQuantity = orderItems.reduce((sum, item) => {
     return sum + item.quantity;
   }, 0);
@@ -40,15 +39,18 @@ const OrderCard = ({ orderId, orderItems, index }) => {
     return sum + item.priceAtOrderTime * item.quantity;
   }, 0);
   return (
-    <div className="bg-white border-2 p-3 border-gray-200 hover:border-gray-300 rounded-xl">
+    <button
+      type="button"
+      onClick={onClick}
+      className="bg-white border-2 p-3 border-gray-200 hover:border-gray-300 rounded-xl text-left w-full"
+    >
       <div className="flex justify-between items-center">
-        <h1 className="font-semibold text-xl">Order {index}</h1>
-        <FaEllipsis className="text-gray-500" />
+        <h1 className="font-semibold text-xl">Order {orderId}</h1>
       </div>
       <div className="pt-3">
-        <button className="bg-blue-400 text-white font-semibold rounded-md flex items-center justify-center px-4 py-0.5">
+        <div className="bg-blue-400 text-white font-semibold rounded-md flex items-center justify-center px-4 py-0.5 w-fit">
           new
-        </button>
+        </div>
         <div className="pt-3 font-medium">
           <div className="flex justify-between">
             <h2 className="text-gray-500">Items</h2>
@@ -60,7 +62,7 @@ const OrderCard = ({ orderId, orderItems, index }) => {
           </div>
         </div>
       </div>
-    </div>
+    </button>
   );
 };
 
@@ -71,6 +73,8 @@ const TableCard = ({ session }) => {
     queryKey: ["order-items", session.tableId],
     queryFn: () => fetchOrdersBySessionId(session.sessionId),
   });
+
+  const { setOverlay } = useOverlay();
 
   useEffect(() => {
     const ws = new WebSocket(
@@ -114,6 +118,24 @@ const TableCard = ({ session }) => {
   }, {});
   console.log(groupedOrders);
 
+  const handleOrderClick = (orderId, items) => {
+    console.log(items);
+    const firstItem = items[0] || {};
+    setOverlay(Overlays.ORDERDETAILS, {
+      orderId: items[0].orderNumber,
+      sessionId: session.sessionId,
+      tableId: session.tableId,
+      tableNumber: session.tableNumber,
+      orderItems: items,
+      status: firstItem.orderStatus || firstItem.status || "new",
+      createdAt:
+        firstItem.createdAt ||
+        firstItem.orderCreatedAt ||
+        firstItem.placedAt ||
+        null,
+    });
+  };
+
   return (
     <div className="bg-white w-[25%] p-3 border-2 border-gray-200 hover:border-gray-300 rounded-xl flex flex-col">
       <h1 className="text-gray-500 text-xl px-3 font-semibold">
@@ -123,14 +145,18 @@ const TableCard = ({ session }) => {
         {Object.entries(groupedOrders).map(([orderId, items], index) => (
           <OrderCard
             key={orderId}
-            orderId={orderId}
+            orderId={items[0].orderNumber}
             orderItems={items}
             index={index}
+            onClick={() => handleOrderClick(orderId, items)}
           />
         ))}
       </div>
       <div className="flex flex-col pt-3 gap-3">
-        <button className="flex items-center justify-center border-1 border-gray-200 rounded-xl hover:border-gray-300 text-gray-500 text-xl gap-3 py-3.5">
+        <button
+          onClick={() => setOverlay(Overlays.CREATEORDER)}
+          className="flex items-center justify-center border-1 border-gray-200 rounded-xl hover:border-gray-300 text-gray-500 text-xl gap-3 py-3.5"
+        >
           <LuCirclePlus />
           <h2 className="font-medium">Add New Order</h2>
         </button>

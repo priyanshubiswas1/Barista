@@ -173,6 +173,10 @@ func (s *service) CreateOrderAdmin(ctx context.Context, order pkg.OrderAdminReq)
 }
 
 func (s *service) UpdateOrder(ctx context.Context, orderId, orderStatus string) bool {
+	if orderStatus != "new" && orderStatus != "preparing" && orderStatus != "ready" && orderStatus != "cancelled" {
+		log.Println("invalid order status")
+		return false
+	}
 	if err := s.repository.UpdateOrder(ctx, orderId, orderStatus, time.Now()); err != nil {
 		log.Println("failed to UpdateOrder error: ", err)
 		return false

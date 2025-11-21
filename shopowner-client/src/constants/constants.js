@@ -17,4 +17,5 @@ export const Overlays = {
     FILTER: 'Filter',
     CREATEORDER: 'CreateOrder',
     GENERATEBILL: 'GenerateBill',
+    ORDERDETAILS: 'OrderDetails',
 };

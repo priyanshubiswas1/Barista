@@ -6,6 +6,7 @@ import AddTable from "./AddTable.jsx";
 import AddNewOrder from "./AddNewOrder.jsx";
 import UpdateItem from "./UpdateItem.jsx";
 import UpdateTable from "./UpdateTable.jsx";
+import OrderDetails from "./OrderDetails.jsx";
 
 const overlayHeaders = {
   [Overlays.ADDITEM]: "Add New Item",
@@ -14,6 +15,7 @@ const overlayHeaders = {
   [Overlays.CREATEORDER]: "Add New Order",
   [Overlays.CREATETABLE]: "Add New Table",
   [Overlays.UPDATETABLE]: "Update Table",
+  [Overlays.ORDERDETAILS]: "Order Details",
 };
 
 const OverlayComponent = () => {
@@ -42,6 +44,8 @@ const OverlayComponent = () => {
       );
     case Overlays.CREATEORDER:
       return <AddNewOrder header={header} />;
+    case Overlays.ORDERDETAILS:
+      return <OrderDetails header={header} />;
     default:
       return null;
   }
