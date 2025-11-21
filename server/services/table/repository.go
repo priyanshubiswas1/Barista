@@ -148,7 +148,7 @@ func (r *postgresRepository) DeleteTable(ctx context.Context, tableId, shopId st
 	query := `UPDATE "table"
 			SET active = false
 			WHERE id = $1
-			AND shop_id = $2	
+			AND shop_id = $2 AND table_status = 'free'	
 			`
 	res, err := r.db.ExecContext(ctx, query, tableId, shopId)
 	if err != nil {
