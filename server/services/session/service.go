@@ -23,6 +23,13 @@ type RedisData struct {
 	OTP         string `json:"otp"`
 }
 
+type TableStatus string
+
+const (
+	TableStatusFree     TableStatus = "free"
+	TableStatusOccupied TableStatus = "occupied"
+)
+
 type IService interface {
 	GetAllSessions(ctx context.Context, shopId string) ([]pkg.Session, error)
 	GetActiveSession(ctx context.Context, shopId, tableId string) (pkg.Session, error)
@@ -32,7 +39,7 @@ type IService interface {
 	CreateSession(ctx context.Context, shopId, tableId, status, paymentMethod, otp string, totalAmount float32, isPaid bool, active bool) (string, string, string, error)
 	CreateOrJoinSessionAdmin(ctx context.Context, shopId, tableId, status, paymentMethod, phoneNumber string, totalAmount float32, isPaid bool, active bool) (pkg.Session, string, error)
 	JoinSession(ctx context.Context, shopId, tableId, otp string) (pkg.Session, string, error)
-	UpdateSession(ctx context.Context, id, status, paymentMethod string, totalAmount float32, isPaid bool, active bool) error
+	UpdateSession(ctx context.Context, id, shopId, tableId, status, paymentMethod string, totalAmount float32, isPaid bool, active bool) error
 }
 
 type service struct {
@@ -192,6 +199,11 @@ func (s *service) CreateSession(ctx context.Context, shopId, tableId, status, pa
 		log.Printf("error creating session in history service: %v", err)
 		return "", "", "", err
 	}
+
+	if res, err := s.tableClient.UpdateTableStatus(ctx, tableId, shopId, string(TableStatusOccupied)); err != nil || !res.Success {
+		log.Printf("error updating table status in table service: %v", err)
+		return "", "", "", err
+	}
 	return id, tokenString, phoneNumber, nil
 }
 
@@ -233,6 +245,12 @@ func (s *service) CreateOrJoinSessionAdmin(ctx context.Context, shopId, tableId,
 			log.Printf("error creating session in history service: %v", err)
 			return pkg.Session{}, "", err
 		}
+
+		if res, err := s.tableClient.UpdateTableStatus(ctx, tableId, shopId, string(TableStatusOccupied)); err != nil || !res.Success {
+			log.Printf("error updating table status in table service: %v", err)
+			return pkg.Session{}, "", err
+		}
+
 		return pkg.Session{
 			Id:            id,
 			ShopId:        shopId,
@@ -261,7 +279,7 @@ func (s *service) JoinSession(ctx context.Context, shopId, tableId, otp string) 
 	return res, tokenString, nil
 }
 
-func (s *service) UpdateSession(ctx context.Context, id, status, paymentMethod string, totalAmount float32, isPaid bool, active bool) error {
+func (s *service) UpdateSession(ctx context.Context, id, shopId, tableId, status, paymentMethod string, totalAmount float32, isPaid bool, active bool) error {
 	err := s.repository.UpdateSession(ctx, id, status, paymentMethod, totalAmount, isPaid, active, time.Now())
 	if err != nil {
 		return err
@@ -269,6 +287,10 @@ func (s *service) UpdateSession(ctx context.Context, id, status, paymentMethod s
 	if !active {
 		err := s.historyClient.CloseSession(ctx, id)
 		if err != nil {
+			return err
+		}
+		if res, err := s.tableClient.UpdateTableStatus(ctx, tableId, shopId, string(TableStatusFree)); err != nil || !res.Success {
+			log.Printf("error updating table status in table service: %v", err)
 			return err
 		}
 	}

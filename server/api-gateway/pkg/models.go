@@ -240,6 +240,7 @@ type Table struct {
 	ShopId      string `json:"shopId"`
 	TableNumber string `json:"tableNumber"`
 	QrUrl       string `json:"qrUrl"`
+	Status      string `json:"status"`
 }
 type CreateTableRequest struct {
 	ShopId      string `json:"shopId"`

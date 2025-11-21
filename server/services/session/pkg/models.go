@@ -44,6 +44,10 @@ type GetTableResponse struct {
 	Table Table `json:"table"`
 }
 
+type UpdateTableStatusResponse struct {
+	Success bool `json:"success"`
+}
+
 type OrderedItem struct {
 	OrderItemId string  `json:"orderItemId"`
 	OrderId     string  `json:"orderId"`

@@ -68,6 +68,10 @@ github.com/priyanshubiswas1/baristacontracts v1.5.6 h1:a1f+gKFr8+eWBtgx7WUvTPX4c
 github.com/priyanshubiswas1/baristacontracts v1.5.6/go.mod h1:N7UXzkHyyqBCbe1qs0+IzVgTVKK88rBUx2WiJIM1FVc=
 github.com/priyanshubiswas1/baristacontracts v1.5.7 h1:545MmD3o1S9BFtuP8V5IQTc972eoUz8L5v3nY/qWAe8=
 github.com/priyanshubiswas1/baristacontracts v1.5.7/go.mod h1:N7UXzkHyyqBCbe1qs0+IzVgTVKK88rBUx2WiJIM1FVc=
+github.com/priyanshubiswas1/baristacontracts v1.5.8 h1:rIExlnvdLI57mn/Z4ft93YOZy6ETPovdMvwlwRX1DPI=
+github.com/priyanshubiswas1/baristacontracts v1.5.8/go.mod h1:N7UXzkHyyqBCbe1qs0+IzVgTVKK88rBUx2WiJIM1FVc=
+github.com/priyanshubiswas1/baristacontracts v1.5.9 h1:SvpgMmcn0aIavcnB+TKEdxlLM7873qqNMrJgBjR7xY0=
+github.com/priyanshubiswas1/baristacontracts v1.5.9/go.mod h1:N7UXzkHyyqBCbe1qs0+IzVgTVKK88rBUx2WiJIM1FVc=
 github.com/rs/cors v1.11.1 h1:eU3gRzXLRK57F5rKMGMZURNdIG4EoAmX8k94r9wXWHA=
 github.com/rs/cors v1.11.1/go.mod h1:XyqrcTp5zjWr1wsJ8PIRZssZ8b/WMcMf71DJnit4EMU=
 go.opentelemetry.io/auto/sdk v1.1.0 h1:cH53jehLUN6UFLY71z+NDOiNJqDdPRaXzTel0sJySYA=

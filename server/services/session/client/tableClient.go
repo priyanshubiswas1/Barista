@@ -11,6 +11,7 @@ import (
 
 type ITableClient interface {
 	GetTable(ctx context.Context, tableId, shopId string) (pkg.GetTableResponse, error)
+	UpdateTableStatus(ctx context.Context, tableId, shopId, status string) (pkg.UpdateTableStatusResponse, error)
 }
 
 type TableClient struct {
@@ -44,5 +45,19 @@ func (c *TableClient) GetTable(ctx context.Context, tableId, shopId string) (pkg
 			TableNumber: res.Table.TableNumber,
 			QrUrl:       res.Table.Qr,
 		},
+	}, nil
+}
+
+func (c *TableClient) UpdateTableStatus(ctx context.Context, tableId, shopId, status string) (pkg.UpdateTableStatusResponse, error) {
+	res, err := c.service.UpdateTableStatus(ctx, &table.UpdateTableStatusRequest{
+		TableId: tableId,
+		ShopId:  shopId,
+		Status:  status,
+	})
+	if err != nil {
+		return pkg.UpdateTableStatusResponse{}, err
+	}
+	return pkg.UpdateTableStatusResponse{
+		Success: res.Success,
 	}, nil
 }

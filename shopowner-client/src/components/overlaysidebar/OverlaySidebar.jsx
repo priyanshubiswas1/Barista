@@ -5,6 +5,7 @@ import AddItems from "./AddItems.jsx";
 import AddTable from "./AddTable.jsx";
 import AddNewOrder from "./AddNewOrder.jsx";
 import UpdateItem from "./UpdateItem.jsx";
+import UpdateTable from "./UpdateTable.jsx";
 
 const overlayHeaders = {
   [Overlays.ADDITEM]: "Add New Item",
@@ -30,6 +31,12 @@ const OverlayComponent = () => {
       return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
           <AddTable header={header} />
+        </div>
+      );
+    case Overlays.UPDATETABLE:
+      return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
+          <UpdateTable header={header} />
         </div>
       );
     case Overlays.CREATEORDER:

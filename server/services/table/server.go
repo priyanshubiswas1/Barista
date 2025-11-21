@@ -39,6 +39,7 @@ func (s *gRPCserver) CreateTable(ctx context.Context, req *table.CreateTableRequ
 			Id:          pkgTable.TableId,
 			ShopId:      pkgTable.ShopId,
 			TableNumber: pkgTable.TableNumber,
+			Status:      pkgTable.Status,
 			Qr:          pkgTable.QR,
 		},
 	}, nil
@@ -54,6 +55,7 @@ func (s *gRPCserver) GetTable(ctx context.Context, req *table.GetTableRequest) (
 			Id:          pkgTable.TableId,
 			ShopId:      pkgTable.ShopId,
 			TableNumber: pkgTable.TableNumber,
+			Status:      pkgTable.Status,
 			Qr:          pkgTable.QR,
 		},
 	}, nil
@@ -70,6 +72,7 @@ func (s *gRPCserver) GetTables(ctx context.Context, req *table.GetTablesRequest)
 			Id:          pkgTable.TableId,
 			ShopId:      pkgTable.ShopId,
 			TableNumber: pkgTable.TableNumber,
+			Status:      pkgTable.Status,
 			Qr:          pkgTable.QR,
 		})
 	}
@@ -83,11 +86,25 @@ func (s *gRPCserver) UpdateTable(ctx context.Context, req *table.UpdateTableRequ
 		TableId:     req.Table.Id,
 		ShopId:      req.Table.ShopId,
 		TableNumber: req.Table.TableNumber,
+		Status:      req.Table.Status,
 		QR:          req.Table.Qr,
 	}); err != nil {
 		return nil, err
 	}
 	return &table.UpdateTableResponse{
+		Success: true,
+	}, nil
+}
+
+func (s *gRPCserver) UpdateTableStatus(ctx context.Context, req *table.UpdateTableStatusRequest) (*table.UpdateTableStatusResponse, error) {
+	if err := s.service.UpdateTableStatus(ctx, pkg.Table{
+		TableId: req.TableId,
+		ShopId:  req.ShopId,
+		Status:  req.Status,
+	}); err != nil {
+		return nil, err
+	}
+	return &table.UpdateTableStatusResponse{
 		Success: true,
 	}, nil
 }

@@ -53,6 +53,7 @@ func (c *TableClient) CreateTable(ctx context.Context, w http.ResponseWriter, r 
 			Id:          res.Table.Id,
 			ShopId:      res.Table.ShopId,
 			TableNumber: res.Table.TableNumber,
+			Status:      res.Table.Status,
 			QrUrl:       res.Table.Qr,
 		},
 	})
@@ -72,6 +73,7 @@ func (c *TableClient) GetTable(ctx context.Context, w http.ResponseWriter, r *ht
 			Id:          res.Table.Id,
 			ShopId:      res.Table.ShopId,
 			TableNumber: res.Table.TableNumber,
+			Status:      res.Table.Status,
 			QrUrl:       res.Table.Qr,
 		},
 	})
@@ -92,6 +94,7 @@ func (c *TableClient) GetTables(ctx context.Context, w http.ResponseWriter, r *h
 			Id:          t.Id,
 			ShopId:      t.ShopId,
 			TableNumber: t.TableNumber,
+			Status:      t.Status,
 			QrUrl:       t.Qr,
 		})
 	}

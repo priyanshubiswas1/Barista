@@ -13,6 +13,7 @@ export const Overlays = {
     UPDATEITEM: 'UpdateItem',
     MANAGECAT: 'ManageCategory',
     CREATETABLE: 'CreateTable',
+    UPDATETABLE: 'UpdateTable',
     FILTER: 'Filter',
     CREATEORDER: 'CreateOrder',
     GENERATEBILL: 'GenerateBill',

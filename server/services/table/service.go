@@ -20,6 +20,7 @@ type IService interface {
 	GetTable(ctx context.Context, tableId string) (pkg.Table, error)
 	GetTables(ctx context.Context, shopId string) ([]pkg.Table, error)
 	UpdateTable(ctx context.Context, table pkg.Table) error
+	UpdateTableStatus(ctx context.Context, table pkg.Table) error
 	DeleteTable(ctx context.Context, tableId, shopId string) error
 }
 
@@ -31,6 +32,13 @@ type service struct {
 	exchange     string
 	consumerName string
 }
+
+type TableStatus string
+
+const (
+	TableStatusFree     TableStatus = "free"
+	TableStatusOccupied TableStatus = "occupied"
+)
 
 func NewService(repository IRepository, conn *amqp.Connection, consumeConn *amqp.Connection, clientUrl, exchange, consumerName string) IService {
 	return &service{
@@ -113,7 +121,7 @@ func (s *service) CreateTable(ctx context.Context, shopId, tableNumber string) (
 	encodedQRCode := base64.StdEncoding.EncodeToString(qr)
 	createdAt := time.Now()
 
-	if err := s.repository.CreateTable(ctx, tableId, shopId, tableNumber, encodedQRCode, true, createdAt); err != nil {
+	if err := s.repository.CreateTable(ctx, tableId, shopId, tableNumber, encodedQRCode, string(TableStatusFree), true, createdAt); err != nil {
 		return pkg.Table{}, err
 	}
 	return pkg.Table{
@@ -133,7 +141,15 @@ func (s *service) GetTables(ctx context.Context, shopId string) ([]pkg.Table, er
 }
 
 func (s *service) UpdateTable(ctx context.Context, table pkg.Table) error {
-	return s.repository.UpdateTable(ctx, table.TableId, table.ShopId, table.TableNumber, true, time.Now())
+	return s.repository.UpdateTable(ctx, table.TableId, table.ShopId, table.TableNumber, time.Now())
+}
+
+func (s *service) UpdateTableStatus(ctx context.Context, table pkg.Table) error {
+	if table.Status == string(TableStatusFree) || table.Status == string(TableStatusOccupied) {
+		return s.repository.UpdateTableStatus(ctx, table.TableId, table.ShopId, table.Status, time.Now())
+	} else {
+		return errors.New("invalid table status")
+	}
 }
 
 func (s *service) DeleteTable(ctx context.Context, tableId, shopId string) error {

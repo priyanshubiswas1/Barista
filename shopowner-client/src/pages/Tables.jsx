@@ -26,7 +26,7 @@ const TablesContent = ({ table, onViewQR }) => {
       <div className="flex justify-between text-gray-500 items-center">
         <h2>Status</h2>
         <div className="border-2 border-gray-200 rounded-md hover:border-gray-300 inline-block px-2">
-          occupied
+          {table.status}
         </div>
       </div>
       <Button variant="subtle" icon={PiQrCodeLight} onClick={onViewQR}>
