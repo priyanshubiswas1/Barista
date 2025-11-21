@@ -46,6 +46,28 @@ export const createTableByShopId = async ({ shopId, tableNumber }) => {
     return response.status === 200 ? response.data : null
 };
 
+export const updateTableByShopId = async ({ tableId, shopId, tableNumber }) => {
+    console.log(tableId, shopId, tableNumber);
+    const response = await api.put(`/table`, {
+        table: {
+            tableId: tableId,
+            shopId: shopId,
+            tableNumber: tableNumber,
+        }
+    });
+    return response.status === 200 ? response.data : null
+};
+
+export const deleteTableByShopId = async ({ shopId, tableId }) => {
+    const response = await api.delete(`/table`, {
+        data: {
+            tableId: tableId,
+            shopId: shopId,
+        }
+    });
+    return response.status === 200 ? response.data : null
+};
+
 export const fetchCategoryItemsByShopId = async (id) => {
     const response = await api.get(`/category-items/${id}`);
     return response.status === 200 ? response.data : null

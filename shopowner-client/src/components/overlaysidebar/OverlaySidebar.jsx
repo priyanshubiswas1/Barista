@@ -13,6 +13,7 @@ const overlayHeaders = {
   [Overlays.MANAGECAT]: "Manage Categories",
   [Overlays.CREATEORDER]: "Add New Order",
   [Overlays.CREATETABLE]: "Add New Table",
+  [Overlays.UPDATETABLE]: "Update Table",
 };
 
 const OverlayComponent = () => {
@@ -36,7 +37,7 @@ const OverlayComponent = () => {
     case Overlays.UPDATETABLE:
       return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
-          <UpdateTable header={header} />
+          <UpdateTable header={header} table={overlayData} />
         </div>
       );
     case Overlays.CREATEORDER:
@@ -49,7 +50,7 @@ const OverlayComponent = () => {
 export const OverlaySidebar = () => {
   const { overlay } = useOverlay();
 
-  if (overlay === Overlays.CREATETABLE) {
+  if (overlay === Overlays.CREATETABLE || overlay === Overlays.UPDATETABLE) {
     return <OverlayComponent />;
   }
 

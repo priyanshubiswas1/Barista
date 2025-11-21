@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"log"
 	"time"
 
 	_ "github.com/lib/pq"
@@ -103,6 +104,7 @@ func (r *postgresRepository) GetTables(ctx context.Context, shopId string) ([]pk
 }
 
 func (r *postgresRepository) UpdateTable(ctx context.Context, tableId, shopId, tableNumber string, updatedAt time.Time) error {
+	log.Println(tableId, shopId)
 	query := `UPDATE "table"
 			SET table_number = $1, updated_at = $2
 			WHERE id = $3

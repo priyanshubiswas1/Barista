@@ -1,37 +1,49 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useOverlay } from "../../store/overlayStore";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { IoClose } from "react-icons/io5";
 import Input from "../Input";
 import Button from "../Button";
-import { createTableByShopId } from "../../api/api";
+import { updateTableByShopId } from "../../api/api";
 
-const UpdateTable = ({ header }) => {
+const UpdateTable = ({ header, table }) => {
   const queryClient = useQueryClient();
   const { setOverlay } = useOverlay();
-  const [tableNumber, setTableNumber] = useState("");
+  const [tableNumber, setTableNumber] = useState(table?.tableNumber || "");
+  const [tableId, setTableId] = useState(table?.tableId || "");
+
+  useEffect(() => {
+    setTableNumber(table?.tableNumber || "");
+    setTableId(table?.tableId || "");
+  }, [table]);
 
   const createMutation = useMutation({
-    mutationFn: createTableByShopId,
+    mutationFn: updateTableByShopId,
     onSuccess: () => {
-      alert("Table added successfully");
+      alert("Table updated successfully");
       setTableNumber("");
       queryClient.invalidateQueries({ queryKey: ["tables"] });
       setOverlay("");
     },
     onError: (error) => {
-      alert("Failed to add table: " + error.message);
+      alert("Failed to update table: " + error.message);
     },
   });
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (!tableId) {
+      alert("Missing table information");
+      return;
+    }
+
     if (!tableNumber.trim()) {
       alert("Please enter a table number");
       return;
     }
 
     createMutation.mutate({
+      tableId: tableId,
       shopId: localStorage.getItem("shopId"),
       tableNumber: tableNumber,
     });
@@ -66,7 +78,7 @@ const UpdateTable = ({ header }) => {
           variant="primary"
           disabled={createMutation.isPending}
         >
-          {createMutation.isPending ? "Adding..." : "Add"}
+          {createMutation.isPending ? "Updating..." : "Update"}
         </Button>
       </form>
     </div>
