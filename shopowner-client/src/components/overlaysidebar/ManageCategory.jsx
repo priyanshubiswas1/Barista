@@ -70,6 +70,7 @@ const ManageCategory = ({ header }) => {
     onSuccess: () => {
       alert("Category deleted");
       queryClient.invalidateQueries({ queryKey: ["categoryItems"] });
+      queryClient.invalidateQueries({ queryKey: ["menuItems"] });
     },
     onError: () => {
       alert("Deletion failed");

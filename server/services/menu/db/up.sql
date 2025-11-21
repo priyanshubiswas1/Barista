@@ -10,7 +10,8 @@ CREATE TABLE menu (
 CREATE TABLE category (
     id UUID PRIMARY KEY,
     shop_id UUID NOT NULL,
-    name TEXT NOT NULL
+    name TEXT NOT NULL,
+    active BOOLEAN NOT NULL DEFAULT TRUE
 );
 
 CREATE TABLE item (
@@ -25,15 +26,15 @@ CREATE TABLE item (
     is_available BOOLEAN DEFAULT TRUE,
     active BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    CONSTRAINT fk_category_id FOREIGN KEY (category_id) REFERENCES category(id)
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    -- CONSTRAINT fk_category_id FOREIGN KEY (category_id) REFERENCES category(id)
 );
 
 CREATE TABLE menu_item (
     id UUID PRIMARY KEY,
     menu_id UUID NOT NULL,
     item_id UUID NOT NULL,
-    active BOOLEAN NOT NULL DEFAULT TRUE,
+    active BOOLEAN NOT NULL DEFAULT TRUE
     -- CONSTRAINT fk_menu FOREIGN KEY (menu_id) REFERENCES menu(id) ON DELETE CASCADE,
     -- CONSTRAINT fk_item FOREIGN KEY (item_id) REFERENCES item(id) ON DELETE CASCADE
 );
@@ -73,3 +74,20 @@ CREATE TRIGGER trg_update_menu_item_on_item_update
 AFTER UPDATE OF active ON item
 FOR EACH ROW
 EXECUTE FUNCTION update_menu_item_active_from_item();
+
+-- Trigger function to update item.isAvailable when category.active changes
+CREATE OR REPLACE FUNCTION deactivate_items_on_category_inactive()
+RETURNS TRIGGER AS $$
+BEGIN
+    UPDATE item
+        SET is_available = false, category_id = null, updated_at = now()
+        WHERE category_id = NEW.id;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Trigger on category table
+CREATE TRIGGER trg_deactivate_items_on_category_inactive
+AFTER UPDATE OF active ON category
+FOR EACH ROW
+EXECUTE FUNCTION deactivate_items_on_category_inactive();

@@ -35,6 +35,7 @@ type IRepository interface {
 	GetCategories(ctx context.Context, shopId string) ([]pkg.Category, error)
 	GetCategoriesWithItem(ctx context.Context, shopId string) ([]pkg.CategoryWithItems, error)
 	DeleteCategory(ctx context.Context, id, shopId string) (bool, error)
+	// DeleteCategory(ctx context.Context, id, shopId string, updatedAt time.Time) (bool, error)
 	Close()
 }
 
@@ -164,7 +165,7 @@ func (r *postgresRepository) GetItem(ctx context.Context, itemId string) (pkg.It
 				item.shop_id,
 				item.name,
 				item.description,
-				category.name AS category_name,
+				COALESCE(category.name, '') AS category_name,
 				item.veg,
 				item.price,
 				item.image,
@@ -193,7 +194,7 @@ func (r *postgresRepository) GetItems(ctx context.Context, shopId string) ([]pkg
 				item.shop_id,
 				item.name,
 				item.description,
-				category.name AS category_name,
+				COALESCE(category.name, '') AS category_name,
 				item.veg,
 				item.price,
 				item.image,
@@ -232,7 +233,7 @@ func (r *postgresRepository) GetItemsAdmin(ctx context.Context, shopId string) (
 				item.shop_id,
 				item.name,
 				item.description,
-				category.name AS category_name,
+				COALESCE(category.name, '') AS category_name,
 				item.veg,
 				item.price,
 				item.image,
@@ -352,7 +353,7 @@ func (r *postgresRepository) GetMenuItems(ctx context.Context, menuId string) ([
 				i.shop_id, 
 				i.name, 
 				i.description, 
-				category.name AS category_name, 
+				COALESCE(category.name, '') AS category_name, 
 				i.veg,
 				i.price, 
 				i.image, 
@@ -404,7 +405,7 @@ func (r *postgresRepository) GetMenuItemsAdmin(ctx context.Context, menuId strin
 				i.shop_id, 
 				i.name, 
 				i.description, 
-				category.name AS category_name, 
+				COALESCE(category.name, '') AS category_name, 
 				i.veg,
 				i.price, 
 				i.image, 
@@ -543,7 +544,7 @@ func (r *postgresRepository) UpdateCategory(ctx context.Context, id, shopId, nam
 func (r *postgresRepository) GetCategories(ctx context.Context, shopId string) ([]pkg.Category, error) {
 	query := `SELECT id,shop_id,name
 			FROM category
-			WHERE shop_id = $1
+			WHERE shop_id = $1 and active = true
 			`
 	rows, err := r.db.QueryContext(ctx, query, shopId)
 	if err != nil {
@@ -596,7 +597,7 @@ func (r *postgresRepository) GetCategoriesWithItem(ctx context.Context, shopId s
 		LEFT JOIN
 			item i ON i.category_id = c.id AND i.active = true
 		WHERE
-			c.shop_id = $1
+			c.shop_id = $1 AND c.active = true
 		GROUP BY
 			c.id, c.shop_id, c.name		
 	`
@@ -630,9 +631,10 @@ func (r *postgresRepository) GetCategoriesWithItem(ctx context.Context, shopId s
 }
 
 func (r *postgresRepository) DeleteCategory(ctx context.Context, id, shopId string) (bool, error) {
-	query := `DELETE FROM category
-			WHERE id=$1 AND shop_id = $2 
-			`
+	query := `UPDATE category
+				SET active = false
+				WHERE id = $1
+				AND shop_id = $2`
 
 	res, err := r.db.ExecContext(ctx, query, id, shopId)
 	if err != nil {
@@ -647,3 +649,58 @@ func (r *postgresRepository) DeleteCategory(ctx context.Context, id, shopId stri
 	}
 	return true, nil
 }
+
+// func (r *postgresRepository) DeleteCategory(ctx context.Context, id, shopId string, updatedAt time.Time) (bool, error) {
+// 	tx, err := r.db.BeginTx(ctx, nil)
+// 	if err != nil {
+// 		return false, err
+// 	}
+
+// 	defer func() {
+// 		if err != nil {
+// 			tx.Rollback()
+// 		}
+// 	}()
+
+// 	query := `UPDATE category
+// 				SET active = false
+// 				WHERE id = $1
+// 				AND shop_id = $2`
+
+// 	res, err := tx.ExecContext(ctx, query, id, shopId)
+// 	if err != nil {
+// 		return false, err
+// 	}
+
+// 	rowsAffected, err := res.RowsAffected()
+// 	if err != nil {
+// 		return false, err
+// 	}
+// 	if rowsAffected == 0 {
+// 		return false, errors.New("category not found or already inactive")
+// 	}
+
+// 	query = `UPDATE item
+// 			SET is_available = false, updated_at = $1, category_id = null
+// 			WHERE category_id = $2 AND shop_id = $3`
+
+// 	res, err = tx.ExecContext(ctx, query, updatedAt, id, shopId)
+// 	if err != nil {
+// 		return false, err
+// 	}
+
+// 	rowsAffected, err = res.RowsAffected()
+// 	if err != nil {
+// 		return false, err
+// 	}
+// 	if rowsAffected == 0 {
+// 		return false, errors.New("no items were updated")
+// 	}
+
+// 	err = tx.Commit()
+// 	if err != nil {
+// 		return false, err
+// 	}
+
+// 	return true, nil
+// }

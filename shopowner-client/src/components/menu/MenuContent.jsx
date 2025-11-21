@@ -16,6 +16,7 @@ const Toggle = ({ itemId, isAvailable }) => {
       queryClient.invalidateQueries({ queryKey: ["menuItems"] });
     },
     onError: (error) => {
+      setIsOn(!isOn);
       console.log("Availability update failed: ", error);
       toast.error("Failed to update availability. Please try again.");
     },
