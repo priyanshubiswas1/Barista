@@ -13,7 +13,7 @@ import (
 
 type IService interface {
 	GetPayment(ctx context.Context, sessionId string) (pkg.Payment, error)
-	CreatePayment(ctx context.Context, sessionId, paymentMethod, paymentStatus, transactionId string, amount float32) (string, error)
+	CreatePayment(ctx context.Context, sessionId, tableId, shopId, phoneNumber, paymentMethod, paymentStatus, transactionId string, amount float32) (string, error)
 }
 
 type service struct {
@@ -38,13 +38,16 @@ func (s *service) GetPayment(ctx context.Context, sessionId string) (pkg.Payment
 	return s.repository.GetPayment(ctx, sessionId)
 }
 
-func (s *service) CreatePayment(ctx context.Context, sessionId, paymentMethod, paymentStatus, transactionId string, amount float32) (string, error) {
+func (s *service) CreatePayment(ctx context.Context, sessionId, tableId, shopId, phoneNumber, paymentMethod, paymentStatus, transactionId string, amount float32) (string, error) {
+	if paymentStatus != "completed" && paymentStatus != "pending" {
+		return "", fmt.Errorf("invalid payment status")
+	}
+
 	id := uuid.New().String()
 	session, err := s.client.GetSessionById(ctx, sessionId)
 	if err != nil {
 		return "", err
 	}
-
 	if amount != session.Amount {
 		return "", fmt.Errorf("paid amount mismatch: expected %.2f, got %.2f", session.Amount, amount)
 	}
@@ -56,14 +59,13 @@ func (s *service) CreatePayment(ctx context.Context, sessionId, paymentMethod, p
 	succ, err := s.client.UpdateSession(ctx, pkg.UpdateSessionRequest{
 		Session: pkg.Session{
 			Id:            sessionId,
-			ShopId:        "",
-			TableId:       "",
-			Otp:           "",
-			Status:        "",
+			ShopId:        shopId,
+			TableId:       tableId,
+			Status:        "closed",
 			Amount:        0.0,
 			IsPaid:        true,
 			PaymentMethod: paymentMethod,
-			PhoneNumber:   "",
+			PhoneNumber:   phoneNumber,
 			Active:        true,
 		},
 	})

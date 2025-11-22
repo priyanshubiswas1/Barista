@@ -20,7 +20,7 @@ type IRepository interface {
 	CreateSession(ctx context.Context, id, shopId, tableId, status, paymentMethod, otp, phoneNumber string, totalAmount float32, isPaid, active bool, createdAt time.Time) (string, error)
 	JoinSession(ctx context.Context, shopId, tableId, otp string) (pkg.Session, error)
 	JoinSessionAdmin(ctx context.Context, shopId, tableId string) (pkg.Session, error)
-	UpdateSession(ctx context.Context, id, status, paymentMethod string, amount float32, isPaid, active bool, updatedAt time.Time) error
+	UpdateSession(ctx context.Context, id, status, paymentMethod, phoneNumber string, amount float32, isPaid, active bool, updatedAt time.Time) error
 	Close() error
 }
 
@@ -76,7 +76,7 @@ func (r *postgresRepository) GetAllSessions(ctx context.Context, shopId string) 
 
 func (r *postgresRepository) GetActiveSession(ctx context.Context, shopId, tableId string) (pkg.Session, error) {
 	query := `SELECT id,shop_id,table_id,otp,status,total_amount,is_paid,payment_method,active,phone_number
-	FROM session WHERE shop_id = $1 AND table_id = $2 AND active = true
+	FROM session WHERE shop_id = $1 AND table_id = $2 AND status = 'active' AND active = true
 	`
 	row := r.db.QueryRowContext(ctx, query, shopId, tableId)
 	session := pkg.Session{}
@@ -100,7 +100,7 @@ func (r *postgresRepository) GetActiveSession(ctx context.Context, shopId, table
 
 func (r *postgresRepository) GetAllActiveSessions(ctx context.Context, shopId string) ([]pkg.Session, error) {
 	query := `SELECT id,shop_id,table_id,otp,status,total_amount,is_paid,payment_method,active,phone_number
-				FROM session WHERE shop_id = $1 AND active = true
+				FROM session WHERE shop_id = $1 AND status = 'active' AND active = true
 			`
 	rows, err := r.db.QueryContext(ctx, query, shopId)
 	if err != nil {
@@ -216,7 +216,7 @@ func (r *postgresRepository) JoinSessionAdmin(ctx context.Context, shopId, table
 	return session, nil
 }
 
-func (r *postgresRepository) UpdateSession(ctx context.Context, id, status, paymentMethod string, amount float32, isPaid, active bool, updatedAt time.Time) error {
+func (r *postgresRepository) UpdateSession(ctx context.Context, id, status, paymentMethod, phoneNumber string, amount float32, isPaid, active bool, updatedAt time.Time) error {
 	query := `UPDATE session SET `
 	var params []interface{}
 	var setClauses []string
@@ -235,6 +235,11 @@ func (r *postgresRepository) UpdateSession(ctx context.Context, id, status, paym
 	if paymentMethod != "" {
 		setClauses = append(setClauses, "payment_method=$"+strconv.Itoa(len(params)+1))
 		params = append(params, paymentMethod)
+	}
+
+	if phoneNumber != "" {
+		setClauses = append(setClauses, "phone_number=$"+strconv.Itoa(len(params)+1))
+		params = append(params, phoneNumber)
 	}
 
 	setClauses = append(setClauses, "active=$"+strconv.Itoa(len(params)+1))

@@ -8,7 +8,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/lib/pq v1.10.9
-	github.com/priyanshubiswas1/baristacontracts v1.5.9
+	github.com/priyanshubiswas1/baristacontracts v1.6.3
 	github.com/tinrab/retry v1.0.0
 	google.golang.org/grpc v1.75.1
 )

@@ -163,3 +163,8 @@ export const getSessionSummary = async (payload) => {
     const response = await api.get(url);
     return response.status === 200 ? response.data : null
 };
+
+export const createPayment = async (payload) => {
+    const response = await api.post(`/payment`, payload);
+    return response.status === 200 ? response.data : null
+};

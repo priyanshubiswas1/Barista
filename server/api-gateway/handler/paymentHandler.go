@@ -24,7 +24,7 @@ type PaymentClient struct {
 }
 
 func NewPayment(url string) (IPaymentClient, error) {
-    client, err := grpc.Dial(url, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	client, err := grpc.Dial(url, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return &PaymentClient{}, err
 	}
@@ -41,6 +41,9 @@ func (c *PaymentClient) CreatePayment(ctx context.Context, w http.ResponseWriter
 	}
 	res, err := c.service.CreatePayment(ctx, &payment.CreatePaymentRequest{
 		SessionId:     paymentReq.SessionId,
+		TableId:       paymentReq.TableId,
+		ShopId:        paymentReq.ShopId,
+		PhoneNumber:   paymentReq.PhoneNumber,
 		Amount:        paymentReq.Amount,
 		PaymentMethod: paymentReq.PaymentMethod,
 		PaymentStatus: paymentReq.PaymentStatus,

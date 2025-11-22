@@ -157,10 +157,6 @@ const OrderDetails = ({ header }) => {
     setIsStatusMenuOpen(false);
   }, [currentStatus]);
 
-  useEffect(() => {
-    console.log("OrderDetails - orderId:", orderId, "status:", currentStatus);
-  }, [orderId, currentStatus]);
-
   const handleStatusClick = (nextStatus) => {
     if (nextStatus === currentStatus) {
       console.log(`Status already set to ${nextStatus}`);

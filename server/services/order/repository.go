@@ -115,7 +115,7 @@ func (r *postgresRepository) CreateOrder(ctx context.Context, id, sessionId, spe
 		WITH last_order AS (
 			SELECT MAX(order_number) AS max_order_number
 			FROM "order"
-			WHERE session_id = $2 AND created_at::DATE = CURRENT_DATE
+			WHERE created_at::DATE = CURRENT_DATE
 		)
 		INSERT INTO "order" (id, session_id, order_number, status, special_notes, active, created_at, updated_at)
 		VALUES ($1, $2, COALESCE((SELECT max_order_number + 1 FROM last_order), 1), $3, $4, $5, $6, $7)

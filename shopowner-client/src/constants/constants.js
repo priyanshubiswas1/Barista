@@ -18,4 +18,6 @@ export const Overlays = {
     CREATEORDER: 'CreateOrder',
     GENERATEBILL: 'GenerateBill',
     ORDERDETAILS: 'OrderDetails',
+    GENERATEBILL: 'GenerateBill',
+    ORDERDETAILS: 'OrderDetails',
 };

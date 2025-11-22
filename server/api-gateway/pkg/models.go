@@ -435,6 +435,9 @@ type Payment struct {
 }
 type PaymentRequest struct {
 	SessionId     string  `json:"sessionId"`
+	ShopId        string  `json:"shopId"`
+	TableId       string  `json:"tableId"`
+	PhoneNumber   string  `json:"phoneNumber"`
 	Amount        float32 `json:"amount"`
 	PaymentMethod string  `json:"paymentMethod"`
 	PaymentStatus string  `json:"paymentStatus"`

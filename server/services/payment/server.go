@@ -46,7 +46,7 @@ func (s *gRPCserver) GetPayment(ctx context.Context, req *payment.GetPaymentRequ
 }
 
 func (s *gRPCserver) CreatePayment(ctx context.Context, req *payment.CreatePaymentRequest) (*payment.CreatePaymentResponse, error) {
-	paymentId, err := s.service.CreatePayment(ctx, req.SessionId, req.PaymentMethod, req.PaymentStatus, req.TransactionId, req.Amount)
+	paymentId, err := s.service.CreatePayment(ctx, req.SessionId, req.TableId, req.ShopId, req.PhoneNumber, req.PaymentMethod, req.PaymentStatus, req.TransactionId, req.Amount)
 	if err != nil {
 		return nil, err
 	}

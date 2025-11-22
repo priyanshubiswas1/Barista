@@ -36,6 +36,7 @@ func (c *SessionClient) UpdateSession(ctx context.Context, updateSession pkg.Upd
 			SessionId:     updateSession.Session.Id,
 			ShopId:        updateSession.Session.ShopId,
 			TableId:       updateSession.Session.TableId,
+			PhoneNumber:   updateSession.Session.PhoneNumber,
 			Otp:           updateSession.Session.Otp,
 			SessionStatus: updateSession.Session.Status,
 			TotalAmount:   updateSession.Session.Amount,

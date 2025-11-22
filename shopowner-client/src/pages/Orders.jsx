@@ -181,7 +181,26 @@ const TableCard = ({ session }) => {
           <LuCirclePlus />
           <h2 className="font-medium">Add New Order</h2>
         </button>
-        <button className="flex items-center justify-center bg-gray-200 rounded-xl hover:bg-gray-300 text-gray-500 text-xl gap-3 py-3.5">
+        <button
+          onClick={() =>
+            setOverlay(Overlays.GENERATEBILL, {
+              sessionId: session.sessionId,
+              orderIds: Object.keys(groupedOrders),
+              orderNumbers: Array.from(
+                new Set(
+                  Object.values(groupedOrders).flatMap((items) =>
+                    items.map((item) => item.orderNumber)
+                  )
+                )
+              ),
+              tableId: session.tableId,
+              tableNumber: session.tableNumber,
+              createdAt: session.createdAt,
+              orderItems: orderItems,
+            })
+          }
+          className="flex items-center justify-center bg-gray-200 rounded-xl hover:bg-gray-300 text-gray-500 text-xl gap-3 py-3.5"
+        >
           <FaArrowRightLong />
           <h2 className="font-medium">Generate Bill</h2>
         </button>

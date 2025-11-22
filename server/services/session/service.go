@@ -39,7 +39,7 @@ type IService interface {
 	CreateSession(ctx context.Context, shopId, tableId, status, paymentMethod, otp string, totalAmount float32, isPaid bool, active bool) (string, string, string, error)
 	CreateOrJoinSessionAdmin(ctx context.Context, shopId, tableId, status, paymentMethod, phoneNumber string, totalAmount float32, isPaid bool, active bool) (pkg.Session, string, error)
 	JoinSession(ctx context.Context, shopId, tableId, otp string) (pkg.Session, string, error)
-	UpdateSession(ctx context.Context, id, shopId, tableId, status, paymentMethod string, totalAmount float32, isPaid bool, active bool) error
+	UpdateSession(ctx context.Context, id, shopId, tableId, status, paymentMethod, phoneNumber string, totalAmount float32, isPaid bool, active bool) error
 }
 
 type service struct {
@@ -127,7 +127,7 @@ func (s *service) GetAllActiveSessions(ctx context.Context, shopId string) ([]pk
 
 func (s *service) GetSessionById(ctx context.Context, sessionId string) (pkg.Session, error) {
 	if sessionId == "" {
-		return pkg.Session{}, errors.New("shop ID is required")
+		return pkg.Session{}, errors.New("session ID is required")
 	}
 	if _, err := uuid.Parse(sessionId); err != nil {
 		return pkg.Session{}, errors.New("invalid shop ID format")
@@ -169,6 +169,9 @@ func (s *service) CreateSession(ctx context.Context, shopId, tableId, status, pa
 	}
 	if otp != unMarshalValue.OTP {
 		return "", "", "", errors.New("invalid OTP")
+	}
+	if status != "active" && status != "closed" {
+		return "", "", "", errors.New("invalid session status")
 	}
 
 	phoneNumber := unMarshalValue.PhoneNumber
@@ -279,12 +282,12 @@ func (s *service) JoinSession(ctx context.Context, shopId, tableId, otp string) 
 	return res, tokenString, nil
 }
 
-func (s *service) UpdateSession(ctx context.Context, id, shopId, tableId, status, paymentMethod string, totalAmount float32, isPaid bool, active bool) error {
-	err := s.repository.UpdateSession(ctx, id, status, paymentMethod, totalAmount, isPaid, active, time.Now())
+func (s *service) UpdateSession(ctx context.Context, id, shopId, tableId, status, paymentMethod, phoneNumber string, totalAmount float32, isPaid bool, active bool) error {
+	err := s.repository.UpdateSession(ctx, id, status, paymentMethod, phoneNumber, totalAmount, isPaid, active, time.Now())
 	if err != nil {
 		return err
 	}
-	if !active {
+	if status == "closed" || !active {
 		err := s.historyClient.CloseSession(ctx, id)
 		if err != nil {
 			return err
