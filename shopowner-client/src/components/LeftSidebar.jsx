@@ -48,8 +48,7 @@ const SidebarHeader = ({ collapsed }) => (
     <div className="w-8 h-8 bg-gray-800 rounded-sm"></div>
     {!collapsed && (
       <div className="flex flex-col transition-opacity duration-300">
-        <h3 className="text-gray-800">My Cafe App</h3>
-        <p className="text-gray-800">v101</p>
+        <h3 className="text-gray-800">Barista</h3>
       </div>
     )}
   </div>
@@ -60,8 +59,8 @@ const SidebarProfile = ({ collapsed }) => (
     <div className="w-8 h-8 bg-gray-800 rounded-full"></div>
     {!collapsed && (
       <div className="flex flex-col transition-opacity duration-300">
-        <h3 className="text-gray-800">John Doe</h3>
-        <p className="text-gray-800">johndoe@gmail.com</p>
+        <h3 className="text-gray-800">{localStorage.getItem("name")}</h3>
+        <p className="text-gray-800">{localStorage.getItem("email")}</p>
       </div>
     )}
   </div>

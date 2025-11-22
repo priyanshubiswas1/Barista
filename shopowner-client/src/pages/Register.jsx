@@ -30,6 +30,8 @@ const Register = () => {
       localStorage.setItem("token", data.token);
       localStorage.setItem("shopId", data.shopId);
       localStorage.setItem("menuId", data.menuId);
+      localStorage.setItem("name", data.name);
+      localStorage.setItem("email", data.email);
       useAuthStore.setState({ isAuth: true });
 
       navigate("/menu");

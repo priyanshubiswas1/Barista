@@ -83,7 +83,10 @@ const GenerateBill = ({ header }) => {
   };
 
   const handleCloseOrder = () => {
-    console.log(sessionId);
+    if (phoneNumber == "") {
+      alert("phone number required");
+      return;
+    }
     createPaymentMutation.mutate({
       sessionId: sessionId,
       tableId: tableId,
