@@ -1,4 +1,4 @@
-CREATE TYPE order_status AS ENUM ('new','preparing','ready','cancelled');
+CREATE TYPE order_status AS ENUM ('new','ready','completed','cancelled');
 CREATE TABLE "order" (
     id UUID PRIMARY KEY,
     session_id UUID NOT NULL,

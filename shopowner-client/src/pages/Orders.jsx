@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { IoFilter } from "react-icons/io5";
-import { Plus } from "phosphor-react";
+import { Plus, DotsThree } from "phosphor-react";
 import { LuCirclePlus } from "react-icons/lu";
 import { FaArrowRightLong } from "react-icons/fa6";
 import { Overlays, Tabs } from "../constants/constants";
@@ -12,6 +12,21 @@ import { useOverlay } from "../store/overlayStore.js";
 import { OverlaySidebar } from "../components/overlaysidebar/OverlaySidebar";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchActiveSessions, fetchOrdersBySessionId } from "../api/api.js";
+
+const getStatusClasses = (status) => {
+  switch (status) {
+    case "new":
+      return "bg-blue-400";
+    case "ready":
+      return "bg-purple-400";
+    case "completed":
+      return "bg-teal-400";
+    case "cancelled":
+      return "bg-red-400";
+    default:
+      return "bg-gray-400";
+  }
+};
 
 const OrderSubHeader = ({ onAddNewOrderClick }) => {
   return (
@@ -38,6 +53,9 @@ const OrderCard = ({ orderId, orderItems, index, onClick }) => {
   const totalPrice = orderItems.reduce((sum, item) => {
     return sum + item.priceAtOrderTime * item.quantity;
   }, 0);
+  const orderStatus = orderItems[0]?.orderStatus || "new"; // Get status from the first item
+  const statusBgColor = getStatusClasses(orderStatus);
+
   return (
     <button
       type="button"
@@ -46,10 +64,13 @@ const OrderCard = ({ orderId, orderItems, index, onClick }) => {
     >
       <div className="flex justify-between items-center">
         <h1 className="font-semibold text-xl">Order {orderId}</h1>
+        <DotsThree />
       </div>
       <div className="pt-3">
-        <div className="bg-blue-400 text-white font-semibold rounded-md flex items-center justify-center px-4 py-0.5 w-fit">
-          new
+        <div
+          className={`${statusBgColor} text-white font-semibold rounded-md flex items-center justify-center px-4 py-0.5 w-fit capitalize`}
+        >
+          {orderStatus}
         </div>
         <div className="pt-3 font-medium">
           <div className="flex justify-between">
@@ -58,7 +79,7 @@ const OrderCard = ({ orderId, orderItems, index, onClick }) => {
           </div>
           <div className="flex justify-between">
             <h2 className="text-gray-500">Subtotal</h2>
-            <h2 className="text-gray-700">${totalPrice}</h2>
+            <h2 className="text-gray-700">₹{totalPrice}</h2>
           </div>
         </div>
       </div>
@@ -119,10 +140,10 @@ const TableCard = ({ session }) => {
   console.log(groupedOrders);
 
   const handleOrderClick = (orderId, items) => {
-    console.log(items);
     const firstItem = items[0] || {};
     setOverlay(Overlays.ORDERDETAILS, {
-      orderId: items[0].orderNumber,
+      orderId: items[0].orderId,
+      orderNumber: items[0].orderNumber,
       sessionId: session.sessionId,
       tableId: session.tableId,
       tableNumber: session.tableNumber,

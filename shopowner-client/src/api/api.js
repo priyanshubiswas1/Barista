@@ -95,6 +95,11 @@ export const updateCategory = async ({ name, shopId, categoryId }) => {
     return response.status === 200 ? response.data : null
 }
 
+export const fetchItemsById = async (id) => {
+    const response = await api.get(`/item/${id}`);
+    return response.status === 200 ? response.data : null
+};
+
 export const fetchItemsByShopId = async (id) => {
     const response = await api.get(`/items/${id}/admin`);
     return response.status === 200 ? response.data : null
@@ -132,6 +137,21 @@ export const fetchOrdersBySessionId = async (sessionId) => {
 
 export const createOrder = async (payload) => {
     const response = await api.post(`/order-admin`, payload);
+    return response.status === 200 ? response.data : null
+};
+
+export const updateOrder = async ({ orderId, orderStatus }) => {
+    const response = await api.put(`/order`, {
+        orderId,
+        orderStatus
+    });
+    return response.status === 200 ? response.data : null
+};
+
+export const cancelOrder = async ({ orderId }) => {
+    const response = await api.put(`/order/cancel`, {
+        orderId
+    });
     return response.status === 200 ? response.data : null
 };
 

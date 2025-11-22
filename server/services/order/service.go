@@ -173,7 +173,7 @@ func (s *service) CreateOrderAdmin(ctx context.Context, order pkg.OrderAdminReq)
 }
 
 func (s *service) UpdateOrder(ctx context.Context, orderId, orderStatus string) bool {
-	if orderStatus != "new" && orderStatus != "preparing" && orderStatus != "ready" && orderStatus != "cancelled" {
+	if orderStatus != "new" && orderStatus != "ready" && orderStatus != "completed" && orderStatus != "cancelled" {
 		log.Println("invalid order status")
 		return false
 	}

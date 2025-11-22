@@ -46,7 +46,7 @@ func (r *postgresRepository) GetOrdersBySessionId(ctx context.Context, sessionId
 	query := `SELECT oi.id, oi.order_id, o.order_number, oi.item_id, oi.quantity, oi.price_at_order_time, o.status
 				FROM order_item oi
 				JOIN "order" o ON oi.order_id = o.id
-				WHERE o.session_id = $1 AND o.status <> 'cancelled';
+				WHERE o.session_id = $1;
 			`
 	rows, err := r.db.QueryContext(ctx, query, sessionId)
 	if err != nil {
