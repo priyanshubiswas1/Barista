@@ -3,7 +3,10 @@ package handler
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"io"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 	"github.com/priyanshubiswas1/barista/apigateway/pkg"
@@ -41,6 +44,9 @@ type IMenuClient interface {
 	GetCategories(ctx context.Context, w http.ResponseWriter, r *http.Request) error
 	GetCategoriesWithItems(ctx context.Context, w http.ResponseWriter, r *http.Request) error
 	DeleteCategory(ctx context.Context, w http.ResponseWriter, r *http.Request) error
+
+	//IMAGE UPLOAD
+	UploadImage(ctx context.Context, w http.ResponseWriter, r *http.Request) error
 }
 
 type MenuClient struct {
@@ -138,19 +144,97 @@ func (c *MenuClient) DeleteMenu(ctx context.Context, w http.ResponseWriter, r *h
 }
 
 func (c *MenuClient) CreateItem(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
-	req := pkg.CreateItemRequest{}
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		return err
+	contentType := r.Header.Get("Content-Type")
+	
+	var itemName, shopId, description, categoryId string
+	var veg bool
+	var price float32
+	var available bool
+	var imageUrl string
+
+	// Check if request is multipart/form-data (for file uploads)
+	if contentType != "" && len(contentType) >= 19 && contentType[:19] == "multipart/form-data" {
+		// Parse multipart form with 10MB max memory
+		err := r.ParseMultipartForm(10 << 20) // 10MB
+		if err != nil {
+			return err
+		}
+
+		// Extract form fields
+		itemName = r.FormValue("name")
+		shopId = r.FormValue("shopId")
+		description = r.FormValue("description")
+		categoryId = r.FormValue("categoryId")
+		
+		// Parse boolean values
+		vegStr := r.FormValue("veg")
+		veg = vegStr == "true"
+		
+		availableStr := r.FormValue("available")
+		available = availableStr == "true" || availableStr == ""
+
+		// Parse price
+		priceStr := r.FormValue("price")
+		if priceStr != "" {
+			parsedPrice, err := strconv.ParseFloat(priceStr, 32)
+			if err != nil {
+				return fmt.Errorf("invalid price: %w", err)
+			}
+			price = float32(parsedPrice)
+		}
+
+		// Handle image upload if present
+		file, header, err := r.FormFile("image")
+		if err == nil {
+			// Image file provided, upload it
+			defer file.Close()
+
+			// Read file data into bytes
+			imageData, err := io.ReadAll(file)
+			if err != nil {
+				return err
+			}
+
+			// Get filename
+			filename := header.Filename
+			if filename == "" {
+				filename = "image.jpg"
+			}
+
+			// Upload image to Cloudinary via menu service
+			uploadRes, err := c.service.UploadImage(ctx, &menu.UploadImageRequest{
+				ImageData: imageData,
+				Filename:  filename,
+			})
+			if err != nil {
+				return fmt.Errorf("failed to upload image: %w", err)
+			}
+			imageUrl = uploadRes.ImageUrl
+		}
+	} else {
+		req := pkg.CreateItemRequest{}
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			return err
+		}
+		itemName = req.ItemName
+		shopId = req.ShopId
+		description = req.Description
+		categoryId = req.CategoryId
+		veg = req.Veg
+		price = req.Price
+		imageUrl = req.Image
+		available = req.Available
 	}
+
 	res, err := c.service.CreateItem(ctx, &menu.CreateItemRequest{
-		Name:        req.ItemName,
-		ShopId:      req.ShopId,
-		Description: req.Description,
-		CategoryId:  req.CategoryId,
-		Veg:         req.Veg,
-		Price:       req.Price,
-		Image:       req.Image,
-		IsAvailable: req.Available,
+		Name:        itemName,
+		ShopId:      shopId,
+		Description: description,
+		CategoryId:  categoryId,
+		Veg:         veg,
+		Price:       price,
+		Image:       imageUrl,
+		IsAvailable: available,
 	})
 	if err != nil {
 		return err
@@ -547,5 +631,45 @@ func (c *MenuClient) DeleteCategory(ctx context.Context, w http.ResponseWriter, 
 	}
 	return pkg.WriteJSON(w, http.StatusOK, pkg.DeleteCategoryResponse{
 		Success: res.Success,
+	})
+}
+
+func (c *MenuClient) UploadImage(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+	// Parse multipart form with 10MB max memory
+	err := r.ParseMultipartForm(10 << 20) // 10MB
+	if err != nil {
+		return err
+	}
+
+	// Get the file from the form
+	file, header, err := r.FormFile("image")
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	// Read file data into bytes
+	imageData, err := io.ReadAll(file)
+	if err != nil {
+		return err
+	}
+
+	// Get filename
+	filename := header.Filename
+	if filename == "" {
+		filename = "image.jpg"
+	}
+
+	// Call menu service
+	res, err := c.service.UploadImage(ctx, &menu.UploadImageRequest{
+		ImageData: imageData,
+		Filename:  filename,
+	})
+	if err != nil {
+		return err
+	}
+
+	return pkg.WriteJSON(w, http.StatusOK, pkg.UploadImageResponse{
+		ImageUrl: res.ImageUrl,
 	})
 }

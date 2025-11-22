@@ -182,7 +182,15 @@ const MenuContentBody = ({ items }) => {
               {/* Item name */}
               <td className="pl-10">
                 <div className="flex items-center gap-4">
-                  <div className="w-9 h-9 bg-gray-300 rounded-full"></div>
+                  {item.image ? (
+                    <img
+                      src={item.image}
+                      alt={item.itemName}
+                      className="w-9 h-9 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-9 h-9 bg-gray-300 rounded-full" />
+                  )}
                   <div>{item.itemName}</div>
                 </div>
               </td>

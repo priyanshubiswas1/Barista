@@ -27,7 +27,15 @@ func main() {
 	defer r.Close()
 	log.Println("menu repo created")
 
-	service := menu.NewService(r)
+	var cloudinaryService *pkg.CloudinaryService
+	if cfg.CloudinaryApiKey != "" && cfg.CloudinarySecret != "" && cfg.CloudinaryCloudName != "" {
+		cloudinaryService = pkg.NewCloudinaryService(cfg.CloudinaryApiKey, cfg.CloudinarySecret, cfg.CloudinaryCloudName)
+		log.Println("cloudinary service initialized")
+	} else {
+		log.Println("cloudinary service not configured - image uploads will fail")
+	}
+
+	service := menu.NewService(r, cloudinaryService)
 	log.Println("menu service created")
 
 	if err = menu.ListenGRPC(service, cfg.Port); err != nil {

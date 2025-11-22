@@ -288,7 +288,14 @@ const AddNewOrder = ({ header }) => {
             <h2 className="text-gray-600 text-sm">₹ {item.price}</h2>
           </div>
 
-          <div className="relative bg-gray-400 w-20 h-20 rounded-md flex items-center justify-center">
+          <div
+            className="relative w-20 h-20 rounded-md flex items-center justify-center"
+            style={{
+              backgroundImage: `url(${item.image})`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+            }}
+          >
             {count === 0 ? (
               <button
                 type="button"

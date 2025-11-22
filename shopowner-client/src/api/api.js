@@ -105,8 +105,37 @@ export const fetchItemsByShopId = async (id) => {
     return response.status === 200 ? response.data : null
 };
 
-export const addItem = async ({ name, shopId, categoryId, price, veg }) => {
-    const response = await api.post(`/item`, { name: name, shopId: shopId, description: "test", categoryId: categoryId, veg: veg, price: price, image: "url", available: true });
+export const uploadImage = async (imageFile) => {
+    const formData = new FormData();
+    formData.append('image', imageFile);
+
+    const response = await api.post(`/upload-image`, formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+    });
+    return response.status === 200 ? response.data : null
+}
+
+export const addItem = async ({ name, shopId, categoryId, price, veg, imageFile }) => {
+    const formData = new FormData();
+    formData.append('name', name);
+    formData.append('shopId', shopId);
+    formData.append('description', '');
+    formData.append('categoryId', categoryId);
+    formData.append('veg', veg.toString());
+    formData.append('price', price.toString());
+    formData.append('available', 'true');
+
+    if (imageFile) {
+        formData.append('image', imageFile);
+    }
+
+    const response = await api.post(`/item`, formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+    });
     return response.status === 200 ? response.data : null
 }
 

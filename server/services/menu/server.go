@@ -407,3 +407,13 @@ func (s *gRPCserver) DeleteCategory(ctx context.Context, req *menuPb.DeleteCateg
 		Success: res,
 	}, nil
 }
+
+func (s *gRPCserver) UploadImage(ctx context.Context, req *menuPb.UploadImageRequest) (*menuPb.UploadImageResponse, error) {
+	imageUrl, err := s.service.UploadImage(ctx, req.ImageData, req.Filename)
+	if err != nil {
+		return nil, err
+	}
+	return &menuPb.UploadImageResponse{
+		ImageUrl: imageUrl,
+	}, nil
+}

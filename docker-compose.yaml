@@ -149,6 +149,10 @@ services:
     environment:
       PORT: "8080"
       DB_URL: "postgres://admin:7866@menu_db:5432/menu?sslmode=disable"
+      CLOUDINARY_URL: "cloudinary://759689914359316:HrHhR6oR09cGl2Ele49DeAql8k8@dw71avwb7"
+      CLOUDINARY_API_KEY: "759689914359316"
+      CLOUDINARY_API_SECRET: "HrHhR6oR09cGl2Ele49DeAql8k8"
+      CLOUDINARY_CLOUD_NAME: "dw71avwb7"
     restart: on-failure
   tableservice:
     build:

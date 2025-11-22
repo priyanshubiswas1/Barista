@@ -1,25 +1,49 @@
-import { useState } from "react";
-import { ImageSquare, UploadSimple, TrashSimple } from "phosphor-react";
-import Button from "./Button"; // same folder
+import { useState, useRef, useEffect } from "react";
+import { ImageSquare, TrashSimple } from "phosphor-react";
+import Button from "./Button";
 
 const ImageUploader = ({
   label = "Image",
   details = "Max file size: 5MB",
   onChange,
+  value = null,
 }) => {
   const [image, setImage] = useState(null);
+  const fileInputRef = useRef(null);
+
+  useEffect(() => {
+    if (value === null) {
+      setImage(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    } else if (value instanceof File) {
+      const url = URL.createObjectURL(value);
+      setImage(url);
+      return () => {
+        URL.revokeObjectURL(url);
+      };
+    }
+  }, [value]);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      const url = URL.createObjectURL(file);
-      setImage(url);
       if (onChange) onChange(file);
     }
   };
 
-  const handleRemove = () => {
-    setImage(null);
+  const handleImageClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  const handleRemove = (e) => {
+    e.stopPropagation();
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
     if (onChange) onChange(null);
   };
 
@@ -32,7 +56,10 @@ const ImageUploader = ({
       <div className="flex items-center gap-6">
         {/* Image Placeholder */}
         <div
-          className={`w-32 h-32 flex items-center justify-center border border-gray-200 bg-gray-50 rounded-md`}
+          onClick={handleImageClick}
+          className={`w-32 h-32 flex items-center justify-center border border-gray-200 bg-gray-50 rounded-md cursor-pointer hover:border-gray-300 transition-colors ${
+            image ? "relative" : ""
+          }`}
           style={{
             borderStyle: "dashed",
             borderWidth: "1px",
@@ -40,39 +67,34 @@ const ImageUploader = ({
           }}
         >
           {image ? (
-            <img
-              src={image}
-              alt="uploaded"
-              className="w-full h-full object-cover rounded-md"
-            />
+            <>
+              <img
+                src={image}
+                alt="uploaded"
+                className="w-full h-full object-cover rounded-md"
+              />
+            </>
           ) : (
-            <ImageSquare size={24} className="text-gray-300" /> // gray-300
+            <ImageSquare size={24} className="text-gray-300" />
           )}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
+            className="hidden"
+          />
         </div>
 
         <div className="flex flex-col gap-3">
-          <div className="flex gap-3">
-            <label>
-              <Button variant="outline" icon={UploadSimple}>
-                Upload
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                  className="hidden"
-                />
-              </Button>
-            </label>
-
-            <Button
-              variant="outline"
-              icon={TrashSimple}
-              onClick={handleRemove}
-              disabled={!image} // disabled when no image
-            >
-              Remove
-            </Button>
-          </div>
+          <Button
+            variant="outline"
+            icon={TrashSimple}
+            onClick={handleRemove}
+            disabled={!image}
+          >
+            Remove
+          </Button>
           <span className="text-xs text-gray-500">{details}</span>
         </div>
       </div>

@@ -234,6 +234,11 @@ type DeleteCategoryResponse struct {
 	Success bool `json:"success"`
 }
 
+//IMAGE UPLOAD
+type UploadImageResponse struct {
+	ImageUrl string `json:"imageUrl"`
+}
+
 //TABLES
 type Table struct {
 	Id          string `json:"tableId"`

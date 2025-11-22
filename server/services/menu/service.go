@@ -32,15 +32,18 @@ type IService interface {
 	GetCategories(ctx context.Context, shopId string) ([]pkg.Category, error)
 	GetCategoriesWithItem(ctx context.Context, shopId string) ([]pkg.CategoryWithItems, error)
 	DeleteCategory(ctx context.Context, id, shopId string) (bool, error)
+	UploadImage(ctx context.Context, imageData []byte, filename string) (string, error)
 }
 
 type service struct {
-	repository IRepository
+	repository      IRepository
+	cloudinaryService *pkg.CloudinaryService
 }
 
-func NewService(repository IRepository) IService {
+func NewService(repository IRepository, cloudinaryService *pkg.CloudinaryService) IService {
 	return &service{
-		repository: repository,
+		repository:       repository,
+		cloudinaryService: cloudinaryService,
 	}
 }
 
@@ -236,4 +239,11 @@ func (s *service) GetCategoriesWithItem(ctx context.Context, shopId string) ([]p
 
 func (s *service) DeleteCategory(ctx context.Context, id, shopId string) (bool, error) {
 	return s.repository.DeleteCategory(ctx, id, shopId)
+}
+
+func (s *service) UploadImage(ctx context.Context, imageData []byte, filename string) (string, error) {
+	if s.cloudinaryService == nil {
+		return "", errors.New("cloudinary service not configured")
+	}
+	return s.cloudinaryService.UploadImage(ctx, imageData, filename)
 }

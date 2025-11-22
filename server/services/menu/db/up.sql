@@ -22,7 +22,7 @@ CREATE TABLE item (
     category_id UUID,
     veg BOOLEAN,
     price NUMERIC(10, 2) NOT NULL,
-    image TEXT,
+    image VARCHAR(255),
     is_available BOOLEAN DEFAULT TRUE,
     active BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),

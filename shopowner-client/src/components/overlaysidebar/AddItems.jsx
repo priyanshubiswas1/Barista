@@ -25,6 +25,7 @@ const AddItems = ({ header }) => {
 
   const [selected, setSelected] = useState("veg");
   const [selectedCategoryName, setSelectedCategoryName] = useState("");
+  const [imageFile, setImageFile] = useState(null);
 
   const [err, setErr] = useState({
     name: "",
@@ -54,9 +55,19 @@ const AddItems = ({ header }) => {
     onSuccess: () => {
       toast("Item has been added");
       queryClient.invalidateQueries({ queryKey: ["menuItems"] });
+      setFormData({
+        name: "",
+        categoryId: "",
+        price: 0.0,
+      });
+      setSelectedCategoryName("");
+      setImageFile(null);
     },
     onError: (error) => {
-      console.log("Add Item failed: ", error);
+      console.error("Add Item failed: ", error);
+      toast.error(
+        error?.response?.data?.error || "Failed to add item. Please try again."
+      );
     },
   });
 
@@ -80,7 +91,11 @@ const AddItems = ({ header }) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleImageChange = (file) => {
+    setImageFile(file);
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const newError = {
@@ -94,10 +109,12 @@ const AddItems = ({ header }) => {
     if (newError.name || newError.categoryId || newError.price) return;
 
     const payload = {
-      ...formData,
-      price: parseFloat(formData.price),
+      name: formData.name,
       shopId: localStorage.getItem("shopId"),
+      categoryId: formData.categoryId,
+      price: parseFloat(formData.price),
       veg: selected === "veg",
+      imageFile: imageFile,
     };
 
     console.log(payload);
@@ -133,6 +150,8 @@ const AddItems = ({ header }) => {
         <ImageUploader
           label="Image"
           details="Supports JPEGs & PNGS under 5mb."
+          onChange={handleImageChange}
+          value={imageFile}
         />
         <div className="flex flex-col gap-2">
           <Input
@@ -216,12 +235,18 @@ const AddItems = ({ header }) => {
               price: 0.0,
             });
             setSelectedCategoryName("");
+            setImageFile(null);
           }}
           variant="outline"
         >
           Cancel
         </Button>
-        <Button onClick={handleSubmit} type="submit" variant="primary">
+        <Button
+          onClick={handleSubmit}
+          type="submit"
+          variant="primary"
+          disabled={isPending}
+        >
           {isPending ? "Saving..." : "Save"}
         </Button>
       </div>

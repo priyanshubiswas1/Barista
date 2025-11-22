@@ -6,12 +6,13 @@ require github.com/kelseyhightower/envconfig v1.4.0
 
 require (
 	github.com/google/uuid v1.6.0 // indirect
+	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/lib/pq v1.10.9 // indirect
 	github.com/tinrab/retry v1.0.0 // indirect
 )
 
 require (
-	github.com/priyanshubiswas1/baristacontracts v1.5.7
+	github.com/priyanshubiswas1/baristacontracts v1.6.4
 	golang.org/x/net v0.41.0 // indirect
 	golang.org/x/sys v0.33.0 // indirect
 	golang.org/x/text v0.26.0 // indirect
