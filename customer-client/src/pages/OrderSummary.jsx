@@ -51,6 +51,7 @@ const OrderDetails = ({ orderItems }) => {
         {orderItems.length === 0 && (
           <p className="text-gray-500 text-sm py-2">No items in order</p>
         )}
+        {/* {console.log(orderItems)} */}
         {orderItems.map((item) => (
           <div key={item.itemId} className="flex justify-between items-center">
             <div className="flex items-center gap-2">
@@ -91,6 +92,8 @@ const OrderSummary = () => {
 
   if (isLoading) return <p>Loading menu...</p>;
   if (error) return <p>Error: {error.message}</p>;
+
+  console.log(data);
 
   const orders = Array.isArray(data.orderItems)
     ? data.orderItems
