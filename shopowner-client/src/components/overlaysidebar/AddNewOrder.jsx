@@ -13,6 +13,7 @@ import {
   fetchTablesByShopId,
 } from "../../api/api";
 import Searchbar from "../Searchbar";
+import { toast } from "react-toastify";
 
 const AddNewOrder = ({ header }) => {
   const { setOverlay } = useOverlay();
@@ -46,7 +47,7 @@ const AddNewOrder = ({ header }) => {
   const mutation = useMutation({
     mutationFn: createOrder,
     onSuccess: (data, variables) => {
-      alert("Order added✅");
+      toast("Order added✅");
       queryClient.invalidateQueries({ queryKey: ["sessions"] });
       queryClient.invalidateQueries({
         queryKey: ["order-items", variables.tableId],

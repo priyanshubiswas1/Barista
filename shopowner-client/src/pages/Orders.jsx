@@ -32,10 +32,10 @@ const OrderSubHeader = ({ onAddNewOrderClick }) => {
   return (
     <div className="w-[100%] flex justify-between items-center pt-10">
       <div className="flex items-center gap-3">
-        <Searchbar />
+        {/* <Searchbar />
         <Button variant="outline" icon={IoFilter}>
           Filter
-        </Button>
+        </Button> */}
       </div>
       <div className="flex items-center gap-3">
         <Button onClick={onAddNewOrderClick} variant="primary" icon={Plus}>

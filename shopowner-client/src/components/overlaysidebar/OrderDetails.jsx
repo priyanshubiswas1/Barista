@@ -3,6 +3,7 @@ import { IoClose } from "react-icons/io5";
 import { useOverlay } from "../../store/overlayStore";
 import { useMutation, useQueries, useQueryClient } from "@tanstack/react-query";
 import { fetchItemsById, updateOrder, cancelOrder } from "../../api/api";
+import { toast } from "react-toastify";
 
 const formatCurrency = (amount) => {
   if (typeof amount !== "number") return "₹ 0";
@@ -90,7 +91,7 @@ const OrderDetails = ({ header }) => {
     mutationFn: updateOrder,
     onSuccess: (data, variables) => {
       console.log("Order update successful:", data);
-      alert("Order updated✅");
+      toast("Order updated✅");
       setCurrentStatus(variables.orderStatus);
       queryClient.invalidateQueries({ queryKey: ["order-items"] });
       if (tableId) {
@@ -101,7 +102,7 @@ const OrderDetails = ({ header }) => {
     },
     onError: (error) => {
       console.error("Update Order failed: ", error);
-      alert("Failed to update order. Please try again.");
+      toast.error("Failed to update order. Please try again.");
     },
   });
 
@@ -109,7 +110,7 @@ const OrderDetails = ({ header }) => {
     mutationFn: cancelOrder,
     onSuccess: (data) => {
       console.log("Order cancelled successfully:", data);
-      alert("Order cancelled✅");
+      toast("Order cancelled✅");
       setCurrentStatus("cancelled");
       queryClient.invalidateQueries({ queryKey: ["order-items"] });
       if (tableId) {
@@ -121,7 +122,7 @@ const OrderDetails = ({ header }) => {
     },
     onError: (error) => {
       console.error("Cancel Order failed: ", error);
-      alert("Failed to cancel order. Please try again.");
+      toast.error("Failed to cancel order. Please try again.");
       setShowCancelConfirm(false);
     },
   });
@@ -166,7 +167,7 @@ const OrderDetails = ({ header }) => {
       console.error("Order ID is missing, cannot update order", {
         overlayData,
       });
-      alert("Error: Order ID is missing. Please refresh and try again.");
+      toast.error("Error: Order ID is missing. Please refresh and try again.");
       return;
     }
 
@@ -193,7 +194,7 @@ const OrderDetails = ({ header }) => {
   const confirmCancelOrder = () => {
     if (!orderId) {
       console.error("Order ID is missing, cannot cancel order");
-      alert("Error: Order ID is missing. Please refresh and try again.");
+      toast.error("Error: Order ID is missing. Please refresh and try again.");
       return;
     }
     cancelOrderMutation.mutate({ orderId });

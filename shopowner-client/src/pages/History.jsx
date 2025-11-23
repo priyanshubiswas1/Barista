@@ -35,10 +35,10 @@ const HistorySubHeader = ({ selectedFilter, setSelectedFilter }) => {
   return (
     <div className="w-[100%] flex justify-between items-center pt-10">
       <div className="flex items-center gap-3">
-        <Searchbar />
+        {/* <Searchbar />
         <Button variant="outline" icon={IoFilter}>
           Filter
-        </Button>
+        </Button> */}
       </div>
 
       <div className="flex items-center gap-3">
@@ -92,7 +92,9 @@ const SalesSummaryCard = ({ filter, totalAmount }) => {
         </h2>
       </div>
       <div className="flex justify-between items-center">
-        <h1 className="font-bold text-2xl text-gray-900">₹{totalAmount || 0}</h1>
+        <h1 className="font-bold text-2xl text-gray-900">
+          ₹{totalAmount || 0}
+        </h1>
       </div>
     </div>
   );
@@ -107,7 +109,9 @@ const SessionsSummaryCard = ({ filter, totalSessions }) => {
         </h2>
       </div>
       <div className="flex justify-between items-center">
-        <h1 className="font-bold text-2xl text-gray-900">{totalSessions || 0}</h1>
+        <h1 className="font-bold text-2xl text-gray-900">
+          {totalSessions || 0}
+        </h1>
       </div>
     </div>
   );

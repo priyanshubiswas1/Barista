@@ -132,100 +132,104 @@ const AddItems = ({ header }) => {
   const categoryOptions = categories.map((c) => c.name);
 
   return (
-    <div className="flex flex-col w-full h-full">
-      <div className="px-8 py-4 flex justify-between items-center">
-        {header && <h2>{header}</h2>}
+    <div className="flex flex-col w-full h-full bg-gradient-to-b from-gray-50 to-white">
+      {/* Header */}
+      <div className="bg-white border-b-2 border-gray-200 px-8 py-6 flex justify-between items-center shadow-sm">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">{header}</h2>
+          <p className="text-sm text-gray-500 mt-1">Fill in the details below</p>
+        </div>
         <button
           onClick={() => setOverlay("")}
-          className="text-gray-600 hover:text-gray-800 cursor-pointer"
+          className="text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg p-2 transition-all"
           aria-label="Close overlay"
         >
-          <X size={16} weight="bold" />
+          <X size={24} weight="bold" />
         </button>
       </div>
 
-      <div className="w-full h-px bg-gray-200" />
-
-      <form className="flex flex-col gap-6 px-8 py-6">
-        <ImageUploader
-          label="Image"
-          onChange={handleImageChange}
-          value={imageFile}
-        />
-        <div className="flex flex-col gap-2">
-          <Input
-            label="Name"
-            type="text"
-            name="name"
-            placeholder="Enter item name"
-            helperText={err.name}
-            error={!!err.name}
-            value={formData.name}
-            onChange={handleChange}
+      {/* Form Content - Scrollable */}
+      <div className="flex-1 overflow-y-auto">
+        <form className="flex flex-col gap-6 px-8 py-6">
+          <ImageUploader
+            label="Image"
+            onChange={handleImageChange}
+            value={imageFile}
           />
-          <SearchableSelect
-            label="Category"
-            placeholder="Search or select category"
-            initialOptions={categoryOptions}
-            onSelect={(name) => {
-              setSelectedCategoryName(name);
-              setFormData((prev) => ({
-                ...prev,
-                categoryId: nameToId[name] || "",
-              }));
-            }}
-            onChange={(value) => {
-              // If the input value doesn't match the selected category name,
-              // clear the categoryId
-              if (value !== selectedCategoryName) {
-                setSelectedCategoryName("");
+          <div className="flex flex-col gap-4">
+            <Input
+              label="Name"
+              type="text"
+              name="name"
+              placeholder="Enter item name"
+              helperText={err.name}
+              error={!!err.name}
+              value={formData.name}
+              onChange={handleChange}
+            />
+            <SearchableSelect
+              label="Category"
+              placeholder="Search or select category"
+              initialOptions={categoryOptions}
+              onSelect={(name) => {
+                setSelectedCategoryName(name);
                 setFormData((prev) => ({
                   ...prev,
-                  categoryId: "",
+                  categoryId: nameToId[name] || "",
                 }));
-              }
-            }}
-            onAdd={(name) => {
-              createCategoryMutation.mutate({
-                name,
-                shopId: localStorage.getItem("shopId"),
-              });
-            }}
-            helperText={err.categoryId}
-            error={!!err.categoryId}
-          />
+              }}
+              onChange={(value) => {
+                if (value !== selectedCategoryName) {
+                  setSelectedCategoryName("");
+                  setFormData((prev) => ({
+                    ...prev,
+                    categoryId: "",
+                  }));
+                }
+              }}
+              onAdd={(name) => {
+                createCategoryMutation.mutate({
+                  name,
+                  shopId: localStorage.getItem("shopId"),
+                });
+              }}
+              helperText={err.categoryId}
+              error={!!err.categoryId}
+            />
 
-          <Input
-            label="Price"
-            type="number"
-            name="price"
-            placeholder="0.00"
-            prefix="₹"
-            helperText={err.price}
-            error={!!err.price}
-            value={formData.price}
-            onChange={handleChange}
-          />
-          <div className="flex gap-20">
-            <Radio
-              name="food"
-              value="veg"
-              label="Veg"
-              checked={selected === "veg"}
-              onChange={() => setSelected("veg")}
+            <Input
+              label="Price"
+              type="number"
+              name="price"
+              placeholder="0.00"
+              prefix="₹"
+              helperText={err.price}
+              error={!!err.price}
+              value={formData.price}
+              onChange={handleChange}
             />
-            <Radio
-              name="food"
-              value="nonveg"
-              label="Non-Veg"
-              checked={selected === "nonveg"}
-              onChange={() => setSelected("nonveg")}
-            />
+            <div className="flex gap-20">
+              <Radio
+                name="food"
+                value="veg"
+                label="Veg"
+                checked={selected === "veg"}
+                onChange={() => setSelected("veg")}
+              />
+              <Radio
+                name="food"
+                value="nonveg"
+                label="Non-Veg"
+                checked={selected === "nonveg"}
+                onChange={() => setSelected("nonveg")}
+              />
+            </div>
           </div>
-        </div>
-      </form>
+        </form>
+      </div>
 
-      <div className="flex justify-between px-8">
+      {/* Footer Actions - Fixed */}
+      <div className="border-t-2 border-gray-200 bg-white px-8 py-5 flex justify-between shadow-lg">
         <Button
           onClick={() => {
             setFormData({
@@ -246,7 +250,7 @@ const AddItems = ({ header }) => {
           variant="primary"
           disabled={isPending}
         >
-          {isPending ? "Saving..." : "Save"}
+          {isPending ? "Saving..." : "Save Item"}
         </Button>
       </div>
     </div>

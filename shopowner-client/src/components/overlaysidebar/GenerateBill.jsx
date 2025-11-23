@@ -4,6 +4,7 @@ import { useOverlay } from "../../store/overlayStore";
 import { useMutation, useQueries, useQueryClient } from "@tanstack/react-query";
 import { createPayment, fetchItemsById } from "../../api/api";
 import Button from "../Button";
+import { toast } from "react-toastify";
 
 const formatCurrency = (amount) => {
   if (typeof amount !== "number") return "₹ 0";
@@ -84,7 +85,7 @@ const GenerateBill = ({ header }) => {
 
   const handleCloseOrder = () => {
     if (phoneNumber == "") {
-      alert("phone number required");
+      toast.error("Phone number required");
       return;
     }
     createPaymentMutation.mutate({

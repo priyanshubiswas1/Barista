@@ -1,7 +1,5 @@
 import { X, PencilSimple, TrashSimple, PlusCircle } from "phosphor-react";
 import { LuCirclePlus } from "react-icons/lu";
-// import { AiOutlineDelete } from "react-icons/ai";
-// import { PiPencilSimpleLight } from "react-icons/pi";
 import { useOverlay } from "../../store/overlayStore";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -13,6 +11,7 @@ import {
 import Input from "../Input";
 import { useState } from "react";
 import Button from "../Button";
+import { toast } from "react-toastify";
 
 const CategoryItem = ({ name, id, count, onDelete, onEdit }) => {
   return (
@@ -58,7 +57,7 @@ const ManageCategory = ({ header }) => {
   const createMutation = useMutation({
     mutationFn: createCategory,
     onSuccess: () => {
-      alert("Category added✅");
+      toast("Category added✅");
       setAddCategory(false);
       queryClient.invalidateQueries({ queryKey: ["categoryItems"] });
     },
@@ -68,26 +67,26 @@ const ManageCategory = ({ header }) => {
   const deleteMutation = useMutation({
     mutationFn: deleteCategoryByCategoryId,
     onSuccess: () => {
-      alert("Category deleted");
+      toast("Category deleted");
       queryClient.invalidateQueries({ queryKey: ["categoryItems"] });
       queryClient.invalidateQueries({ queryKey: ["menuItems"] });
     },
     onError: () => {
-      alert("Deletion failed");
+      toast.error("Deletion failed");
     },
   });
 
   const updateMutation = useMutation({
     mutationFn: updateCategory,
     onSuccess: () => {
-      alert("Category updated✅");
+      toast("Category updated✅");
       setEditingCategoryId(null);
       setEditItemName("");
       queryClient.invalidateQueries({ queryKey: ["categoryItems"] });
       queryClient.invalidateQueries({ queryKey: ["menuItems"] });
     },
     onError: () => {
-      alert("Update failed");
+      toast.error("Update failed");
     },
   });
 

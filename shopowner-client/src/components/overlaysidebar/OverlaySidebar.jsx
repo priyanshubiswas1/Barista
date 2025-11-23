@@ -34,13 +34,13 @@ const OverlayComponent = () => {
       return <UpdateItem header={header} item={overlayData} />;
     case Overlays.CREATETABLE:
       return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
           <AddTable header={header} />
         </div>
       );
     case Overlays.UPDATETABLE:
       return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
           <UpdateTable header={header} table={overlayData} />
         </div>
       );
@@ -56,19 +56,30 @@ const OverlayComponent = () => {
 };
 
 export const OverlaySidebar = () => {
-  const { overlay } = useOverlay();
+  const { overlay, setOverlay } = useOverlay();
 
   if (overlay === Overlays.CREATETABLE || overlay === Overlays.UPDATETABLE) {
     return <OverlayComponent />;
   }
 
   return (
-    <div
-      className={`fixed top-0 right-0 h-screen bg-white shadow-lg transition-transform duration-300 ease-in-out z-50 
-        ${overlay ? "translate-x-0 w-[30%]" : "translate-x-full w-0"}
-      `}
-    >
-      <OverlayComponent />
-    </div>
+    <>
+      {/* Backdrop */}
+      {overlay && (
+        <div
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 transition-opacity duration-300"
+          onClick={() => setOverlay("")}
+        />
+      )}
+      
+      {/* Sidebar */}
+      <div
+        className={`fixed top-0 right-0 h-screen bg-white shadow-2xl transition-all duration-300 ease-in-out z-50 
+          ${overlay ? "translate-x-0 w-[35%] min-w-[500px]" : "translate-x-full w-0"}
+        `}
+      >
+        <OverlayComponent />
+      </div>
+    </>
   );
 };

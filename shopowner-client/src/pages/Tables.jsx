@@ -104,7 +104,9 @@ const TablesContent = ({ table, onViewQR }) => {
   return (
     <div className="bg-white border-2 border-gray-200 hover:border-gray-300 rounded-xl w-[20%] min-w-[250px] p-4 flex flex-col gap-3 shadow-sm hover:shadow-md transition-all duration-200">
       <div className="flex justify-between items-center">
-        <span className="font-bold text-gray-900">Table: {table.tableNumber}</span>
+        <span className="font-bold text-gray-900">
+          Table: {table.tableNumber}
+        </span>
         <TableActions table={table} />
       </div>
       <div className="flex justify-between text-gray-600 items-center text-sm">
@@ -124,10 +126,10 @@ const TableSubHeader = ({ onAddNewTableClick }) => {
   return (
     <div className="w-[100%] flex justify-between items-center pt-10">
       <div className="flex items-center gap-5">
-        <Searchbar />
+        {/* <Searchbar />
         <Button variant="outline" icon={IoFilter}>
           Filter
-        </Button>
+        </Button> */}
       </div>
       <div className="flex items-center gap-5">
         <Button onClick={onAddNewTableClick} variant="primary" icon={FaPlus}>
