@@ -84,30 +84,30 @@ const HistorySubHeader = ({ selectedFilter, setSelectedFilter }) => {
 
 const SalesSummaryCard = ({ filter, totalAmount }) => {
   return (
-    <div className="bg-white border-2 p-3 border-gray-200 hover:border-gray-300 rounded-md flex flex-col gap-y-5 w-65">
-      <div className="flex justify-between gap-10 text-xs font-medium items-center">
-        <h2>Total Sales</h2>
-        <h2 className="bg-gray-200 border-gray-200 rounded-xl px-2 py-0.5 text-gray-800">
+    <div className="bg-white border-2 p-4 border-gray-200 hover:border-gray-300 rounded-xl flex flex-col gap-y-4 w-65 shadow-sm hover:shadow-md transition-all duration-200">
+      <div className="flex justify-between gap-10 text-xs font-semibold items-center">
+        <h2 className="text-gray-600">Total Sales</h2>
+        <h2 className="bg-emerald-100 border-emerald-200 rounded-lg px-3 py-1 text-emerald-700">
           {filter}
         </h2>
       </div>
       <div className="flex justify-between items-center">
-        <h1 className="font-semibold">₹{totalAmount || 0}</h1>
+        <h1 className="font-bold text-2xl text-gray-900">₹{totalAmount || 0}</h1>
       </div>
     </div>
   );
 };
 const SessionsSummaryCard = ({ filter, totalSessions }) => {
   return (
-    <div className="bg-white border-2 p-3 border-gray-200 hover:border-gray-300 rounded-md flex flex-col gap-y-5 w-65">
-      <div className="flex justify-between gap-10 text-xs font-medium items-center">
-        <h2>Total Sessions</h2>
-        <h2 className="bg-gray-200 border-gray-200 rounded-xl px-2 py-0.5 text-gray-800">
+    <div className="bg-white border-2 p-4 border-gray-200 hover:border-gray-300 rounded-xl flex flex-col gap-y-4 w-65 shadow-sm hover:shadow-md transition-all duration-200">
+      <div className="flex justify-between gap-10 text-xs font-semibold items-center">
+        <h2 className="text-gray-600">Total Sessions</h2>
+        <h2 className="bg-emerald-100 border-emerald-200 rounded-lg px-3 py-1 text-emerald-700">
           {filter}
         </h2>
       </div>
       <div className="flex justify-between items-center">
-        <h1 className="font-semibold">{totalSessions || 0}</h1>
+        <h1 className="font-bold text-2xl text-gray-900">{totalSessions || 0}</h1>
       </div>
     </div>
   );

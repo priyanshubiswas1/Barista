@@ -149,7 +149,6 @@ const AddItems = ({ header }) => {
       <form className="flex flex-col gap-6 px-8 py-6">
         <ImageUploader
           label="Image"
-          details="Supports JPEGs & PNGS under 5mb."
           onChange={handleImageChange}
           value={imageFile}
         />

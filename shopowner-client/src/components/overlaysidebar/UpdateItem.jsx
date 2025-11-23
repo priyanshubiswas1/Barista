@@ -183,7 +183,6 @@ const UpdateItem = ({ header, item }) => {
       <form className="flex flex-col gap-6 px-8 py-6">
         <ImageUploader
           label="Image"
-          details="Supports JPEGs & PNGS under 5mb."
         />
         <div className="flex flex-col gap-2">
           <Input

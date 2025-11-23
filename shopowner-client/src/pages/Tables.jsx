@@ -72,7 +72,7 @@ const TableActions = ({ table }) => {
       <div
         ref={buttonRef}
         onClick={() => setIsOpen(!isOpen)}
-        className="cursor-pointer text-gray-500"
+        className="cursor-pointer text-gray-500 hover:text-gray-700 p-1 rounded hover:bg-gray-100 transition-colors"
       >
         <FaEllipsis />
       </div>
@@ -80,17 +80,17 @@ const TableActions = ({ table }) => {
       {isOpen && (
         <div
           ref={dropdownRef}
-          className="absolute right-0 top-6 z-50 bg-white border border-gray-200 rounded-md shadow-lg min-w-[120px] overflow-hidden"
+          className="absolute right-0 top-8 z-50 bg-white border border-gray-200 rounded-lg shadow-xl min-w-[120px] overflow-hidden"
         >
           <button
             onClick={handleEdit}
-            className="w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left transition-colors"
+            className="w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 text-left transition-colors font-medium"
           >
             Edit
           </button>
           <button
             onClick={handleDelete}
-            className="w-full px-4 py-2 text-sm text-red-700 bg-red-100 hover:bg-red-200 text-left transition-colors"
+            className="w-full px-4 py-2.5 text-sm text-red-600 bg-red-50 hover:bg-red-100 text-left transition-colors font-medium"
           >
             Delete
           </button>
@@ -102,14 +102,14 @@ const TableActions = ({ table }) => {
 
 const TablesContent = ({ table, onViewQR }) => {
   return (
-    <div className="bg-white border-2 border-gray-200 hover:border-gray-300 rounded-md w-[20%] p-3 flex flex-col gap-2">
-      <div className="flex justify-between">
-        Table: {table.tableNumber}
+    <div className="bg-white border-2 border-gray-200 hover:border-gray-300 rounded-xl w-[20%] min-w-[250px] p-4 flex flex-col gap-3 shadow-sm hover:shadow-md transition-all duration-200">
+      <div className="flex justify-between items-center">
+        <span className="font-bold text-gray-900">Table: {table.tableNumber}</span>
         <TableActions table={table} />
       </div>
-      <div className="flex justify-between text-gray-500 items-center">
-        <h2>Status</h2>
-        <div className="border-2 border-gray-200 rounded-md hover:border-gray-300 inline-block px-2">
+      <div className="flex justify-between text-gray-600 items-center text-sm">
+        <h2 className="font-medium">Status</h2>
+        <div className="border-2 border-gray-300 rounded-lg hover:border-gray-400 inline-block px-3 py-1 font-medium text-gray-700 transition-colors">
           {table.status}
         </div>
       </div>
@@ -151,7 +151,6 @@ const Tables = () => {
   if (isLoading) return <p>Loading tables...</p>;
   if (error) return <p>Error: {error.message}</p>;
 
-  console.log(data);
   const tables = data.tables;
 
   const toggleSidebar = () => {

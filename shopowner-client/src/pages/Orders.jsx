@@ -53,33 +53,33 @@ const OrderCard = ({ orderId, orderItems, index, onClick }) => {
   const totalPrice = orderItems.reduce((sum, item) => {
     return sum + item.priceAtOrderTime * item.quantity;
   }, 0);
-  const orderStatus = orderItems[0]?.orderStatus || "new"; // Get status from the first item
+  const orderStatus = orderItems[0]?.orderStatus || "new";
   const statusBgColor = getStatusClasses(orderStatus);
 
   return (
     <button
       type="button"
       onClick={onClick}
-      className="bg-white border-2 p-3 border-gray-200 hover:border-gray-300 rounded-xl text-left w-full"
+      className="bg-white border-2 p-4 border-gray-200 hover:border-gray-300 rounded-xl text-left w-full shadow-sm hover:shadow-md transition-all duration-200"
     >
       <div className="flex justify-between items-center">
-        <h1 className="font-semibold text-xl">Order {orderId}</h1>
-        <DotsThree />
+        <h1 className="font-bold text-xl text-gray-900">Order {orderId}</h1>
+        <DotsThree className="text-gray-500" />
       </div>
       <div className="pt-3">
         <div
-          className={`${statusBgColor} text-white font-semibold rounded-md flex items-center justify-center px-4 py-0.5 w-fit capitalize`}
+          className={`${statusBgColor} text-white font-semibold rounded-lg flex items-center justify-center px-4 py-1 w-fit capitalize shadow-sm`}
         >
           {orderStatus}
         </div>
         <div className="pt-3 font-medium">
           <div className="flex justify-between">
             <h2 className="text-gray-500">Items</h2>
-            <h2 className="text-gray-700">{totalQuantity}</h2>
+            <h2 className="text-gray-800 font-semibold">{totalQuantity}</h2>
           </div>
           <div className="flex justify-between">
             <h2 className="text-gray-500">Subtotal</h2>
-            <h2 className="text-gray-700">₹{totalPrice}</h2>
+            <h2 className="text-gray-800 font-semibold">₹{totalPrice}</h2>
           </div>
         </div>
       </div>
@@ -137,7 +137,6 @@ const TableCard = ({ session }) => {
     acc[orderId].push(item);
     return acc;
   }, {});
-  console.log(groupedOrders);
 
   const handleOrderClick = (orderId, items) => {
     const firstItem = items[0] || {};
@@ -158,8 +157,8 @@ const TableCard = ({ session }) => {
   };
 
   return (
-    <div className="bg-white w-[25%] p-3 border-2 border-gray-200 hover:border-gray-300 rounded-xl flex flex-col">
-      <h1 className="text-gray-500 text-xl px-3 font-semibold">
+    <div className="bg-white w-[25%] min-w-[300px] p-4 border-2 border-gray-200 hover:border-gray-300 rounded-xl flex flex-col shadow-sm hover:shadow-md transition-all duration-200">
+      <h1 className="text-gray-600 text-xl px-3 font-bold">
         Table {session.tableNumber}
       </h1>
       <div className="pt-3 flex flex-col gap-4">
@@ -176,10 +175,10 @@ const TableCard = ({ session }) => {
       <div className="flex flex-col pt-3 gap-3">
         <button
           onClick={() => setOverlay(Overlays.CREATEORDER)}
-          className="flex items-center justify-center border-1 border-gray-200 rounded-xl hover:border-gray-300 text-gray-500 text-xl gap-3 py-3.5"
+          className="flex items-center justify-center border-2 border-gray-200 rounded-xl hover:border-gray-300 hover:bg-gray-50 text-gray-600 text-lg gap-3 py-3 transition-all duration-200 font-medium"
         >
           <LuCirclePlus />
-          <h2 className="font-medium">Add New Order</h2>
+          <h2>Add New Order</h2>
         </button>
         <button
           onClick={() =>
@@ -199,10 +198,10 @@ const TableCard = ({ session }) => {
               orderItems: orderItems,
             })
           }
-          className="flex items-center justify-center bg-gray-200 rounded-xl hover:bg-gray-300 text-gray-500 text-xl gap-3 py-3.5"
+          className="flex items-center justify-center bg-gray-700 hover:bg-gray-800 rounded-xl text-white text-lg gap-3 py-3 transition-all duration-200 font-medium shadow-sm"
         >
           <FaArrowRightLong />
-          <h2 className="font-medium">Generate Bill</h2>
+          <h2>Generate Bill</h2>
         </button>
       </div>
     </div>

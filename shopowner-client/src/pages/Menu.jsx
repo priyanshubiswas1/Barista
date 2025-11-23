@@ -52,7 +52,6 @@ const Menu = () => {
 
   const items = data.items;
 
-  // Group items by category
   const groupedItems = items.reduce((acc, item) => {
     if (!acc[item.category]) {
       acc[item.category] = [];
@@ -61,7 +60,6 @@ const Menu = () => {
     return acc;
   }, {});
 
-  // Sort items within each category by itemName
   Object.keys(groupedItems).forEach((category) => {
     groupedItems[category].sort((a, b) => {
       const nameA = (a.itemName || "").toLowerCase();
@@ -70,7 +68,6 @@ const Menu = () => {
     });
   });
 
-  // Sort categories alphabetically and create sorted entries
   const sortedCategoryEntries = Object.entries(groupedItems).sort((a, b) => {
     const categoryA = (a[0] || "").toLowerCase();
     const categoryB = (b[0] || "").toLowerCase();
