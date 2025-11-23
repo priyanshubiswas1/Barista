@@ -76,11 +76,11 @@ func (s *postgresRepository) GetSessionSummary(ctx context.Context, offset, limi
 
 	query := `SELECT summary_id, shop_id, session_id, session_number, session_total_amount, ordered_items, created_at, updated_at ` +
 		baseQuery + ` ORDER BY created_at DESC`
-	
+
 	queryArgs := make([]interface{}, len(baseArgs))
 	copy(queryArgs, baseArgs)
 	currentArgIndex := argIndex
-	
+
 	if limit > 0 {
 		query += fmt.Sprintf(" LIMIT $%d", currentArgIndex)
 		queryArgs = append(queryArgs, limit)

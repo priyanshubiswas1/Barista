@@ -103,6 +103,7 @@ func (s *APIServer) ListenServer(port string) error {
 	router.HandleFunc("/api/sessions", makeHttpHandleFunc(sessionClient.CreateSession)).Methods("POST")
 	router.HandleFunc("/api/sessions/join", makeHttpHandleFunc(sessionClient.JoinSession)).Methods("POST")
 	router.HandleFunc("/api/customer/table/{tableid}", makeHttpHandleFunc(tableClient.GetTable)).Methods("GET")
+	router.HandleFunc("/api/order-customer", makeHttpHandleFunc(orderClient.CreateOrderCustomer)).Methods("POST")
 
 	protected := router.PathPrefix("/").Subrouter()
 	protected.Use(middleware.AuthMiddleware)

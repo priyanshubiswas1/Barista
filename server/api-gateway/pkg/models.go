@@ -316,7 +316,8 @@ type GetAllActiveSessionsResponse struct {
 	Sessions []ActiveSession `json:"sessions"`
 }
 type GetActiveSessionResponse struct {
-	Session Session `json:"session"`
+	Session      Session `json:"session"`
+	SessionToken string  `json:"sessionToken,omitempty"`
 }
 type GetSessionRequest struct {
 	Id string `json:"sessionId"`
@@ -407,6 +408,12 @@ type CreateOrderAdminRequest struct {
 	SpecialNotes string             `json:"specialNotes"`
 	OrderItems   []OrderItemRequest `json:"orderItems"`
 }
+type CreateOrderCustomerRequest struct {
+	ShopId       string             `json:"shopId"`
+	TableId      string             `json:"tableId"`
+	SpecialNotes string             `json:"specialNotes"`
+	OrderItems   []OrderItemRequest `json:"orderItems"`
+}
 type CreateOrderRequest struct {
 	SpecialNotes string             `json:"specialNotes"`
 	OrderItems   []OrderItemRequest `json:"orderItems"`
@@ -414,6 +421,11 @@ type CreateOrderRequest struct {
 type CreateOrderResponse struct {
 	Order      Order        `json:"order"`
 	OrderItems []OrderItems `json:"orderItems"`
+}
+type CreateOrderCustomerResponse struct {
+	Order        Order        `json:"order"`
+	OrderItems   []OrderItems `json:"orderItems"`
+	SessionToken string       `json:"sessionToken"`
 }
 type UpdateOrderRequest struct {
 	OrderId     string `json:"orderId"`

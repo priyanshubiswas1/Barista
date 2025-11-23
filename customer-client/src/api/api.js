@@ -36,15 +36,30 @@ export const joinSession = async (payload) => {
 export const getSession = async ({ shopid, tableid }) => {
     try {
         const response = await api.get(`/sessions?shopid=${shopid}&tableid=${tableid}`);
-        return response.status === 200 ? response.data : null
+        if (response.status === 200 && response.data) {
+            if (response.data.sessionToken) {
+                localStorage.setItem("session-token", response.data.sessionToken);
+            }
+            return response.data;
+        }
+        localStorage.setItem("session-token", "");
+        return null;
     } catch (err) {
+        localStorage.setItem("session-token", "");
         return null;
     }
 }
 
 export const placeOrder = async (payload) => {
-    const response = await api.post(`/order`, payload);
-    return response.status === 200 ? response.data : null
+    const response = await api.post(`/order-customer`, payload);
+    if (response.status === 200 && response.data) {
+        // Always update token - handles both new and existing sessions
+        if (response.data.sessionToken) {
+            localStorage.setItem("session-token", response.data.sessionToken);
+        }
+        return response.data;
+    }
+    return null;
 }
 
 export const getOrderByOrderId = async (id) => {

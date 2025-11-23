@@ -54,7 +54,7 @@ func (s *gRPCserver) GetAllSessions(ctx context.Context, req *session.GetAllSess
 }
 
 func (s *gRPCserver) GetActiveSession(ctx context.Context, req *session.GetActiveSessionRequest) (*session.GetActiveSessionResponse, error) {
-	res, err := s.service.GetActiveSession(ctx, req.ShopId, req.TableId)
+	res, token, err := s.service.GetActiveSession(ctx, req.ShopId, req.TableId)
 	if err != nil {
 		return nil, err
 	}
@@ -71,6 +71,7 @@ func (s *gRPCserver) GetActiveSession(ctx context.Context, req *session.GetActiv
 			PhoneNumber:   res.PhoneNumber,
 			Active:        res.Active,
 		},
+		Token: token,
 	}, nil
 }
 

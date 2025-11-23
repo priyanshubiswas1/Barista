@@ -8,7 +8,7 @@ import {
 import { IoMdArrowDropright, IoMdArrowDropdown } from "react-icons/io";
 import About from "../components/About";
 import Navbar from "../components/Navbar";
-import { fetchItemsByShopId } from "../api/api";
+import { fetchItemsByShopId, getSession } from "../api/api";
 import { useAuthStore } from "../store/authStore";
 import { useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -251,6 +251,13 @@ const Menu = () => {
       setExpandedCategories(categories);
     }
   }, [data]);
+
+  useQuery({
+    queryKey: ["session", shopid, tableid],
+    queryFn: () => getSession({ shopid, tableid }),
+    enabled: !!(shopid && tableid),
+    staleTime: 5 * 60 * 1000, 
+  });
 
   if (isLoading) return <p>Loading menu...</p>;
   if (error) return <p>Error: {error.message}</p>;

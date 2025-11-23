@@ -37,8 +37,9 @@ type OrderReq struct {
 }
 
 type CreateOrderRes struct {
-	Order      Order        `json:"order"`
-	OrderItems []OrderItems `json:"orderItems"`
+	Order        Order        `json:"order"`
+	OrderItems   []OrderItems `json:"orderItems"`
+	SessionToken string       `json:"sessionToken"`
 }
 
 type Session struct {

@@ -2,19 +2,12 @@ import { useAuthStore } from "../store/authStore";
 import Navbar from "../components/Navbar";
 import { useNavigate, useParams } from "react-router-dom";
 import { IoAdd, IoEllipseSharp, IoRemove } from "react-icons/io5";
-import { FaChevronLeft, FaCheck } from "react-icons/fa6";
+import { FaCheck } from "react-icons/fa6";
 import { Plus } from "phosphor-react";
 import Button from "../components/Button";
-import {
-  fetchTableByTableId,
-  getSession,
-  sendOtp,
-  createSession,
-  placeOrder,
-  joinSession,
-} from "../api/api";
+import { fetchTableByTableId, placeOrder } from "../api/api";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { IoIosArrowBack } from "react-icons/io";
 
 const OrderDetails = ({ orderItems, setOrderItems }) => {
@@ -162,189 +155,6 @@ const BasicDetails = ({ tableNo }) => {
   );
 };
 
-const VerifyAndCreateSession = ({
-  setIsVerifying,
-  phoneNo,
-  shopid,
-  tableid,
-  finalTotal,
-  orderItems,
-  onPlaceOrder,
-}) => {
-  const [otp, setOtp] = useState(["", "", "", ""]);
-  const inputsRef = useRef([]);
-
-  const otpValue = otp.join("");
-
-  const sendOtpMutation = useMutation({
-    mutationFn: sendOtp,
-  });
-
-  const createSessionMutation = useMutation({
-    mutationFn: createSession,
-    onSuccess: (data) => {
-      localStorage.setItem("session-token", data.sessionToken);
-      onPlaceOrder({ specialNotes: "", orderItems });
-    },
-  });
-
-  useEffect(() => {
-    sendOtpMutation.mutate({
-      shopId: shopid,
-      tableId: tableid,
-      phoneNumber: phoneNo,
-    });
-  }, [shopid, tableid, phoneNo]);
-
-  const handleOtpChange = (value, i) => {
-    if (!/^\d?$/.test(value)) return;
-    const newOtp = [...otp];
-    newOtp[i] = value;
-    setOtp(newOtp);
-    if (value && i < 3) inputsRef.current[i + 1].focus();
-  };
-
-  return (
-    <div className="w-full h-full p-6 flex flex-col items-center gap-6">
-      <button
-        className="self-start border border-gray-300 rounded-md p-3 text-gray-400"
-        onClick={() => setIsVerifying(false)}
-      >
-        <FaChevronLeft />
-      </button>
-
-      <div className="text-center">
-        <h2 className="font-semibold">We just sent an SMS</h2>
-        <p className="text-gray-500 text-sm">
-          Enter the code sent to +91 {phoneNo}
-        </p>
-      </div>
-
-      <div className="flex gap-3">
-        {otp.map((digit, i) => (
-          <input
-            key={i}
-            ref={(el) => (inputsRef.current[i] = el)}
-            type="text"
-            maxLength="1"
-            value={digit}
-            onChange={(e) => handleOtpChange(e.target.value, i)}
-            className="w-12 h-12 text-center text-lg font-semibold border-2 border-gray-300 rounded-md focus:border-emerald-700"
-          />
-        ))}
-      </div>
-
-      <button
-        className="bg-emerald-700 text-white px-8 py-2 rounded-md"
-        disabled={createSessionMutation.isPending}
-        onClick={() =>
-          createSessionMutation.mutate({
-            shopId: shopid,
-            tableId: tableid,
-            otp: otpValue,
-            status: "active",
-            amount: finalTotal,
-            isPaid: false,
-            paymentMethod: "",
-            active: true,
-          })
-        }
-      >
-        {createSessionMutation.isPending ? "Verifying..." : "Verify"}
-      </button>
-
-      <div className="text-center text-sm text-gray-500">
-        <p>Didn’t receive the code?</p>
-        <button
-          className="text-emerald-700 font-medium"
-          onClick={() =>
-            sendOtpMutation.mutate({
-              shopId: shopid,
-              tableId: tableid,
-              phoneNumber: phoneNo,
-            })
-          }
-        >
-          Resend
-        </button>
-      </div>
-    </div>
-  );
-};
-
-const VerifyAndJoinSession = ({
-  setIsVerifying,
-  shopid,
-  tableid,
-  orderItems,
-  onPlaceOrder,
-}) => {
-  const [otp, setOtp] = useState(["", "", "", ""]);
-  const inputsRef = useRef([]);
-
-  const otpValue = otp.join("");
-
-  const joinSessionMutation = useMutation({
-    mutationFn: joinSession,
-    onSuccess: (data) => {
-      localStorage.setItem("session-token", data.sessionToken);
-      onPlaceOrder({ specialNotes: "", orderItems });
-    },
-  });
-
-  const handleOtpChange = (value, i) => {
-    if (!/^\d?$/.test(value)) return;
-    const newOtp = [...otp];
-    newOtp[i] = value;
-    setOtp(newOtp);
-    if (value && i < 3) inputsRef.current[i + 1].focus();
-  };
-
-  return (
-    <div className="w-full h-full p-6 flex flex-col items-center gap-6">
-      <button
-        className="self-start border border-gray-300 rounded-md p-3 text-gray-400"
-        onClick={() => setIsVerifying(false)}
-      >
-        <FaChevronLeft />
-      </button>
-
-      <div className="text-center">
-        <h2 className="font-semibold">We just sent an SMS</h2>
-        <p className="text-gray-500 text-sm">Enter the session key</p>
-      </div>
-
-      <div className="flex gap-3">
-        {otp.map((digit, i) => (
-          <input
-            key={i}
-            ref={(el) => (inputsRef.current[i] = el)}
-            type="text"
-            maxLength="1"
-            value={digit}
-            onChange={(e) => handleOtpChange(e.target.value, i)}
-            className="w-12 h-12 text-center text-lg font-semibold border-2 border-gray-300 rounded-md focus:border-emerald-700"
-          />
-        ))}
-      </div>
-
-      <button
-        className="bg-emerald-700 text-white px-8 py-2 rounded-md"
-        disabled={joinSessionMutation.isPending}
-        onClick={() =>
-          joinSessionMutation.mutate({
-            shopId: shopid,
-            tableId: tableid,
-            otp: otpValue,
-          })
-        }
-      >
-        {joinSessionMutation.isPending ? "Verifying..." : "Verify"}
-      </button>
-    </div>
-  );
-};
-
 const OrderPlaced = ({ placedOrderId }) => {
   const navigate = useNavigate();
   console.log(placedOrderId);
@@ -391,23 +201,13 @@ const ViewOrder = () => {
   const { shopid, tableid } = useParams();
   const { orderItems, setOrderItems } = useAuthStore();
 
-  const [phoneNo, setPhoneNo] = useState("");
-  const [isVerifying, setIsVerifying] = useState(false);
   const [isOrderPlaced, setIsOrderPlaced] = useState(false);
-
   const [placedOrderId, setPlacedOrderId] = useState("");
 
   const tableData = useQuery({
     queryKey: ["table", shopid, tableid],
     queryFn: () => fetchTableByTableId({ shopid, tableid }),
   });
-
-  const sessionData = useQuery({
-    queryKey: ["session", shopid, tableid],
-    queryFn: () => getSession({ shopid, tableid }),
-  });
-
-  const token = localStorage.getItem("session-token");
 
   const placeOrderMutation = useMutation({
     mutationFn: placeOrder,
@@ -429,16 +229,20 @@ const ViewOrder = () => {
   const serviceTax = Math.round(totalPrice * 0.1);
   const finalTotal = totalPrice + serviceTax;
 
-  const handlePlaceOrder = (payload) => {
-    placeOrderMutation.mutate(payload);
+  const handlePlaceOrder = () => {
+    const payloadOrderItems = orderItems.map(({ itemName, ...rest }) => rest);
+    placeOrderMutation.mutate({
+      shopId: shopid,
+      tableId: tableid,
+      specialNotes: "",
+      orderItems: payloadOrderItems,
+    });
   };
 
-  if (tableData.isLoading || sessionData.isLoading)
+  if (tableData.isLoading)
     return <p className="p-4">Loading...</p>;
-  if (tableData.error || sessionData.error)
+  if (tableData.error)
     return <p className="p-4 text-red-500">Error loading data.</p>;
-
-  const payloadOrderItems = orderItems.map(({ itemName, ...rest }) => rest);
 
   return (
     <div className="w-screen h-screen">
@@ -446,26 +250,6 @@ const ViewOrder = () => {
 
       {isOrderPlaced ? (
         <OrderPlaced placedOrderId={placedOrderId} />
-      ) : isVerifying ? (
-        !sessionData.data ? (
-          <VerifyAndCreateSession
-            setIsVerifying={setIsVerifying}
-            phoneNo={phoneNo}
-            shopid={shopid}
-            tableid={tableid}
-            finalTotal={finalTotal}
-            orderItems={payloadOrderItems}
-            onPlaceOrder={handlePlaceOrder}
-          />
-        ) : (
-          <VerifyAndJoinSession
-            setIsVerifying={setIsVerifying}
-            shopid={shopid}
-            tableid={tableid}
-            orderItems={payloadOrderItems}
-            onPlaceOrder={handlePlaceOrder}
-          />
-        )
       ) : (
         <>
           <OrderDetails orderItems={orderItems} setOrderItems={setOrderItems} />
@@ -473,44 +257,19 @@ const ViewOrder = () => {
           <BasicDetails tableNo={tableData.data.table.tableNumber} />
 
           <div className="fixed bottom-0 left-0 right-0">
-            {!token && !sessionData.data && (
-              <div className="px-4 py-2 bg-gray-50 border-t border-gray-300 flex items-center gap-3">
-                <span className="text-gray-600 text-lg">+91</span>
-                <input
-                  type="text"
-                  className="flex-1 border-none bg-transparent text-lg text-gray-700 focus:outline-none"
-                  placeholder="Phone Number"
-                  value={phoneNo}
-                  onChange={(e) => setPhoneNo(e.target.value)}
-                />
-              </div>
-            )}
             <div className="bg-emerald-700 text-white py-3 flex justify-between px-5 items-center">
               <span className="text-sm">
                 {orderItems.reduce((t, i) => t + i.quantity, 0)} items |{" "}
                 <span className="font-semibold">₹{finalTotal}</span>
               </span>
 
-              {!token ? (
-                <button
-                  onClick={() => setIsVerifying(true)}
-                  className="px-4 py-2 rounded-md font-semibold text-sm bg-white text-emerald-700"
-                >
-                  Place Order
-                </button>
-              ) : (
-                <button
-                  onClick={() =>
-                    handlePlaceOrder({
-                      specialNotes: "",
-                      orderItems: payloadOrderItems,
-                    })
-                  }
-                  className="px-4 py-2 rounded-md font-semibold text-sm bg-white text-emerald-700"
-                >
-                  Place Order
-                </button>
-              )}
+              <button
+                onClick={handlePlaceOrder}
+                disabled={placeOrderMutation.isPending}
+                className="px-4 py-2 rounded-md font-semibold text-sm bg-white text-emerald-700"
+              >
+                {placeOrderMutation.isPending ? "Placing..." : "Place Order"}
+              </button>
             </div>
           </div>
         </>

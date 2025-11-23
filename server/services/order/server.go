@@ -150,7 +150,8 @@ func (s *gRPCserver) CreateOrderAdmin(ctx context.Context, req *order.CreateOrde
 			OrderStatus:  orderRes.Order.OrderStatus,
 			SpecialNotes: orderRes.Order.SpecialNotes,
 		},
-		OrderItems: newOrderItems,
+		OrderItems:   newOrderItems,
+		SessionToken: orderRes.SessionToken,
 	}, nil
 }
 

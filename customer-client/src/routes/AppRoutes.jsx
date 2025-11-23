@@ -32,14 +32,7 @@ function AppRoutes() {
         <Route path="/:shopid/:tableid" element={<Menu />} />
         <Route path="/:shopid/:tableid/view-order" element={<ViewOrder />} />
         {/* <Route path="/:shopid/:tableid/session" element={<Session />} /> */}
-        <Route
-          path="/:shopid/:tableid/orders"
-          element={
-            <Protected>
-              <Orders />
-            </Protected>
-          }
-        />
+        <Route path="/:shopid/:tableid/orders" element={<Orders />} />
         <Route
           path="/order/:orderid"
           element={

@@ -80,19 +80,30 @@ func (c *SessionClient) GetActiveSession(ctx context.Context, w http.ResponseWri
 	if err != nil {
 		return err
 	}
+
+	// Check if session exists and is active
+	if res.Session != nil && res.Session.Active {
+		return pkg.WriteJSON(w, http.StatusOK, pkg.GetActiveSessionResponse{
+			Session: pkg.Session{
+				Id:            res.Session.SessionId,
+				ShopId:        res.Session.ShopId,
+				TableId:       res.Session.TableId,
+				Otp:           res.Session.Otp,
+				Status:        res.Session.SessionStatus,
+				Amount:        res.Session.TotalAmount,
+				IsPaid:        res.Session.IsPaid,
+				PaymentMethod: res.Session.PaymentMethod,
+				PhoneNumber:   res.Session.PhoneNumber,
+				Active:        res.Session.Active,
+			},
+			SessionToken: res.Token, // Return token for existing session
+		})
+	}
+
+	// No active session found - return empty response
 	return pkg.WriteJSON(w, http.StatusOK, pkg.GetActiveSessionResponse{
-		Session: pkg.Session{
-			Id:            res.Session.SessionId,
-			ShopId:        res.Session.ShopId,
-			TableId:       res.Session.TableId,
-			Otp:           res.Session.Otp,
-			Status:        res.Session.SessionStatus,
-			Amount:        res.Session.TotalAmount,
-			IsPaid:        res.Session.IsPaid,
-			PaymentMethod: res.Session.PaymentMethod,
-			PhoneNumber:   res.Session.PhoneNumber,
-			Active:        res.Session.Active,
-		},
+		Session:      pkg.Session{},
+		SessionToken: "",
 	})
 }
 

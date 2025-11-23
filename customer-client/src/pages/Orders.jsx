@@ -110,12 +110,39 @@ const TotalCard = ({ totalAmount }) => (
 );
 
 const Orders = () => {
+  const navigate = useNavigate();
+  const shopId = localStorage.getItem("shopId");
+  const tableId = localStorage.getItem("tableId");
+  const sessionToken = localStorage.getItem("session-token");
+
+  // If no session token, show message
+  if (!sessionToken) {
+    return (
+      <div className="w-screen h-screen bg-gray-50 flex flex-col">
+        <div className="sticky top-0 z-10 bg-white">
+          <Navbar />
+          <BackButton />
+        </div>
+        <div className="flex-1 flex flex-col items-center justify-center p-4">
+          <p className="text-gray-600 text-center mb-4">
+            No orders yet. Place your first order to see it here!
+          </p>
+          <button
+            onClick={() => navigate(`/${shopId}/${tableId}`)}
+            className="px-6 py-2 bg-emerald-700 text-white rounded-md"
+          >
+            Browse Menu
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   const { data, isLoading, error } = useQuery({
     queryKey: ["orders"],
     queryFn: () => getOrdersBySessionId(),
   });
 
-  const shopId = localStorage.getItem("shopId");
   const { data: itemsData } = useQuery({
     queryKey: ["items", shopId],
     queryFn: () => fetchItemsByShopId(shopId),

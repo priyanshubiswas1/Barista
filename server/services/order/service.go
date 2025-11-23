@@ -120,7 +120,7 @@ func (s *service) CreateOrder(ctx context.Context, order pkg.OrderReq) (pkg.Crea
 }
 
 func (s *service) CreateOrderAdmin(ctx context.Context, order pkg.OrderAdminReq) (pkg.CreateOrderRes, error) {
-	session, _, err := s.sessionClient.CreateSessionAdmin(ctx, order.ShopId, order.TableId, "active", "", "0000000000", 0, false, true)
+	session, sessionToken, err := s.sessionClient.CreateSessionAdmin(ctx, order.ShopId, order.TableId, "active", "", "0000000000", 0, false, true)
 	if err != nil {
 		log.Println("failed to Create or Join Session error: ", err)
 		return pkg.CreateOrderRes{}, err
@@ -167,6 +167,8 @@ func (s *service) CreateOrderAdmin(ctx context.Context, order pkg.OrderAdminReq)
 			log.Printf("error creating session in history service: %v", err)
 			return pkg.CreateOrderRes{}, err
 		}
+		// Return order with session token
+		res.SessionToken = sessionToken
 		return res, err
 	}
 	return res, errors.New("failed to update session table")

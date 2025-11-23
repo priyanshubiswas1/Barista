@@ -32,7 +32,7 @@ const (
 
 type IService interface {
 	GetAllSessions(ctx context.Context, shopId string) ([]pkg.Session, error)
-	GetActiveSession(ctx context.Context, shopId, tableId string) (pkg.Session, error)
+	GetActiveSession(ctx context.Context, shopId, tableId string) (pkg.Session, string, error)
 	GetAllActiveSessions(ctx context.Context, shopId string) ([]pkg.ActiveSession, error)
 	GetSessionById(ctx context.Context, sessionId string) (pkg.Session, error)
 	SendSessionOTP(ctx context.Context, shopId, tableId, phoneNumber string) (bool, error)
@@ -68,27 +68,33 @@ func (s *service) GetAllSessions(ctx context.Context, shopId string) ([]pkg.Sess
 	return s.repository.GetAllSessions(ctx, shopId)
 }
 
-func (s *service) GetActiveSession(ctx context.Context, shopId, tableId string) (pkg.Session, error) {
+func (s *service) GetActiveSession(ctx context.Context, shopId, tableId string) (pkg.Session, string, error) {
 	if shopId == "" {
-		return pkg.Session{}, errors.New("shop ID is required")
+		return pkg.Session{}, "", errors.New("shop ID is required")
 	}
 	if _, err := uuid.Parse(shopId); err != nil {
-		return pkg.Session{}, errors.New("invalid shop ID format")
+		return pkg.Session{}, "", errors.New("invalid shop ID format")
 	}
 	if tableId == "" {
-		return pkg.Session{}, errors.New("table ID is required")
+		return pkg.Session{}, "", errors.New("table ID is required")
 	}
 	if _, err := uuid.Parse(tableId); err != nil {
-		return pkg.Session{}, errors.New("invalid table ID format")
+		return pkg.Session{}, "", errors.New("invalid table ID format")
 	}
 	session, err := s.repository.GetActiveSession(ctx, shopId, tableId)
 	if err != nil {
-		return pkg.Session{}, err
+		return pkg.Session{}, "", err
 	}
 	if session == (pkg.Session{}) {
-		return pkg.Session{}, errors.New("no active sessions found")
+		return pkg.Session{}, "", errors.New("no active sessions found")
 	}
-	return session, nil
+	// Generate token for existing session
+	tokenString, err := GenerateToken(session.Id)
+	if err != nil {
+		log.Println("error generating token for active session")
+		return pkg.Session{}, "", err
+	}
+	return session, tokenString, nil
 }
 
 func (s *service) GetAllActiveSessions(ctx context.Context, shopId string) ([]pkg.ActiveSession, error) {
@@ -216,7 +222,8 @@ func (s *service) CreateOrJoinSessionAdmin(ctx context.Context, shopId, tableId,
 		return pkg.Session{}, "", err
 	}
 	if session != (pkg.Session{}) {
-		res, err := s.repository.JoinSessionAdmin(ctx, shopId, tableId)
+		// Join existing session
+		res, sessionNumber, err := s.repository.JoinSessionAdmin(ctx, shopId, tableId)
 		if err != nil {
 			return pkg.Session{}, "", err
 		}
@@ -225,10 +232,21 @@ func (s *service) CreateOrJoinSessionAdmin(ctx context.Context, shopId, tableId,
 			log.Println("error generating token")
 			return pkg.Session{}, tokenString, err
 		}
+
+		// Ensure history record exists for joined session
+		sessionNo, err := strconv.Atoi(sessionNumber)
+		if err != nil {
+			log.Printf("error parsing session number: %v", err)
+		} else {
+			// Try to create history record if it doesn't exist
+			// This will fail silently if it already exists
+			_ = s.historyClient.CreateSession(ctx, res.Id, shopId, int32(sessionNo))
+		}
+
 		return res, tokenString, nil
 	} else {
+		// Create new session
 		otp := generateOTP()
-		//create session
 		id := uuid.New().String()
 		sessionNoStr, err := s.repository.CreateSession(ctx, id, shopId, tableId, status, paymentMethod, otp, phoneNumber, totalAmount, isPaid, true, time.Now())
 		if err != nil {

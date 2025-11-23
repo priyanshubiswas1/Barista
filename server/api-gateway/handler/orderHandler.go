@@ -20,6 +20,7 @@ type IOrderClient interface {
 	GetOrderById(ctx context.Context, w http.ResponseWriter, r *http.Request) error
 	CreateOrder(ctx context.Context, w http.ResponseWriter, r *http.Request) error
 	CreateOrderAdmin(ctx context.Context, w http.ResponseWriter, r *http.Request) error
+	CreateOrderCustomer(ctx context.Context, w http.ResponseWriter, r *http.Request) error
 	UpdateOrder(ctx context.Context, w http.ResponseWriter, r *http.Request) error
 	CancelOrder(ctx context.Context, w http.ResponseWriter, r *http.Request) error
 }
@@ -221,6 +222,51 @@ func (c *OrderClient) CreateOrderAdmin(ctx context.Context, w http.ResponseWrite
 			SpecialNotes: res.Order.SpecialNotes,
 		},
 		OrderItems: orderItemsRes,
+	})
+}
+
+func (c *OrderClient) CreateOrderCustomer(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+	req := pkg.CreateOrderCustomerRequest{}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		return err
+	}
+	orderItems := []*order.OrderItemReq{}
+	for _, oi := range req.OrderItems {
+		orderItems = append(orderItems, &order.OrderItemReq{
+			ItemId:           oi.ItemId,
+			Quantity:         oi.Quantity,
+			PriceAtOrderTime: oi.PriceAtOrderTime,
+		})
+	}
+	// Reuse CreateOrderAdmin - it handles session create/join internally
+	res, err := c.service.CreateOrderAdmin(ctx, &order.CreateOrderAdminRequest{
+		ShopId:       req.ShopId,
+		TableId:      req.TableId,
+		SpecialNotes: req.SpecialNotes,
+		OrderItems:   orderItems,
+	})
+	if err != nil {
+		return err
+	}
+	orderItemsRes := []pkg.OrderItems{}
+	for _, oi := range res.OrderItems {
+		orderItemsRes = append(orderItemsRes, pkg.OrderItems{
+			Id:               oi.OrderItemId,
+			OrderId:          oi.OrderId,
+			ItemId:           oi.ItemId,
+			Quantity:         oi.Quantity,
+			PriceAtOrderTime: oi.PriceAtOrderTime,
+		})
+	}
+	return pkg.WriteJSON(w, http.StatusOK, pkg.CreateOrderCustomerResponse{
+		Order: pkg.Order{
+			Id:           res.Order.OrderId,
+			SessionId:    res.Order.SessionId,
+			OrderStatus:  res.Order.OrderStatus,
+			SpecialNotes: res.Order.SpecialNotes,
+		},
+		OrderItems:   orderItemsRes,
+		SessionToken: res.SessionToken, // Return session token for customer
 	})
 }
 
