@@ -102,18 +102,30 @@ const GenerateBill = ({ header }) => {
   return (
     <div className="flex flex-col w-full h-full relative">
       <div className="flex flex-col w-full h-full overflow-auto">
-        <div className="px-6 pt-6 pb-4 flex justify-between items-start">
-          {header && <h2 className="font-semibold text-2xl">{header}</h2>}
-          <button
-            onClick={() => setOverlay("")}
-            className="text-gray-600 hover:text-gray-900"
-            aria-label="Close overlay"
-          >
-            <IoClose size={24} />
-          </button>
+        {/* Header with gradient */}
+        <div className="bg-gradient-to-br from-emerald-600 to-emerald-700 text-white px-8 py-6 relative overflow-hidden shadow-lg">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16" />
+          <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full -ml-12 -mb-12" />
+          
+          <div className="relative z-10 flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="bg-white rounded-full h-12 w-12 flex items-center justify-center shadow-lg">
+                <span className="text-2xl">☕</span>
+              </div>
+              <div>
+                {header && <h2 className="font-bold text-2xl">{header}</h2>}
+                <p className="text-emerald-100 text-sm mt-1">Bill summary</p>
+              </div>
+            </div>
+            <button
+              onClick={() => setOverlay("")}
+              className="text-white hover:bg-white/20 rounded-lg p-2 transition-all"
+              aria-label="Close overlay"
+            >
+              <IoClose size={24} />
+            </button>
+          </div>
         </div>
-
-        <div className="w-full h-px bg-gray-200" />
 
         <div className="w-full h-full flex flex-col p-4 gap-3">
           <div className="flex flex-col justify-between border border-gray-200 rounded-xl p-3 gap-2">

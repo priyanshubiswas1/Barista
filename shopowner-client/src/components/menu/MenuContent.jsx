@@ -133,13 +133,13 @@ const ItemActions = ({ item }) => {
             onClick={handleEdit}
             className="w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 text-left transition-colors font-medium flex items-center gap-2"
           >
-            <span>✏️</span> Edit
+            Edit
           </button>
           <button
             onClick={handleDelete}
             className="w-full px-4 py-2.5 text-sm text-red-600 bg-red-50 hover:bg-red-100 text-left transition-colors font-medium flex items-center gap-2"
           >
-            <span>🗑️</span> Delete
+            Delete
           </button>
         </div>
       )}
@@ -183,12 +183,10 @@ const MenuContentBody = ({ items }) => {
                     <img
                       src={item.image}
                       alt={item.itemName}
-                      className="w-10 h-10 rounded-lg object-cover border border-gray-200"
+                      className="w-9 h-9 rounded-full object-cover"
                     />
                   ) : (
-                    <div className="w-10 h-10 bg-gradient-to-br from-gray-200 to-gray-300 rounded-lg flex items-center justify-center">
-                      <span className="text-gray-500 text-xs">🍽️</span>
-                    </div>
+                    <div className="w-9 h-9 bg-gray-300 rounded-full" />
                   )}
                   <div className="font-medium text-gray-900">{item.itemName}</div>
                 </div>
@@ -200,12 +198,12 @@ const MenuContentBody = ({ items }) => {
               {/* Veg / Non-veg */}
               <td>
                 {item.veg ? (
-                  <div className="bg-green-100 border border-green-200 text-green-700 text-xs font-bold rounded-lg px-3 py-1 inline-block">
-                    🌿 Veg
+                  <div className="bg-green-100 text-green-700 text-xs font-semibold rounded-sm px-2 py-0.5 inline-block">
+                    Veg
                   </div>
                 ) : (
-                  <div className="bg-red-100 border border-red-200 text-red-700 text-xs font-bold rounded-lg px-3 py-1 inline-block">
-                    🍗 Non-veg
+                  <div className="bg-red-100 text-red-700 text-xs font-semibold rounded-sm px-2 py-0.5 inline-block">
+                    Non-veg
                   </div>
                 )}
               </td>

@@ -51,49 +51,63 @@ const UpdateTable = ({ header, table }) => {
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-8 relative">
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h2 className="font-bold text-2xl text-gray-900">{header}</h2>
-          <p className="text-sm text-gray-500 mt-1">Modify table details</p>
+    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden relative">
+      {/* Header with gradient */}
+      <div className="bg-gradient-to-br from-emerald-600 to-emerald-700 text-white p-8 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16" />
+        <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full -ml-12 -mb-12" />
+        
+        <div className="relative z-10 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="bg-white rounded-full h-12 w-12 flex items-center justify-center shadow-lg">
+              <span className="text-2xl">☕</span>
+            </div>
+            <div>
+              <h2 className="font-bold text-2xl">{header}</h2>
+              <p className="text-emerald-100 text-sm mt-1">Modify table details</p>
+            </div>
+          </div>
+          <button
+            onClick={() => setOverlay("")}
+            className="text-white hover:bg-white/20 rounded-lg p-2 transition-all"
+            aria-label="Close popup"
+          >
+            <IoClose size={24} />
+          </button>
         </div>
-        <button
-          onClick={() => setOverlay("")}
-          className="text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg p-2 transition-all"
-          aria-label="Close popup"
-        >
-          <IoClose size={24} />
-        </button>
       </div>
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-        <Input
-          label="Table Number"
-          type="text"
-          name="tableNumber"
-          placeholder="Enter table number"
-          value={tableNumber}
-          onChange={(e) => setTableNumber(e.target.value)}
-          required
-        />
+      {/* Form Content */}
+      <div className="p-8 bg-gradient-to-b from-gray-50 to-white">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+          <Input
+            label="Table Number"
+            type="text"
+            name="tableNumber"
+            placeholder="Enter table number"
+            value={tableNumber}
+            onChange={(e) => setTableNumber(e.target.value)}
+            required
+          />
 
-        <div className="flex gap-3 pt-2">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => setOverlay("")}
-          >
-            Cancel
-          </Button>
-          <Button
-            type="submit"
-            variant="primary"
-            disabled={createMutation.isPending}
-          >
-            {createMutation.isPending ? "Updating..." : "Update Table"}
-          </Button>
-        </div>
-      </form>
+          <div className="flex gap-3 pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setOverlay("")}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              variant="primary"
+              disabled={createMutation.isPending}
+            >
+              {createMutation.isPending ? "Updating..." : "Update Table"}
+            </Button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };

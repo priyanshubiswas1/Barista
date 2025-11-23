@@ -79,8 +79,8 @@ const SearchableSelect = ({
             disabled
               ? "bg-gray-100 border border-gray-200 cursor-not-allowed"
               : error
-              ? "border border-red-700 focus-within:ring-2 focus-within:ring-red-700"
-              : "border border-gray-200 focus-within:ring-2 focus-within:ring-gray-800"
+              ? "border border-red-700"
+              : "border border-gray-200"
           }
           bg-gray-50`}
         onClick={() => {

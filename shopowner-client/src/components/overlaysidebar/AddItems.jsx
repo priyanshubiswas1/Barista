@@ -133,103 +133,131 @@ const AddItems = ({ header }) => {
 
   return (
     <div className="flex flex-col w-full h-full bg-gradient-to-b from-gray-50 to-white">
-      {/* Header */}
-      <div className="bg-white border-b-2 border-gray-200 px-8 py-6 flex justify-between items-center shadow-sm">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">{header}</h2>
-          <p className="text-sm text-gray-500 mt-1">Fill in the details below</p>
+      {/* Header with gradient */}
+      <div className="bg-gradient-to-br from-emerald-600 to-emerald-700 text-white px-8 py-6 relative overflow-hidden shadow-lg">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16" />
+        <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full -ml-12 -mb-12" />
+        
+        <div className="relative z-10 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="bg-white rounded-full h-12 w-12 flex items-center justify-center shadow-lg">
+              <span className="text-2xl">☕</span>
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold">{header}</h2>
+              <p className="text-emerald-100 text-sm mt-1">Fill in the details below</p>
+            </div>
+          </div>
+          <button
+            onClick={() => setOverlay("")}
+            className="text-white hover:bg-white/20 rounded-lg p-2 transition-all"
+            aria-label="Close overlay"
+          >
+            <X size={24} weight="bold" />
+          </button>
         </div>
-        <button
-          onClick={() => setOverlay("")}
-          className="text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg p-2 transition-all"
-          aria-label="Close overlay"
-        >
-          <X size={24} weight="bold" />
-        </button>
       </div>
 
       {/* Form Content - Scrollable */}
       <div className="flex-1 overflow-y-auto">
-        <form className="flex flex-col gap-6 px-8 py-6">
-          <ImageUploader
-            label="Image"
-            onChange={handleImageChange}
-            value={imageFile}
-          />
-          <div className="flex flex-col gap-4">
-            <Input
-              label="Name"
-              type="text"
-              name="name"
-              placeholder="Enter item name"
-              helperText={err.name}
-              error={!!err.name}
-              value={formData.name}
-              onChange={handleChange}
+        <form className="flex flex-col gap-4 px-8 py-8">
+          {/* Image Upload Section */}
+          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+            <h3 className="text-sm font-semibold text-gray-700 mb-4 uppercase tracking-wide">Item Image</h3>
+            <ImageUploader
+              label="Image"
+              onChange={handleImageChange}
+              value={imageFile}
             />
-            <SearchableSelect
-              label="Category"
-              placeholder="Search or select category"
-              initialOptions={categoryOptions}
-              onSelect={(name) => {
-                setSelectedCategoryName(name);
-                setFormData((prev) => ({
-                  ...prev,
-                  categoryId: nameToId[name] || "",
-                }));
-              }}
-              onChange={(value) => {
-                if (value !== selectedCategoryName) {
-                  setSelectedCategoryName("");
+          </div>
+
+          {/* Basic Details Section */}
+          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+            <h3 className="text-sm font-semibold text-gray-700 mb-5 uppercase tracking-wide">Basic Details</h3>
+            <div className="flex flex-col">
+              <Input
+                label="Name"
+                type="text"
+                name="name"
+                placeholder="Enter item name"
+                helperText={err.name}
+                error={!!err.name}
+                value={formData.name}
+                onChange={handleChange}
+              />
+              <SearchableSelect
+                label="Category"
+                placeholder="Search or select category"
+                initialOptions={categoryOptions}
+                onSelect={(name) => {
+                  setSelectedCategoryName(name);
                   setFormData((prev) => ({
                     ...prev,
-                    categoryId: "",
+                    categoryId: nameToId[name] || "",
                   }));
-                }
-              }}
-              onAdd={(name) => {
-                createCategoryMutation.mutate({
-                  name,
-                  shopId: localStorage.getItem("shopId"),
-                });
-              }}
-              helperText={err.categoryId}
-              error={!!err.categoryId}
-            />
+                }}
+                onChange={(value) => {
+                  if (value !== selectedCategoryName) {
+                    setSelectedCategoryName("");
+                    setFormData((prev) => ({
+                      ...prev,
+                      categoryId: "",
+                    }));
+                  }
+                }}
+                onAdd={(name) => {
+                  createCategoryMutation.mutate({
+                    name,
+                    shopId: localStorage.getItem("shopId"),
+                  });
+                }}
+                helperText={err.categoryId}
+                error={!!err.categoryId}
+              />
+            </div>
+          </div>
 
-            <Input
-              label="Price"
-              type="number"
-              name="price"
-              placeholder="0.00"
-              prefix="₹"
-              helperText={err.price}
-              error={!!err.price}
-              value={formData.price}
-              onChange={handleChange}
-            />
-            <div className="flex gap-20">
-              <Radio
-                name="food"
-                value="veg"
-                label="Veg"
-                checked={selected === "veg"}
-                onChange={() => setSelected("veg")}
+          {/* Pricing & Type Section */}
+          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+            <h3 className="text-sm font-semibold text-gray-700 mb-5 uppercase tracking-wide">Pricing & Type</h3>
+            <div className="flex flex-col">
+              <Input
+                label="Price"
+                type="number"
+                name="price"
+                placeholder="0.00"
+                prefix="₹"
+                helperText={err.price}
+                error={!!err.price}
+                value={formData.price}
+                onChange={handleChange}
               />
-              <Radio
-                name="food"
-                value="nonveg"
-                label="Non-Veg"
-                checked={selected === "nonveg"}
-                onChange={() => setSelected("nonveg")}
-              />
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-3">Food Type</label>
+                <div className="flex gap-8">
+                  <Radio
+                    name="food"
+                    value="veg"
+                    label="Veg"
+                    checked={selected === "veg"}
+                    onChange={() => setSelected("veg")}
+                  />
+                  <Radio
+                    name="food"
+                    value="nonveg"
+                    label="Non-Veg"
+                    checked={selected === "nonveg"}
+                    onChange={() => setSelected("nonveg")}
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </form>
       </div>
 
       {/* Footer Actions - Fixed */}
-      <div className="border-t-2 border-gray-200 bg-white px-8 py-5 flex justify-between shadow-lg">
+      <div className="border-t-2 border-gray-200 bg-gradient-to-r from-gray-50 to-white px-8 py-6 flex justify-end gap-3 shadow-lg">
         <Button
           onClick={() => {
             setFormData({
@@ -242,7 +270,7 @@ const AddItems = ({ header }) => {
           }}
           variant="outline"
         >
-          Cancel
+          Clear Form
         </Button>
         <Button
           onClick={handleSubmit}

@@ -1,5 +1,3 @@
-import React from "react";
-
 export default function Input({
   label,
   placeholder,
@@ -31,8 +29,8 @@ export default function Input({
             disabled
               ? "bg-gray-100 border-gray-200 cursor-not-allowed"
               : error
-              ? "border-red-700 focus-within:ring-2 focus-within:ring-red-700"
-              : "border-gray-200 focus-within:ring-2 focus-within:ring-gray-800"
+              ? "border-red-700"
+              : "border-gray-200"
           }`}
       >
         {prefix && <span className="mr-2 text-gray-800 text-sm">{prefix}</span>}

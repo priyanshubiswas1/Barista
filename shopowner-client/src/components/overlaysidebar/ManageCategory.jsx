@@ -131,17 +131,30 @@ const ManageCategory = ({ header }) => {
 
   return (
     <div className="flex flex-col w-full h-full">
-      <div className="px-8 py-4 flex justify-between items-center">
-        {header && <h2>{header}</h2>}
-        <button
-          onClick={() => setOverlay("")}
-          className="text-gray-600 hover:text-gray-800 cursor-pointer"
-          aria-label="Close overlay"
-        >
-          <X size={16} weight="bold" />
-        </button>
+      {/* Header with gradient */}
+      <div className="bg-gradient-to-br from-emerald-600 to-emerald-700 text-white px-8 py-6 relative overflow-hidden shadow-lg">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16" />
+        <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full -ml-12 -mb-12" />
+        
+        <div className="relative z-10 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="bg-white rounded-full h-12 w-12 flex items-center justify-center shadow-lg">
+              <span className="text-2xl">☕</span>
+            </div>
+            <div>
+              {header && <h2 className="font-bold text-2xl">{header}</h2>}
+              <p className="text-emerald-100 text-sm mt-1">Organize your menu</p>
+            </div>
+          </div>
+          <button
+            onClick={() => setOverlay("")}
+            className="text-white hover:bg-white/20 rounded-lg p-2 transition-all"
+            aria-label="Close overlay"
+          >
+            <X size={24} weight="bold" />
+          </button>
+        </div>
       </div>
-      <div className="w-full h-px bg-gray-200" />
       <div className="flex flex-col w-full h-full">
         <div className="pt-6">
           {categories.map((category, index) => (
