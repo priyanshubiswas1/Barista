@@ -2,9 +2,9 @@ import React, { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import Navbar from "../components/Navbar";
-import { IoEllipseSharp } from "react-icons/io5";
+import { IoEllipseSharp, IoTriangleSharp } from "react-icons/io5";
 import { IoIosArrowBack } from "react-icons/io";
-import { getOrdersBySessionId } from "../api/api";
+import { getOrdersBySessionId, fetchItemsByShopId } from "../api/api";
 import { useAuthStore } from "../store/authStore";
 
 const formatCurrency = (amount) => {
@@ -36,12 +36,15 @@ const BackButton = () => {
   );
 };
 
-const OrderCard = ({ order }) => {
+const OrderCard = ({ order, itemsMap }) => {
   const items = Array.isArray(order.orderItems)
     ? order.orderItems
     : Object.values(order.orderItems || {});
   const subtotal = useMemo(
-    () => items.reduce((acc, it) => acc + calculateLineTotal(it), 0),
+    () =>
+      items.reduce((acc, it) => {
+        return acc + calculateLineTotal(it);
+      }, 0),
     [items]
   );
 
@@ -57,20 +60,36 @@ const OrderCard = ({ order }) => {
       </div>
 
       <div className="flex flex-col gap-2">
-        {items.map((it) => (
-          <div key={it.itemId} className="flex justify-between items-center">
-            <div className="flex items-center gap-2">
-              <h4 className="text-sm text-gray-800">{it.itemName || "Item"}</h4>
-              <div className="text-green-800 border border-green-800 rounded-sm p-1">
-                <IoEllipseSharp size={6} />
+        {items.map((it) => {
+          const itemInfo = itemsMap[it.itemId] || {};
+          const isVeg = itemInfo.veg ?? it.veg ?? false;
+          const itemName = itemInfo.itemName ?? it.itemName ?? "Item";
+
+          return (
+            <div key={it.itemId} className="flex justify-between items-center">
+              <div className="flex items-center gap-2">
+                <h4 className="text-sm text-gray-800">{itemName}</h4>
+                <div
+                  className={`${
+                    isVeg
+                      ? "text-green-800 border-green-800"
+                      : "text-red-800 border-red-800"
+                  } border rounded-sm p-1`}
+                >
+                  {isVeg ? (
+                    <IoEllipseSharp size={8} />
+                  ) : (
+                    <IoTriangleSharp size={8} />
+                  )}
+                </div>
+                <p className="text-xs text-gray-500">Qty: {it.quantity}</p>
               </div>
-              <p className="text-xs text-gray-500">Qty: {it.quantity}</p>
+              <p className="text-sm text-gray-700">
+                {formatCurrency(calculateLineTotal(it))}
+              </p>
             </div>
-            <p className="text-sm text-gray-700">
-              {formatCurrency(calculateLineTotal(it))}
-            </p>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <div className="pt-2 mt-2 border-t border-gray-100 flex justify-between text-sm">
@@ -83,16 +102,50 @@ const OrderCard = ({ order }) => {
   );
 };
 
+const TotalCard = ({ totalAmount }) => (
+  <div className="p-4 border border-gray-300 rounded-md bg-white flex justify-between items-center font-semibold text-lg">
+    <span>Total</span>
+    <span>{formatCurrency(totalAmount)}</span>
+  </div>
+);
+
 const Orders = () => {
   const { data, isLoading, error } = useQuery({
     queryKey: ["orders"],
     queryFn: () => getOrdersBySessionId(),
   });
 
+  const shopId = localStorage.getItem("shopId");
+  const { data: itemsData } = useQuery({
+    queryKey: ["items", shopId],
+    queryFn: () => fetchItemsByShopId(shopId),
+    enabled: !!shopId,
+  });
+
+  const itemsArray = Array.isArray(itemsData?.items)
+    ? itemsData.items
+    : Array.isArray(itemsData)
+    ? itemsData
+    : [];
+
+  const itemsMap = useMemo(() => {
+    const map = {};
+    itemsArray.forEach((it) => {
+      const id = it.itemId ?? it.id;
+      map[id] = {
+        itemName: it.itemName ?? it.name ?? it.title ?? "Item",
+        veg: it.veg ?? false,
+      };
+    });
+    return map;
+  }, [itemsArray]);
+
   if (isLoading) return <p>Loading orders...</p>;
   if (error) return <p>Error: {error.message}</p>;
 
-  const orderItemsArray = Array.isArray(data.orderItems) ? data.orderItems : [];
+  const orderItemsArray = Array.isArray(data?.orderItems)
+    ? data.orderItems
+    : [];
 
   const groupedOrders = orderItemsArray.reduce((acc, item) => {
     const { orderId } = item;
@@ -108,19 +161,31 @@ const Orders = () => {
 
   const ordersArr = Object.values(groupedOrders);
 
-  return (
-    <div className="w-screen h-screen bg-gray-50">
-      <Navbar />
-      <BackButton />
+  const totalAmount = ordersArr.reduce((acc, order) => {
+    const subtotal = order.orderItems.reduce((sum, it) => {
+      return sum + calculateLineTotal(it);
+    }, 0);
+    return acc + subtotal;
+  }, 0);
 
-      <div className="p-4 flex flex-col gap-4">
+  return (
+    <div className="w-screen h-screen bg-gray-50 flex flex-col">
+      <div className="sticky top-0 z-10 bg-white">
+        <Navbar />
+        <BackButton />
+      </div>
+
+      <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4">
         {ordersArr.length === 0 && (
           <p className="text-gray-500 text-sm">No orders found</p>
         )}
-
         {ordersArr.map((order) => (
-          <OrderCard key={order.orderId} order={order} />
+          <OrderCard key={order.orderId} order={order} itemsMap={itemsMap} />
         ))}
+      </div>
+
+      <div className="sticky bottom-0 z-10 bg-white border-t border-gray-300 p-4">
+        <TotalCard totalAmount={totalAmount} />
       </div>
     </div>
   );

@@ -8,7 +8,6 @@ import {
 import { IoMdArrowDropright, IoMdArrowDropdown } from "react-icons/io";
 import About from "../components/About";
 import Navbar from "../components/Navbar";
-import Searchbar from "../components/Searchbar";
 import { fetchItemsByShopId } from "../api/api";
 import { useAuthStore } from "../store/authStore";
 import { useNavigate, useParams } from "react-router-dom";
@@ -20,6 +19,20 @@ const VegNonVegSelect = ({ value, onChange }) => (
       <input
         type="radio"
         name="foodType"
+        value="all"
+        checked={value === "all"}
+        onChange={onChange}
+        className="hidden"
+      />
+      <div className="text-xs font-medium text-gray-800 rounded-4xl border border-gray-300 flex items-center justify-around px-3 py-1 gap-2">
+        {" "}
+        All{" "}
+      </div>
+    </label>
+    <label className="cursor-pointer">
+      <input
+        type="radio"
+        name="foodType"
         value="veg"
         checked={value === "veg"}
         onChange={onChange}
@@ -27,12 +40,12 @@ const VegNonVegSelect = ({ value, onChange }) => (
       />
       <div className="text-xs font-medium text-gray-800 rounded-4xl border border-gray-300 flex items-center justify-around px-3 py-1 gap-2">
         <div className="text-green-800 border border-green-800 rounded-sm p-1">
-          <IoEllipseSharp size={6} />
-        </div>
+          {" "}
+          <IoEllipseSharp size={6} />{" "}
+        </div>{" "}
         Veg
       </div>
     </label>
-
     <label className="cursor-pointer">
       <input
         type="radio"
@@ -44,40 +57,14 @@ const VegNonVegSelect = ({ value, onChange }) => (
       />
       <div className="text-xs font-medium text-gray-800 rounded-4xl border border-gray-300 flex items-center justify-around px-3 py-1 gap-2">
         <div className="text-red-800 border border-red-800 rounded-sm p-1">
-          <IoTriangleSharp size={6} />
-        </div>
+          {" "}
+          <IoTriangleSharp size={6} />{" "}
+        </div>{" "}
         Non Veg
-      </div>
-    </label>
-
-    <label className="cursor-pointer">
-      <input
-        type="radio"
-        name="foodType"
-        value="best-seller"
-        checked={value === "best-seller"}
-        onChange={onChange}
-        className="hidden"
-      />
-      <div className="text-xs font-medium text-gray-800 rounded-4xl border border-gray-300 flex items-center justify-around px-3 py-1 gap-2">
-        Best Seller
       </div>
     </label>
   </div>
 );
-
-const Search = () => {
-  const [foodType, setFoodType] = useState("");
-  return (
-    <div className="px-5 py-2">
-      <Searchbar />
-      <VegNonVegSelect
-        value={foodType}
-        onChange={(e) => setFoodType(e.target.value)}
-      />
-    </div>
-  );
-};
 
 const Category = ({
   category,
@@ -143,8 +130,6 @@ const Item = ({ item, orderItems, setOrderItems }) => {
             priceAtOrderTime: item.price,
           },
         ];
-
-    console.log("Updated order items:", newOrderItems);
     setOrderItems(newOrderItems.filter((i) => i.quantity > 0));
   };
 
@@ -169,7 +154,6 @@ const Item = ({ item, orderItems, setOrderItems }) => {
         </div>
         <h2 className="text-gray-600 text-sm">₹ {item.price}</h2>
       </div>
-
       <div
         className="relative w-20 h-20 rounded-md flex items-center justify-center"
         style={{
@@ -244,12 +228,13 @@ const Content = ({
 
 const Menu = () => {
   const navigate = useNavigate();
-
   const { shopid, tableid } = useParams();
   localStorage.setItem("shopId", shopid);
   localStorage.setItem("tableId", tableid);
 
   const [expandedCategories, setExpandedCategories] = useState({});
+  const [foodType, setFoodType] = useState("all");
+
   const { orderItems, setOrderItems } = useAuthStore();
 
   const { data, isLoading, error } = useQuery({
@@ -257,10 +242,26 @@ const Menu = () => {
     queryFn: () => fetchItemsByShopId(shopid),
   });
 
+  useEffect(() => {
+    if (data?.items) {
+      const categories = data.items.reduce((acc, item) => {
+        acc[item.category] = true;
+        return acc;
+      }, {});
+      setExpandedCategories(categories);
+    }
+  }, [data]);
+
   if (isLoading) return <p>Loading menu...</p>;
   if (error) return <p>Error: {error.message}</p>;
 
-  const items = data.items;
+  let items = data.items;
+
+  if (foodType === "veg") {
+    items = items.filter((item) => item.veg === true);
+  } else if (foodType === "non-veg") {
+    items = items.filter((item) => item.veg === false);
+  }
 
   const toggleCategory = (category) => {
     setExpandedCategories((prev) => ({ ...prev, [category]: !prev[category] }));
@@ -275,7 +276,12 @@ const Menu = () => {
     <div className="w-screen h-screen">
       <Navbar />
       <About />
-      <Search />
+      <div className="px-5 py-2">
+        <VegNonVegSelect
+          value={foodType}
+          onChange={(e) => setFoodType(e.target.value)}
+        />
+      </div>
       <div className="w-full h-px bg-gray-300" />
       <Content
         items={items}
