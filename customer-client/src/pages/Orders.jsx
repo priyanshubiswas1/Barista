@@ -22,7 +22,7 @@ const BackButton = () => {
   const { setOrderItems } = useAuthStore();
 
   return (
-    <div className="w-full px-4 pt-4 flex justify-start items-center">
+    <div className="w-full px-4 py-2 flex justify-start items-center">
       <button
         onClick={() => {
           setOrderItems([]);
@@ -54,9 +54,6 @@ const OrderCard = ({ order, itemsMap }) => {
         <h3 className="font-medium">
           Order #{order.orderItems[0].orderNumber}
         </h3>
-        <span className="text-sm text-gray-600">
-          {formatCurrency(subtotal)}
-        </span>
       </div>
 
       <div className="flex flex-col gap-2">
@@ -103,9 +100,11 @@ const OrderCard = ({ order, itemsMap }) => {
 };
 
 const TotalCard = ({ totalAmount }) => (
-  <div className="p-4 border border-gray-300 rounded-md bg-white flex justify-between items-center font-semibold text-lg">
-    <span>Total</span>
-    <span>{formatCurrency(totalAmount)}</span>
+  <div className="p-5 border border-emerald-100 rounded-xl bg-emerald-50 flex justify-between items-center shadow-sm">
+    <span className="font-semibold text-emerald-900 text-lg">Total</span>
+    <span className="font-bold text-emerald-900 text-2xl">
+      {formatCurrency(totalAmount)}
+    </span>
   </div>
 );
 
@@ -115,7 +114,6 @@ const Orders = () => {
   const tableId = localStorage.getItem("tableId");
   const sessionToken = localStorage.getItem("session-token");
 
-  // If no session token, show message
   if (!sessionToken) {
     return (
       <div className="w-screen h-screen bg-gray-50 flex flex-col">
@@ -202,7 +200,7 @@ const Orders = () => {
         <BackButton />
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4">
+      <div className="flex-1 overflow-y-auto mx-4 p-4 flex flex-col gap-4 rounded-md bg-gray-100 shadow-sm border border-gray-200">
         {ordersArr.length === 0 && (
           <p className="text-gray-500 text-sm">No orders found</p>
         )}
@@ -211,7 +209,7 @@ const Orders = () => {
         ))}
       </div>
 
-      <div className="sticky bottom-0 z-10 bg-white border-t border-gray-300 p-4">
+      <div className="sticky bottom-0 z-10 bg-white border-gray-300 p-4">
         <TotalCard totalAmount={totalAmount} />
       </div>
     </div>
