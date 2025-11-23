@@ -15,6 +15,7 @@ import {
 } from "../api/api";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
+import { IoIosArrowBack } from "react-icons/io";
 
 const OrderDetails = ({ orderItems, setOrderItems }) => {
   const navigate = useNavigate();
@@ -347,8 +348,27 @@ const VerifyAndJoinSession = ({
 const OrderPlaced = ({ placedOrderId }) => {
   const navigate = useNavigate();
   console.log(placedOrderId);
+
+  const BackButton = () => {
+    const shopId = localStorage.getItem("shopId");
+    const tableId = localStorage.getItem("tableId");
+    const navigate = useNavigate();
+
+    return (
+      <div className="w-full px-4 pt-4 flex justify-start items-center">
+        <button
+          onClick={() => navigate(`/${shopId}/${tableId}`)}
+          className="bg-white border border-gray-200 rounded-md flex justify-center items-center text-xl text-gray-300 p-2"
+        >
+          <IoIosArrowBack />
+        </button>
+      </div>
+    );
+  };
+
   return (
-    <div className="flex flex-col gap-4 items-center pt-20">
+    <div className="flex flex-col gap-4 items-center">
+      <BackButton />
       <div className="bg-emerald-500 rounded-full w-10 h-10 text-white flex justify-center items-center text-2xl">
         <FaCheck />
       </div>

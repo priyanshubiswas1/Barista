@@ -134,15 +134,15 @@ const Item = ({ item, orderItems, setOrderItems }) => {
             ? { ...i, quantity: newQuantity, priceAtOrderTime: item.price }
             : i
         )
-        : [
-            ...orderItems,
-            {
-              itemId: item.itemId,
-              itemName: item.itemName,
-              quantity: newQuantity,
-              priceAtOrderTime: item.price,
-            },
-          ];
+      : [
+          ...orderItems,
+          {
+            itemId: item.itemId,
+            itemName: item.itemName,
+            quantity: newQuantity,
+            priceAtOrderTime: item.price,
+          },
+        ];
 
     console.log("Updated order items:", newOrderItems);
     setOrderItems(newOrderItems.filter((i) => i.quantity > 0));
@@ -152,15 +152,32 @@ const Item = ({ item, orderItems, setOrderItems }) => {
     <div className="flex justify-between bg-white border border-gray-300 rounded-xl p-3">
       <div className="flex flex-col justify-between">
         <div className="flex flex-col items-start gap-1">
-          <div className={`${item.veg ? 'text-green-800 border-green-800' : 'text-red-800 border-red-800'} border rounded-sm w-4 h-4 flex items-center justify-center`}>
-            {item.veg ? <IoEllipseSharp size={8} /> : <IoTriangleSharp size={8} />}
+          <div
+            className={`${
+              item.veg
+                ? "text-green-800 border-green-800"
+                : "text-red-800 border-red-800"
+            } border rounded-sm w-4 h-4 flex items-center justify-center`}
+          >
+            {item.veg ? (
+              <IoEllipseSharp size={8} />
+            ) : (
+              <IoTriangleSharp size={8} />
+            )}
           </div>
           <h2 className="font-medium text-gray-800">{item.itemName}</h2>
         </div>
         <h2 className="text-gray-600 text-sm">₹ {item.price}</h2>
       </div>
 
-      <div className="relative bg-gray-400 w-20 h-20 rounded-md flex items-center justify-center">
+      <div
+        className="relative w-20 h-20 rounded-md flex items-center justify-center"
+        style={{
+          backgroundImage: `url(${item.image})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
         {count === 0 ? (
           <button
             type="button"
@@ -229,6 +246,8 @@ const Menu = () => {
   const navigate = useNavigate();
 
   const { shopid, tableid } = useParams();
+  localStorage.setItem("shopId", shopid);
+  localStorage.setItem("tableId", tableid);
 
   const [expandedCategories, setExpandedCategories] = useState({});
   const { orderItems, setOrderItems } = useAuthStore();

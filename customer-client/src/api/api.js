@@ -52,6 +52,11 @@ export const getOrderByOrderId = async (id) => {
     return response.status === 200 ? response.data : null
 };
 
+export const getOrdersBySessionId = async () => {
+    const response = await api.get(`/orders`);
+    return response.status === 200 ? response.data : null
+};
+
 export const verifyUser = async () => {
     const response = await api.get(`/auth/verify`);
     return response.status === 200 ? true : false
