@@ -353,11 +353,15 @@ const OrderPlaced = ({ placedOrderId }) => {
     const shopId = localStorage.getItem("shopId");
     const tableId = localStorage.getItem("tableId");
     const navigate = useNavigate();
+    const { setOrderItems } = useAuthStore();
 
     return (
       <div className="w-full px-4 pt-4 flex justify-start items-center">
         <button
-          onClick={() => navigate(`/${shopId}/${tableId}`)}
+          onClick={() => {
+            setOrderItems([]); // reset selections
+            navigate(`/${shopId}/${tableId}`);
+          }}
           className="bg-white border border-gray-200 rounded-md flex justify-center items-center text-xl text-gray-300 p-2"
         >
           <IoIosArrowBack />
