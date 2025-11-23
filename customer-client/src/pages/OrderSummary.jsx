@@ -14,13 +14,13 @@ const BackButton = () => {
   const { setOrderItems } = useAuthStore();
 
   return (
-    <div className="w-full px-4 pt-4 flex justify-start items-center">
+    <div className="w-full max-w-3xl mx-auto px-4 py-3 flex justify-start items-center">
       <button
         onClick={() => {
           setOrderItems([]);
           navigate(`/${shopId}/${tableId}`);
         }}
-        className="bg-white border border-gray-200 rounded-md flex justify-center items-center text-xl text-gray-300 p-2"
+        className="bg-white border-2 border-gray-300 rounded-lg flex justify-center items-center text-xl text-gray-600 p-2 hover:border-emerald-600 hover:text-emerald-600 hover:bg-emerald-50 transition-all duration-200"
       >
         <IoIosArrowBack />
       </button>
@@ -43,9 +43,9 @@ const OrderDetails = ({ orderItems, itemsMap }) => {
   );
 
   return (
-    <div className="w-full px-4 pt-4">
-      <div className="p-3 border border-gray-200 hover:border-gray-300 rounded-md bg-white flex flex-col gap-3">
-        <h2 className="text-sm font-medium">Order Items</h2>
+    <div className="w-full max-w-3xl mx-auto px-4 pt-4">
+      <div className="p-4 border-2 border-gray-200 hover:border-emerald-200 rounded-2xl bg-white flex flex-col gap-3 shadow-md hover:shadow-lg transition-all duration-200">
+        <h2 className="text-base font-bold text-gray-900">Order Items</h2>
 
         {orderItems.length === 0 && (
           <p className="text-gray-500 text-sm py-2">No items in order</p>
@@ -59,18 +59,18 @@ const OrderDetails = ({ orderItems, itemsMap }) => {
           return (
             <div
               key={item.itemId}
-              className="flex justify-between items-center"
+              className="flex justify-between items-center py-2 border-b border-gray-100 last:border-0"
             >
               <div className="flex items-center gap-2">
-                <h2 className="text-sm text-gray-800 font-medium">
+                <h2 className="text-sm text-gray-800 font-bold">
                   {displayName}
                 </h2>
                 <div
                   className={`${
                     isVeg
-                      ? "text-green-800 border-green-800"
-                      : "text-red-800 border-red-800"
-                  } border rounded-sm p-1`}
+                      ? "text-green-700 border-green-700"
+                      : "text-red-700 border-red-700"
+                  } border-2 rounded p-0.5`}
                 >
                   {isVeg ? (
                     <IoEllipseSharp size={6} />
@@ -78,9 +78,9 @@ const OrderDetails = ({ orderItems, itemsMap }) => {
                     <IoTriangleSharp size={6} />
                   )}
                 </div>
-                <p className="text-xs text-gray-500">Qty: {item.quantity}</p>
+                <p className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">Qty: {item.quantity}</p>
               </div>
-              <p className="text-sm text-gray-700">
+              <p className="text-sm text-gray-900 font-semibold">
                 {formatCurrency(calculateLineTotal(item))}
               </p>
             </div>
@@ -88,9 +88,9 @@ const OrderDetails = ({ orderItems, itemsMap }) => {
         })}
 
         {orderItems.length > 0 && (
-          <div className="pt-2 mt-2 border-t border-gray-100 flex justify-between text-sm">
-            <span className="font-medium text-gray-700">Subtotal</span>
-            <span className="font-semibold text-gray-900">
+          <div className="pt-2 mt-2 border-t-2 border-gray-100 flex justify-between text-sm">
+            <span className="font-semibold text-gray-700">Subtotal</span>
+            <span className="font-bold text-emerald-700 text-base">
               {formatCurrency(total)}
             </span>
           </div>
@@ -145,8 +145,10 @@ const OrderSummary = () => {
   );
 
   return (
-    <div className="w-screen h-screen bg-gray-50">
-      <Navbar />
+    <div className="w-screen h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      <div className="sticky top-0 z-10 bg-white shadow-sm">
+        <Navbar />
+      </div>
       <BackButton />
       <OrderDetails orderItems={filteredItems} itemsMap={itemsMap} />
     </div>

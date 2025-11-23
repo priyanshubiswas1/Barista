@@ -5,9 +5,32 @@
 
 @import "tailwindcss";
 
+/* Enhanced Design System */
+:root {
+  --app-max-width: 48rem; /* 768px */
+  --transition-default: all 0.2s ease-in-out;
+  --transition-fast: all 0.15s ease-in-out;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
 body {
-  background: var(--color-gray-100);
+  background: linear-gradient(to bottom, #f9fafb 0%, #f3f4f6 100%);
   font-family: "Geist", sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Better text rendering */
+body, button, input {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 p {
@@ -17,4 +40,35 @@ p {
 h3 {
   font-size: var(--text-sm);
   font-weight: var(--font-weight-semibold);
+}
+
+/* Smooth transitions for interactive elements */
+button, a, input, select, textarea {
+  transition: var(--transition-default);
+}
+
+/* Focus visible for accessibility */
+*:focus-visible {
+  outline: 2px solid #059669;
+  outline-offset: 2px;
+  border-radius: 0.25rem;
+}
+
+/* Improved scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }

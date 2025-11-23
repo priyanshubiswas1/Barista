@@ -10,36 +10,44 @@ const Navbar = () => {
   const tableId = localStorage.getItem("tableId");
 
   return (
-    <div className="w-full ">
-      <div className="py-4 px-5 flex justify-between relative">
-        <h2 className="font-semibold">The Cafe App</h2>
+    <div className="w-full bg-white">
+      <div className="py-4 px-5 flex justify-between items-center relative max-w-7xl mx-auto">
+        <h2 className="font-semibold text-lg text-gray-800">Barista</h2>
         <div className="relative">
           <button
             aria-label="menu"
             onClick={() => setOpen((v) => !v)}
-            className="p-1 rounded"
+            className={`p-2 rounded-lg hover:bg-gray-100 transition-colors ${
+              open ? "bg-gray-100" : ""
+            }`}
           >
-            <LuEllipsisVertical />
+            <LuEllipsisVertical className="text-gray-700" size={20} />
           </button>
 
           {open && (
-            <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-md shadow-md z-50">
-              <div className="p-2">
-                <button
-                  onClick={() => {
-                    setOpen(false);
-                    navigate(`/${shopId}/${tableId}/orders`);
-                  }}
-                  className="w-full text-left px-3 py-2 rounded text-sm hover:bg-gray-100"
-                >
-                  View Orders
-                </button>
+            <>
+              <div
+                className="fixed inset-0 z-40"
+                onClick={() => setOpen(false)}
+              />
+              <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                <div className="py-1">
+                  <button
+                    onClick={() => {
+                      setOpen(false);
+                      navigate(`/${shopId}/${tableId}/orders`);
+                    }}
+                    className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-700 transition-colors font-medium"
+                  >
+                    View Orders
+                  </button>
+                </div>
               </div>
-            </div>
+            </>
           )}
         </div>
       </div>
-      <div className="w-full h-px bg-gray-200" />
+      <div className="w-full h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
     </div>
   );
 };

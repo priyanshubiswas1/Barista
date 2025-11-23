@@ -38,43 +38,43 @@ const OrderDetails = ({ orderItems, setOrderItems }) => {
   };
 
   return (
-    <div className="w-full px-4 pt-4">
-      <div className="p-3 border border-gray-200 rounded-md bg-white">
-        <h2 className="text-sm font-medium">Order Details</h2>
+    <div className="w-full max-w-3xl mx-auto px-4 pt-4">
+      <div className="p-4 border-2 border-gray-200 rounded-2xl bg-white shadow-md hover:shadow-lg transition-shadow duration-200">
+        <h2 className="text-base font-bold text-gray-900 mb-3">Order Details</h2>
 
         {orderItems.length ? (
           orderItems.map((item) => (
             <div
               key={item.itemId}
-              className="flex items-center justify-between py-1"
+              className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0"
             >
               <div className="flex flex-1 items-center gap-2">
-                <h2 className="text-sm text-gray-600">{item.itemName}</h2>
-                <div className="text-green-800 border border-green-800 rounded-sm p-1">
+                <h2 className="text-sm text-gray-800 font-medium">{item.itemName}</h2>
+                <div className="text-green-700 border-2 border-green-700 rounded p-0.5">
                   <IoEllipseSharp size={6} />
                 </div>
               </div>
-              <div className="flex flex-1 items-center justify-end gap-2">
-                <div className="bg-rose-100 border border-rose-300 rounded-md flex items-center justify-between w-20 px-2 shadow-sm">
+              <div className="flex flex-1 items-center justify-end gap-3">
+                <div className="bg-emerald-50 border-2 border-emerald-600 rounded-lg flex items-center justify-between w-24 px-2 py-1 shadow-sm">
                   <button
                     type="button"
                     onClick={() => updateOrderItems(item, item.quantity - 1)}
-                    className="text-rose-700 text-xl leading-none"
+                    className="text-emerald-700 text-lg leading-none hover:scale-110 transition-transform active:scale-95"
                   >
                     <IoRemove />
                   </button>
-                  <span className="text-rose-700 text-sm font-medium">
+                  <span className="text-emerald-700 text-sm font-bold min-w-[20px] text-center">
                     {item.quantity}
                   </span>
                   <button
                     type="button"
                     onClick={() => updateOrderItems(item, item.quantity + 1)}
-                    className="text-rose-700 text-xl leading-none"
+                    className="text-emerald-700 text-lg leading-none hover:scale-110 transition-transform active:scale-95"
                   >
                     <IoAdd />
                   </button>
                 </div>
-                <h2 className="w-[30px] text-right font-medium">
+                <h2 className="w-[60px] text-right font-bold text-gray-900">
                   ₹{item.priceAtOrderTime * item.quantity}
                 </h2>
               </div>
@@ -84,7 +84,7 @@ const OrderDetails = ({ orderItems, setOrderItems }) => {
           <p className="text-gray-500 text-sm py-2">No items in order</p>
         )}
 
-        <div className="pt-2">
+        <div className="pt-3">
           <Button
             onClick={() => navigate(`/${shopid}/${tableid}`)}
             variant="outline"
@@ -107,16 +107,14 @@ const BillingDetails = ({ orderItems }) => {
   const total = subtotal + serviceTax;
 
   return (
-    <div className="w-full px-4 pt-2">
-      <div className="p-3 border border-gray-200 rounded-md bg-white">
-        <h2 className="text-sm font-medium">Billing Details</h2>
-        <div className="flex flex-col py-2 gap-1 text-sm">
+    <div className="w-full max-w-3xl mx-auto px-4 pt-3">
+      <div className="p-4 border-2 border-gray-200 rounded-2xl bg-white shadow-md">
+        <h2 className="text-base font-bold text-gray-900 mb-3">Billing Details</h2>
+        <div className="flex flex-col py-2 gap-2 text-sm">
           <div className="flex justify-between">
             <p className="text-gray-600">Subtotal</p>
-            <p className="text-gray-900 font-medium">₹{subtotal}</p>
+            <p className="text-gray-900 font-semibold">₹{subtotal}</p>
           </div>
-          {/* You can show taxes / total here similarly if you like,
-              but left as-is since you requested no other changes */}
         </div>
       </div>
     </div>
@@ -131,17 +129,17 @@ const BasicDetails = ({ tableNo }) => {
   });
 
   return (
-    <div className="w-full px-4 pt-2">
-      <div className="p-3 border border-gray-200 rounded-md bg-white">
-        <h2 className="text-sm font-medium">Basic Details</h2>
-        <div className="flex flex-col py-2 gap-1 text-sm">
+    <div className="w-full max-w-3xl mx-auto px-4 pt-3">
+      <div className="p-4 border-2 border-gray-200 rounded-2xl bg-white shadow-md">
+        <h2 className="text-base font-bold text-gray-900 mb-3">Basic Details</h2>
+        <div className="flex flex-col py-2 gap-2 text-sm">
           <div className="flex justify-between">
             <p className="text-gray-600">Table No.</p>
-            <p className="text-gray-900 font-medium">{tableNo}</p>
+            <p className="text-gray-900 font-semibold">{tableNo}</p>
           </div>
           <div className="flex justify-between">
             <p className="text-gray-600">Date</p>
-            <p className="text-gray-900 font-medium">{formattedDate}</p>
+            <p className="text-gray-900 font-semibold">{formattedDate}</p>
           </div>
         </div>
       </div>
@@ -160,13 +158,13 @@ const OrderPlaced = ({ placedOrderId }) => {
     const { setOrderItems } = useAuthStore();
 
     return (
-      <div className="w-full px-4 pt-4 flex justify-start items-center">
+      <div className="w-full max-w-3xl mx-auto px-4 pt-4 flex justify-start items-center">
         <button
           onClick={() => {
-            setOrderItems([]); // reset selections
+            setOrderItems([]);
             navigate(`/${shopId}/${tableId}`);
           }}
-          className="bg-white border border-gray-200 rounded-md flex justify-center items-center text-xl text-gray-300 p-2"
+          className="bg-white border-2 border-gray-300 rounded-lg flex justify-center items-center text-xl text-gray-600 p-2 hover:border-emerald-600 hover:text-emerald-600 hover:bg-emerald-50 transition-all duration-200"
         >
           <IoIosArrowBack />
         </button>
@@ -175,18 +173,21 @@ const OrderPlaced = ({ placedOrderId }) => {
   };
 
   return (
-    <div className="flex flex-col gap-4 items-center">
+    <div className="flex flex-col gap-6 items-center justify-center min-h-[60vh] px-4">
       <BackButton />
-      <div className="bg-emerald-500 rounded-full w-10 h-10 text-white flex justify-center items-center text-2xl">
-        <FaCheck />
+      <div className="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full text-center border-2 border-emerald-100">
+        <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-full w-20 h-20 text-white flex justify-center items-center text-3xl mx-auto mb-6 shadow-lg">
+          <FaCheck />
+        </div>
+        <h2 className="font-bold text-2xl text-gray-900 mb-2">Order Placed!</h2>
+        <p className="text-gray-600 mb-6">Your order has been successfully placed</p>
+        <button
+          onClick={() => navigate(`/order/${placedOrderId}`)}
+          className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 rounded-xl text-white px-8 py-3 font-bold shadow-lg hover:shadow-xl hover:from-emerald-700 hover:to-emerald-800 transition-all duration-200 active:scale-95"
+        >
+          View Order Details
+        </button>
       </div>
-      <h2 className="font-semibold">Your Order has been placed!</h2>
-      <button
-        onClick={() => navigate(`/order/${placedOrderId}`)}
-        className="bg-emerald-700 rounded-md text-white px-10 py-2"
-      >
-        View Order Details
-      </button>
     </div>
   );
 };
@@ -240,8 +241,10 @@ const ViewOrder = () => {
   const totalItemsCount = orderItems.reduce((t, i) => t + i.quantity, 0);
 
   return (
-    <div className="w-screen h-screen bg-gray-50 pb-24">
-      <Navbar />
+    <div className="w-screen min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 pb-28">
+      <div className="sticky top-0 z-20 bg-white/95 backdrop-blur-md shadow-sm">
+        <Navbar />
+      </div>
 
       {isOrderPlaced ? (
         <OrderPlaced placedOrderId={placedOrderId} />
@@ -252,13 +255,13 @@ const ViewOrder = () => {
           <BasicDetails tableNo={tableData.data.table.tableNumber} />
 
           {orderItems.length > 0 && finalTotal > 0 && (
-            <div className="fixed bottom-4 left-4 right-4 z-30 max-w-md mx-auto">
-              <div className="bg-emerald-800 text-white rounded-xl shadow-lg p-4 flex justify-between items-center transform transition-transform hover:scale-[1.02]">
+            <div className="fixed bottom-4 left-4 right-4 z-30 max-w-3xl mx-auto px-4 sm:px-0">
+              <div className="bg-gradient-to-r from-emerald-700 to-emerald-600 text-white rounded-2xl shadow-2xl p-4 flex justify-between items-center transform transition-all hover:shadow-[0_20px_40px_-10px_rgba(5,150,105,0.5)] hover:scale-[1.02] border border-emerald-500/20">
                 <div className="flex flex-col">
                   <span className="font-bold text-lg">
                     {totalItemsCount} {totalItemsCount !== 1 ? "Items" : "Item"}
                   </span>
-                  <span className="text-emerald-200 text-sm">
+                  <span className="text-emerald-100 text-sm">
                     Total:{" "}
                     <span className="font-bold text-white">₹{finalTotal}</span>
                   </span>
@@ -266,7 +269,7 @@ const ViewOrder = () => {
                 <button
                   onClick={handlePlaceOrder}
                   disabled={placeOrderMutation.isPending}
-                  className="bg-white text-emerald-800 px-5 py-2.5 rounded-lg font-bold text-sm shadow-sm hover:bg-emerald-50 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                  className="bg-white text-emerald-700 px-6 py-3 rounded-xl font-bold text-sm shadow-lg hover:bg-emerald-50 transition-all hover:shadow-xl disabled:opacity-60 disabled:cursor-not-allowed active:scale-95"
                 >
                   {placeOrderMutation.isPending ? "Placing..." : "Place Order"}
                 </button>

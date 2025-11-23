@@ -14,7 +14,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 
 const VegNonVegSelect = ({ value, onChange }) => (
-  <div className="flex gap-3 pt-4 pb-4 justify-center">
+  <div className="flex gap-2 pt-4 pb-4 justify-center">
     {[
       { label: "All", value: "all", icon: null },
       { label: "Veg", value: "veg", icon: <IoEllipseSharp size={8} />, color: "green" },
@@ -31,11 +31,11 @@ const VegNonVegSelect = ({ value, onChange }) => (
         />
         <div
           className={`
-            text-sm font-medium rounded-full border px-4 py-2 flex items-center gap-2 transition-all duration-200
+            text-sm font-semibold rounded-full border-2 px-4 py-2 flex items-center gap-2 transition-all duration-200
             ${
               value === type.value
-                ? "bg-emerald-50 border-emerald-600 text-emerald-800 shadow-sm"
-                : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
+                ? "bg-emerald-600 border-emerald-600 text-white shadow-md scale-105"
+                : "bg-white border-gray-300 text-gray-600 hover:border-emerald-500 hover:text-emerald-600 hover:shadow-sm"
             }
           `}
         >
@@ -44,7 +44,9 @@ const VegNonVegSelect = ({ value, onChange }) => (
               className={`
                 border rounded-sm p-0.5 flex items-center justify-center
                 ${
-                  type.color === "green"
+                  value === type.value
+                    ? "text-white border-white"
+                    : type.color === "green"
                     ? "text-green-700 border-green-700"
                     : "text-red-700 border-red-700"
                 }
@@ -68,28 +70,24 @@ const Category = ({
   orderItems,
   setOrderItems,
 }) => (
-  <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+  <div className="bg-white rounded-2xl border border-gray-200 shadow-md hover:shadow-lg transition-shadow duration-200 overflow-hidden">
     <div
-      className="flex items-center justify-between p-4 cursor-pointer select-none bg-gray-50/50 hover:bg-gray-50 transition-colors"
+      className="flex items-center justify-between p-4 cursor-pointer select-none bg-gradient-to-r from-gray-50 to-white hover:from-emerald-50 hover:to-white transition-all duration-200"
       onClick={toggleCategory}
     >
       <div className="flex items-center gap-3">
-        <h2 className="font-semibold text-gray-800 text-lg">{category}</h2>
-        <span className="bg-gray-200 text-gray-700 text-xs font-bold px-2 py-0.5 rounded-full">
+        <h2 className="font-bold text-gray-900 text-base">{category}</h2>
+        <span className="bg-emerald-100 text-emerald-700 text-xs font-bold px-2.5 py-1 rounded-full">
           {items.length}
         </span>
       </div>
-      <div className="text-gray-400">
-        {isExpanded ? (
-          <IoMdArrowDropdown size={24} />
-        ) : (
-          <IoMdArrowDropright size={24} />
-        )}
+      <div className={`text-gray-500 transition-transform duration-200 ${isExpanded ? 'rotate-0' : '-rotate-90'}`}>
+        <IoMdArrowDropdown size={24} />
       </div>
     </div>
     
     {isExpanded && (
-      <div className="p-3 flex flex-col gap-3 border-t border-gray-100">
+      <div className="p-3 flex flex-col gap-3 border-t border-gray-100 bg-gray-50/30">
         {items.map((item) => (
           <Item
             key={item.itemId}
@@ -130,16 +128,16 @@ const Item = ({ item, orderItems, setOrderItems }) => {
   };
 
   return (
-    <div className="flex justify-between bg-white border border-gray-100 rounded-lg p-3 hover:shadow-md transition-shadow duration-200">
-      <div className="flex flex-col justify-between flex-1 pr-4">
+    <div className="flex justify-between bg-white border border-gray-200 rounded-xl p-3 hover:shadow-lg hover:border-emerald-200 transition-all duration-200 group">
+      <div className="flex flex-col justify-between flex-1 pr-3 min-w-0">
         <div className="flex flex-col items-start gap-1.5">
           <div
             className={`
-              border rounded-sm w-4 h-4 flex items-center justify-center
+              border-2 rounded w-4 h-4 flex items-center justify-center flex-shrink-0
               ${
                 item.veg
-                  ? "text-green-700 border-green-700"
-                  : "text-red-700 border-red-700"
+                  ? "text-green-600 border-green-600"
+                  : "text-red-600 border-red-600"
               }
             `}
           >
@@ -149,42 +147,42 @@ const Item = ({ item, orderItems, setOrderItems }) => {
               <IoTriangleSharp size={8} />
             )}
           </div>
-          <h3 className="font-medium text-gray-900 leading-tight">{item.itemName}</h3>
-          <p className="text-sm text-gray-500 line-clamp-2">{item.description}</p>
+          <h3 className="font-semibold text-gray-900 leading-tight text-sm">{item.itemName}</h3>
+          <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed">{item.description}</p>
         </div>
-        <div className="mt-2 font-semibold text-gray-900">₹ {item.price}</div>
+        <div className="mt-2 font-bold text-gray-900 text-base">₹{item.price}</div>
       </div>
       
       <div className="relative flex-shrink-0">
         <div
-          className="w-24 h-24 rounded-lg bg-gray-100 bg-cover bg-center"
+          className="w-28 h-28 rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 bg-cover bg-center shadow-sm group-hover:shadow-md transition-shadow duration-200"
           style={{
             backgroundImage: `url(${item.image})`,
           }}
         />
-        <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-20">
+        <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-24">
           {count === 0 ? (
             <button
               type="button"
               onClick={() => updateOrderItems(count + 1)}
-              className="w-full bg-white text-emerald-700 font-bold text-sm border border-gray-200 rounded-md py-1.5 shadow-sm hover:bg-emerald-50 transition-colors uppercase tracking-wide"
+              className="w-full bg-white text-emerald-700 font-bold text-sm border-2 border-emerald-600 rounded-lg py-2 shadow-md hover:bg-emerald-600 hover:text-white transition-all duration-200 uppercase tracking-wide"
             >
               Add
             </button>
           ) : (
-            <div className="flex items-center justify-between bg-emerald-700 text-white rounded-md px-2 py-1.5 shadow-md w-full">
+            <div className="flex items-center justify-between bg-emerald-600 text-white rounded-lg px-3 py-2 shadow-lg w-full">
               <button
                 type="button"
                 onClick={() => updateOrderItems(count - 1)}
-                className="text-white hover:text-emerald-100 transition-colors"
+                className="text-white hover:scale-110 transition-transform duration-150 active:scale-95"
               >
                 <IoRemove size={16} />
               </button>
-              <span className="font-bold text-sm">{count}</span>
+              <span className="font-bold text-base min-w-[20px] text-center">{count}</span>
               <button
                 type="button"
                 onClick={() => updateOrderItems(count + 1)}
-                className="text-white hover:text-emerald-100 transition-colors"
+                className="text-white hover:scale-110 transition-transform duration-150 active:scale-95"
               >
                 <IoAdd size={16} />
               </button>
@@ -267,10 +265,11 @@ const Menu = () => {
   const totalItemsCount = orderItems.reduce((total, item) => total + item.quantity, 0);
 
   if (isLoading) return (
-    <div className="flex items-center justify-center h-screen bg-gray-50">
-      <div className="animate-pulse flex flex-col items-center">
-        <div className="h-12 w-12 bg-gray-200 rounded-full mb-4"></div>
-        <div className="h-4 w-32 bg-gray-200 rounded"></div>
+    <div className="flex items-center justify-center h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      <div className="animate-pulse flex flex-col items-center gap-3">
+        <div className="h-16 w-16 bg-gradient-to-br from-emerald-200 to-emerald-300 rounded-full mb-2"></div>
+        <div className="h-4 w-40 bg-gray-300 rounded-full"></div>
+        <div className="h-3 w-32 bg-gray-200 rounded-full"></div>
       </div>
     </div>
   );
@@ -282,23 +281,23 @@ const Menu = () => {
   );
 
   return (
-    <div className="w-full min-h-screen bg-gray-50 pb-24">
-      <div className="sticky top-0 z-20 bg-white shadow-sm">
+    <div className="w-full min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 pb-28">
+      <div className="sticky top-0 z-20 bg-white/95 backdrop-blur-md shadow-sm">
         <Navbar />
       </div>
       
-      <div className="max-w-md mx-auto">
+      <div className="max-w-3xl mx-auto">
         <About />
         
-        <div className="px-4 sticky top-[60px] z-10 bg-gray-50/95 backdrop-blur-sm pt-2">
+        <div className="px-4 sticky top-[60px] z-10 bg-gradient-to-b from-gray-50 to-transparent backdrop-blur-sm pt-2 pb-3">
           <VegNonVegSelect
             value={foodType}
             onChange={(e) => setFoodType(e.target.value)}
           />
-          <div className="w-full h-px bg-gray-200 mb-4" />
+          <div className="w-full h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent mt-4" />
         </div>
 
-        <div className="px-4 flex flex-col gap-4">
+        <div className="px-4 flex flex-col gap-5 mt-2">
           {Object.entries(groupedItems).map(([category, categoryItems]) => (
             <Category
               key={category}
@@ -312,27 +311,28 @@ const Menu = () => {
           ))}
           
           {items.length === 0 && (
-            <div className="text-center py-10 text-gray-500">
-              No items found for this selection.
+            <div className="text-center py-16 text-gray-500 bg-white rounded-2xl shadow-sm">
+              <p className="text-lg font-medium">No items found</p>
+              <p className="text-sm mt-1">Try selecting a different filter</p>
             </div>
           )}
         </div>
       </div>
 
       {orderItems.length > 0 && totalPrice > 0 && (
-        <div className="fixed bottom-4 left-4 right-4 z-30 max-w-md mx-auto">
-          <div className="bg-emerald-800 text-white rounded-xl shadow-lg p-4 flex justify-between items-center transform transition-transform hover:scale-[1.02]">
+        <div className="fixed bottom-4 left-4 right-4 z-30 max-w-3xl mx-auto px-4 sm:px-0">
+          <div className="bg-gradient-to-r from-emerald-700 to-emerald-600 text-white rounded-2xl shadow-2xl p-4 flex justify-between items-center transform transition-all hover:shadow-[0_20px_40px_-10px_rgba(5,150,105,0.5)] hover:scale-[1.02] border border-emerald-500/20">
             <div className="flex flex-col">
               <span className="font-bold text-lg">
                 {totalItemsCount} {totalItemsCount !== 1 ? "Items" : "Item"}
               </span>
-              <span className="text-emerald-200 text-sm">
-                Total: <span className="font-bold text-white">₹ {totalPrice}</span>
+              <span className="text-emerald-100 text-sm">
+                Total: <span className="font-bold text-white">₹{totalPrice}</span>
               </span>
             </div>
             <button
               onClick={() => navigate(`/${shopid}/${tableid}/view-order`)}
-              className="bg-white text-emerald-800 px-5 py-2.5 rounded-lg font-bold text-sm shadow-sm hover:bg-emerald-50 transition-colors"
+              className="bg-white text-emerald-700 px-6 py-3 rounded-xl font-bold text-sm shadow-lg hover:bg-emerald-50 transition-all hover:shadow-xl active:scale-95"
             >
               View Order
             </button>

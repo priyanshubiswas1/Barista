@@ -47,22 +47,30 @@ const SendOTP = () => {
   };
 
   return (
-    <div className="w-screen h-screen flex items-center justify-center">
-      <form onSubmit={handleSubmit} className="flex flex-col gap-2">
-        <Input
-          label="Phone"
-          type="number"
-          name="number"
-          placeholder="Enter your number"
-          helperText={err}
-          error={!!err}
-          value={number}
-          onChange={(e) => setNumber(e.target.value)}
-        />
-        <Button type="submit" variant="primary">
-          {isPending ? "Sending..." : "Send OTP"}
-        </Button>
-      </form>
+    <div className="w-screen h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
+      <div className="max-w-md w-full mx-4">
+        <div className="bg-white rounded-2xl shadow-2xl p-8 border-2 border-gray-200">
+          <div className="text-center mb-6">
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">Welcome</h1>
+            <p className="text-gray-600 text-sm">Enter your phone number to continue</p>
+          </div>
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            <Input
+              label="Phone"
+              type="number"
+              name="number"
+              placeholder="Enter your number"
+              helperText={err}
+              error={!!err}
+              value={number}
+              onChange={(e) => setNumber(e.target.value)}
+            />
+            <Button type="submit" variant="primary">
+              {isPending ? "Sending..." : "Send OTP"}
+            </Button>
+          </form>
+        </div>
+      </div>
     </div>
   );
 };
