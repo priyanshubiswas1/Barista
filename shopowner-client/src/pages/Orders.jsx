@@ -224,7 +224,22 @@ const OrderContent = () => {
 
   const sessions = data.sessions;
   return (
-    <div className="bg-gray-100 w-full h-full overflow-x-auto overflow-y-auto flex">
+    <div className="bg-gray-100 w-full h-full flex overflow-x-auto gap-6 pb-4 pr-6">
+      {sessions.map((session) => (
+        <TableCard session={session} key={session.sessionId} />
+      ))}
+      {sessions.map((session) => (
+        <TableCard session={session} key={session.sessionId} />
+      ))}
+      {sessions.map((session) => (
+        <TableCard session={session} key={session.sessionId} />
+      ))}
+      {sessions.map((session) => (
+        <TableCard session={session} key={session.sessionId} />
+      ))}
+      {sessions.map((session) => (
+        <TableCard session={session} key={session.sessionId} />
+      ))}
       {sessions.map((session) => (
         <TableCard session={session} key={session.sessionId} />
       ))}
@@ -241,12 +256,12 @@ const Orders = () => {
   return (
     <div className="flex h-screen">
       <LeftSidebar collapsed={isSidebarCollapesed} tab={Tabs.ORDERS} />
-      <div className="p-6 flex flex-col w-full">
+      <div className="p-6 flex flex-col flex-1 overflow-hidden">
         <TabHeader toggleSidebar={toggleSidebar} tab={Tabs.ORDERS} />
         <OrderSubHeader
           onAddNewOrderClick={() => setOverlay(Overlays.CREATEORDER)}
         />
-        <div className="pt-5 flex-grow">
+        <div className="pt-5 flex-grow min-w-0 overflow-hidden">
           <OrderContent />
         </div>
       </div>
