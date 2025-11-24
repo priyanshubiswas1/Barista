@@ -15,7 +15,7 @@ import Button from "../components/Button";
 
 const MenuSubHeader = ({ onAddItemClick, onManageCategoryClick }) => {
   return (
-    <div className="w-[100%] flex justify-between items-center pt-10">
+    <div className="w-[100%] flex justify-between items-center pt-2 pb-6">
       <div className="flex items-center gap-3">
         {/* <Searchbar />
         <Button variant="outline" icon={IoFilter}>
@@ -77,14 +77,51 @@ const Menu = () => {
   return (
     <div className="flex h-screen">
       <LeftSidebar collapsed={isSidebarCollapesed} tab={Tabs.MENU} />
-      <div className="p-5 flex flex-col w-full">
-        <TabHeader toggleSidebar={toggleSidebar} tab={Tabs.MENU} />
-        <MenuSubHeader
-          onAddItemClick={() => setOverlay(Overlays.ADDITEM)}
-          onManageCategoryClick={() => setOverlay(Overlays.MANAGECAT)}
-        />
+      <div className="flex flex-col w-full overflow-hidden">
+        <div className="px-6 pt-6">
+          <TabHeader toggleSidebar={toggleSidebar} tab={Tabs.MENU} />
+          <MenuSubHeader
+            onAddItemClick={() => setOverlay(Overlays.ADDITEM)}
+            onManageCategoryClick={() => setOverlay(Overlays.MANAGECAT)}
+          />
+        </div>
         {items.length > 0 ? (
-          <div className="pt-5 flex-grow flex flex-col gap-4">
+          <div className="px-6 pb-6 pt-2 flex-grow flex flex-col gap-4 overflow-y-auto">
+            {sortedCategoryEntries.map(([category, categoryItems]) => (
+              <MenuContent
+                key={category}
+                category={category}
+                items={categoryItems}
+              />
+            ))}
+            {sortedCategoryEntries.map(([category, categoryItems]) => (
+              <MenuContent
+                key={category}
+                category={category}
+                items={categoryItems}
+              />
+            ))}
+            {sortedCategoryEntries.map(([category, categoryItems]) => (
+              <MenuContent
+                key={category}
+                category={category}
+                items={categoryItems}
+              />
+            ))}
+            {sortedCategoryEntries.map(([category, categoryItems]) => (
+              <MenuContent
+                key={category}
+                category={category}
+                items={categoryItems}
+              />
+            ))}
+            {sortedCategoryEntries.map(([category, categoryItems]) => (
+              <MenuContent
+                key={category}
+                category={category}
+                items={categoryItems}
+              />
+            ))}
             {sortedCategoryEntries.map(([category, categoryItems]) => (
               <MenuContent
                 key={category}
@@ -94,7 +131,7 @@ const Menu = () => {
             ))}
           </div>
         ) : (
-          <div className="pt-5 flex-grow">
+          <div className="px-6 pb-6 pt-5 flex-grow overflow-y-auto">
             <MenuNoItems />
           </div>
         )}

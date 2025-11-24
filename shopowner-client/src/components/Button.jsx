@@ -1,14 +1,14 @@
 import React from "react";
 
 const BASE_CLASSES =
-  "rounded-md shadow-xs disabled:shadow-none text-sm font-medium cursor-pointer disabled:cursor-not-allowed transition-colors duration-120 ease-in-out";
+  "rounded-lg shadow-sm disabled:shadow-none text-sm font-medium cursor-pointer disabled:cursor-not-allowed transition-all duration-200 ease-in-out";
 
 const VARIANTS = {
-  primary: "bg-gray-800 text-white hover:bg-gray-950 disabled:bg-gray-100",
+  primary: "bg-emerald-700 text-white hover:bg-emerald-800 hover:shadow-md disabled:bg-gray-100 disabled:text-gray-400",
   outline:
-    "bg-white text-gray-800 border border-gray-200 hover:border-gray-300 disabled:text-gray-200 disabled:border-gray-50",
+    "bg-white text-gray-700 border border-gray-200 hover:border-emerald-300 hover:text-emerald-700 hover:bg-emerald-50/50 disabled:text-gray-200 disabled:border-gray-50",
   subtle:
-    "bg-gray-200 text-gray-500 hover:text-gray-700 disabled:bg-gray-100 disabled:text-gray-200",
+    "bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-800 disabled:bg-gray-50 disabled:text-gray-300",
 };
 
 const Button = ({

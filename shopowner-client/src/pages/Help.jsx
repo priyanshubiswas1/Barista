@@ -9,9 +9,9 @@ const Help = () => {
     setisSidebarCollapesed((prev) => !prev);
   };
   return (
-    <div className="flex">
+    <div className="flex h-screen">
       <LeftSidebar collapsed={isSidebarCollapesed} tab={Tabs.HELP} />
-      <div className="p-5 h-[100%] w-[100%] relative flex flex-col">
+      <div className="p-6 flex flex-col w-full">
         <TabHeader toggleSidebar={toggleSidebar} tab={Tabs.HELP} />
       </div>
     </div>

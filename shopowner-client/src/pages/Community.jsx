@@ -9,9 +9,9 @@ const Community = () => {
     setisSidebarCollapesed((prev) => !prev);
   };
   return (
-    <div className="flex">
+    <div className="flex h-screen">
       <LeftSidebar collapsed={isSidebarCollapesed} tab={Tabs.COMMUNITY} />
-      <div className="p-5 h-[100%] w-[100%] relative flex flex-col">
+      <div className="p-6 flex flex-col w-full">
         <TabHeader toggleSidebar={toggleSidebar} tab={Tabs.COMMUNITY} />
       </div>
     </div>

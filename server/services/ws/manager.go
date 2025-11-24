@@ -138,6 +138,8 @@ func checkOrigin(r *http.Request) bool {
 	switch origin {
 	case "http://localhost:5173":
 		return true
+	case "https://paintings-oils-experience-tones.trycloudflare.com":
+		return true
 	default:
 		return false
 	}

@@ -33,7 +33,7 @@ const HistorySubHeader = ({ selectedFilter, setSelectedFilter }) => {
   }, []);
 
   return (
-    <div className="w-[100%] flex justify-between items-center pt-10">
+    <div className="w-[100%] flex justify-between items-center pt-2">
       <div className="flex items-center gap-3">
         {/* <Searchbar />
         <Button variant="outline" icon={IoFilter}>
@@ -246,7 +246,7 @@ const History = () => {
   return (
     <div className="flex h-screen">
       <LeftSidebar collapsed={isSidebarCollapesed} tab={Tabs.HISTORY} />
-      <div className="p-5 flex flex-col w-full">
+      <div className="p-6 flex flex-col w-full">
         <TabHeader toggleSidebar={toggleSidebar} tab={Tabs.HISTORY} />
         <HistorySubHeader
           selectedFilter={selectedFilter}

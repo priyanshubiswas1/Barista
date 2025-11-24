@@ -196,7 +196,7 @@ const UpdateItem = ({ header, item }) => {
 
       {/* Form Content - Scrollable */}
       <div className="flex-1 overflow-y-auto">
-        <form className="flex flex-col gap-8 px-8 py-8">
+        <form className="flex flex-col gap-4 px-8 py-8">
           {/* Image Upload Section */}
           <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
             <h3 className="text-sm font-semibold text-gray-700 mb-4 uppercase tracking-wide">
@@ -210,7 +210,7 @@ const UpdateItem = ({ header, item }) => {
             <h3 className="text-sm font-semibold text-gray-700 mb-5 uppercase tracking-wide">
               Basic Details
             </h3>
-            <div className="flex flex-col gap-5">
+            <div className="flex flex-col">
               <Input
                 label="Name"
                 type="text"
@@ -261,7 +261,7 @@ const UpdateItem = ({ header, item }) => {
             <h3 className="text-sm font-semibold text-gray-700 mb-5 uppercase tracking-wide">
               Pricing & Type
             </h3>
-            <div className="flex flex-col gap-5">
+            <div className="flex flex-col">
               <Input
                 label="Price"
                 type="number"
