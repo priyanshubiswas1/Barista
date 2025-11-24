@@ -30,7 +30,7 @@ const getStatusClasses = (status) => {
 
 const OrderSubHeader = ({ onAddNewOrderClick }) => {
   return (
-    <div className="w-[100%] flex justify-between items-center pt-2">
+    <div className="w-[100%] flex justify-between items-center pt-2 flex-shrink-0">
       <div className="flex items-center gap-3">
         {/* <Searchbar />
         <Button variant="outline" icon={IoFilter}>
@@ -157,11 +157,11 @@ const TableCard = ({ session }) => {
   };
 
   return (
-    <div className="bg-white w-[25%] min-w-[300px] p-4 border-2 border-gray-200 hover:border-gray-300 rounded-xl flex flex-col shadow-sm hover:shadow-md transition-all duration-200">
+    <div className="bg-white w-[25%] min-w-[300px] h-full overflow-hidden p-4 border-2 border-gray-200 hover:border-gray-300 rounded-xl flex flex-col shadow-sm hover:shadow-md transition-all duration-200">
       <h1 className="text-gray-600 text-xl px-3 font-bold">
         Table {session.tableNumber}
       </h1>
-      <div className="pt-3 flex flex-col gap-4">
+      <div className="pt-3 flex flex-col gap-4 flex-1 overflow-y-auto min-h-0 pr-2">
         {Object.entries(groupedOrders).map(([orderId, items], index) => (
           <OrderCard
             key={orderId}
@@ -228,21 +228,6 @@ const OrderContent = () => {
       {sessions.map((session) => (
         <TableCard session={session} key={session.sessionId} />
       ))}
-      {sessions.map((session) => (
-        <TableCard session={session} key={session.sessionId} />
-      ))}
-      {sessions.map((session) => (
-        <TableCard session={session} key={session.sessionId} />
-      ))}
-      {sessions.map((session) => (
-        <TableCard session={session} key={session.sessionId} />
-      ))}
-      {sessions.map((session) => (
-        <TableCard session={session} key={session.sessionId} />
-      ))}
-      {sessions.map((session) => (
-        <TableCard session={session} key={session.sessionId} />
-      ))}
     </div>
   );
 };
@@ -257,11 +242,13 @@ const Orders = () => {
     <div className="flex h-screen">
       <LeftSidebar collapsed={isSidebarCollapesed} tab={Tabs.ORDERS} />
       <div className="p-6 flex flex-col flex-1 overflow-hidden">
-        <TabHeader toggleSidebar={toggleSidebar} tab={Tabs.ORDERS} />
+        <div className="flex-shrink-0">
+          <TabHeader toggleSidebar={toggleSidebar} tab={Tabs.ORDERS} />
+        </div>
         <OrderSubHeader
           onAddNewOrderClick={() => setOverlay(Overlays.CREATEORDER)}
         />
-        <div className="pt-5 flex-grow min-w-0 overflow-hidden">
+        <div className="pt-5 flex-grow min-w-0 overflow-hidden min-h-0">
           <OrderContent />
         </div>
       </div>
