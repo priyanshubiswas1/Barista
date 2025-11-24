@@ -4,7 +4,7 @@ import "github.com/kelseyhightower/envconfig"
 
 type Config struct {
 	Port         string `json:"PORT" default:"8080"`
-	DbUrl        string `json:"DB_URL" default:"postgres://admin:7866@table_db:5432/table?sslmode=disable"`
+	DbUrl        string `json:"DB_URL" default:"postgresql://postgres.qwjlqyuxcadqwvmarwlo:Barista@2025@aws-1-ap-southeast-1.pooler.supabase.com:5432/postgres"`
 	RMQUsername  string `json:"RMQ_USER_NAME" default:"admin"`
 	RMQPassword  string `json:"RMQ_PASSWORD" default:"7866"`
 	RMQHost      string `json:"RMQ_HOST" default:"rabbitmqservice:5672"`

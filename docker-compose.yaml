@@ -1,76 +1,4 @@
 services:
-  user_db:
-    build:
-      context: ./server/services/auth
-      dockerfile: ./db.dockerfile
-    environment:
-      POSTGRES_DB: user
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: 7866
-    restart: unless-stopped
-  menu_db:
-    build:
-      context: ./server/services/menu
-      dockerfile: ./db.dockerfile
-    environment:
-      POSTGRES_DB: menu
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: 7866
-    restart: unless-stopped
-  order_db:
-    build:
-      context: ./server/services/order
-      dockerfile: ./db.dockerfile
-    environment:
-      POSTGRES_DB: order
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: 7866
-    restart: unless-stopped
-  payment_db:
-    build:
-      context: ./server/services/payment
-      dockerfile: ./db.dockerfile
-    environment:
-      POSTGRES_DB: payment
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: 7866
-    restart: unless-stopped
-  session_db:
-    build:
-      context: ./server/services/session
-      dockerfile: ./db.dockerfile
-    environment:
-      POSTGRES_DB: session
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: 7866
-    restart: unless-stopped
-  shop_db:
-    build:
-      context: ./server/services/shop
-      dockerfile: ./db.dockerfile
-    environment:
-      POSTGRES_DB: shop
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: 7866
-    restart: unless-stopped
-  table_db:
-    build:
-      context: ./server/services/table
-      dockerfile: ./db.dockerfile
-    environment:
-      POSTGRES_DB: table
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: 7866
-    restart: unless-stopped
-  history_db:
-    build:
-      context: ./server/services/history
-      dockerfile: ./db.dockerfile
-    environment:
-      POSTGRES_DB: history
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: 7866
-    restart: unless-stopped
   apigateway:
     build:
       context: ./server/api-gateway
@@ -122,11 +50,9 @@ services:
     build:
       context: ./server/services/auth
       dockerfile: ./app.dockerfile
-    depends_on:
-      - user_db
     environment:
       PORT: "8080"
-      DB_URL: "postgres://admin:7866@user_db:5432/user?sslmode=disable"
+      DB_URL: "postgresql://postgres.qwjlqyuxcadqwvmarwlo:Barista@2025@aws-1-ap-southeast-1.pooler.supabase.com:5432/postgres"
       SHOP_CLIENT: shopservice:8080
       MENU_CLIENT: menuservice:8080
     restart: on-failure
@@ -134,21 +60,17 @@ services:
     build:
       context: ./server/services/shop
       dockerfile: ./app.dockerfile
-    depends_on:
-      - shop_db
     environment:
       PORT: "8080"
-      DB_URL: "postgres://admin:7866@shop_db:5432/shop?sslmode=disable"
+      DB_URL: "postgresql://postgres.qwjlqyuxcadqwvmarwlo:Barista@2025@aws-1-ap-southeast-1.pooler.supabase.com:5432/postgres"
     restart: on-failure
   menuservice:
     build:
       context: ./server/services/menu
       dockerfile: ./app.dockerfile
-    depends_on:
-      - menu_db
     environment:
       PORT: "8080"
-      DB_URL: "postgres://admin:7866@menu_db:5432/menu?sslmode=disable"
+      DB_URL: "postgresql://postgres.qwjlqyuxcadqwvmarwlo:Barista@2025@aws-1-ap-southeast-1.pooler.supabase.com:5432/postgres"
       CLOUDINARY_URL: "cloudinary://759689914359316:HrHhR6oR09cGl2Ele49DeAql8k8@dw71avwb7"
       CLOUDINARY_API_KEY: "759689914359316"
       CLOUDINARY_API_SECRET: "HrHhR6oR09cGl2Ele49DeAql8k8"
@@ -158,11 +80,9 @@ services:
     build:
       context: ./server/services/table
       dockerfile: ./app.dockerfile
-    depends_on:
-      - table_db
     environment:
       PORT: "8080"
-      DB_URL: "postgres://admin:7866@table_db:5432/table?sslmode=disable"
+      DB_URL: "postgresql://postgres.qwjlqyuxcadqwvmarwlo:Barista@2025@aws-1-ap-southeast-1.pooler.supabase.com:5432/postgres"
       RMQHost: rabbitmqservice:5672
     restart: on-failure
   qrgenservice:
@@ -179,11 +99,10 @@ services:
       context: ./server/services/session
       dockerfile: ./app.dockerfile
     depends_on:
-      - session_db
       - historyservice
     environment:
       PORT: "8080"
-      DB_URL: "postgres://admin:7866@session_db:5432/session?sslmode=disable"
+      DB_URL: "postgresql://postgres.qwjlqyuxcadqwvmarwlo:Barista@2025@aws-1-ap-southeast-1.pooler.supabase.com:5432/postgres"
       REDIS_URL: redis:6379
       TABLE_CLIENT: tableservice:8080
       HISTORY_CLIENT: historyservice:8080
@@ -193,11 +112,10 @@ services:
       context: ./server/services/order
       dockerfile: ./app.dockerfile
     depends_on:
-      - order_db
       - historyservice
     environment:
       PORT: "8080"
-      DB_URL: "postgres://admin:7866@order_db:5432/order?sslmode=disable"
+      DB_URL: "postgresql://postgres.qwjlqyuxcadqwvmarwlo:Barista@2025@aws-1-ap-southeast-1.pooler.supabase.com:5432/postgres"
       SESSION_CLIENT: sessionservice:8080
       HISTORY_CLIENT: historyservice:8080
       WEBSOCKET_URL: websocketservice:8080
@@ -206,20 +124,16 @@ services:
     build:
       context: ./server/services/payment
       dockerfile: ./app.dockerfile
-    depends_on:
-      - payment_db
     environment:
       PORT: "8080"
-      DB_URL: "postgres://admin:7866@payment_db:5432/payment?sslmode=disable"
+      DB_URL: "postgresql://postgres.qwjlqyuxcadqwvmarwlo:Barista@2025@aws-1-ap-southeast-1.pooler.supabase.com:5432/postgres"
       SESSION_CLIENT: sessionservice:8080
     restart: on-failure
   historyservice:
     build:
       context: ./server/services/history
       dockerfile: ./app.dockerfile
-    depends_on:
-      - history_db
     environment:
       PORT: "8080"
-      DB_URL: "postgres://admin:7866@history_db:5432/history?sslmode=disable"
+      DB_URL: "postgresql://postgres.qwjlqyuxcadqwvmarwlo:Barista@2025@aws-1-ap-southeast-1.pooler.supabase.com:5432/postgres"
     restart: on-failure
