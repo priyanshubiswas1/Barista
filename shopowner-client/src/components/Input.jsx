@@ -44,7 +44,8 @@ export default function Input({
           autoComplete={autocomplete}
           className={`flex-1 w-full bg-transparent outline-none text-sm text-gray-800
             placeholder:text-gray-400
-            disabled:placeholder:text-gray-300`}
+            disabled:placeholder:text-gray-300
+            focus-visible:outline-none`}
           {...props}
         />
       </div>

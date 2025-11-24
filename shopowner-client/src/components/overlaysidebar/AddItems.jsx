@@ -20,7 +20,7 @@ const AddItems = ({ header }) => {
   const [formData, setFormData] = useState({
     name: "",
     categoryId: "",
-    price: 0.0,
+    price: "",
   });
 
   const [selected, setSelected] = useState("veg");
@@ -30,7 +30,7 @@ const AddItems = ({ header }) => {
   const [err, setErr] = useState({
     name: "",
     categoryId: "",
-    price: 0.0,
+    price: "",
   });
 
   const {
@@ -58,7 +58,7 @@ const AddItems = ({ header }) => {
       setFormData({
         name: "",
         categoryId: "",
-        price: 0.0,
+        price: "",
       });
       setSelectedCategoryName("");
       setImageFile(null);
@@ -137,7 +137,7 @@ const AddItems = ({ header }) => {
       <div className="bg-gradient-to-br from-emerald-600 to-emerald-700 text-white px-8 py-6 relative overflow-hidden shadow-lg">
         <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16" />
         <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full -ml-12 -mb-12" />
-        
+
         <div className="relative z-10 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="bg-white rounded-full h-12 w-12 flex items-center justify-center shadow-lg">
@@ -145,7 +145,9 @@ const AddItems = ({ header }) => {
             </div>
             <div>
               <h2 className="text-2xl font-bold">{header}</h2>
-              <p className="text-emerald-100 text-sm mt-1">Fill in the details below</p>
+              <p className="text-emerald-100 text-sm mt-1">
+                Fill in the details below
+              </p>
             </div>
           </div>
           <button
@@ -163,7 +165,9 @@ const AddItems = ({ header }) => {
         <form className="flex flex-col gap-4 px-8 py-8">
           {/* Image Upload Section */}
           <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-            <h3 className="text-sm font-semibold text-gray-700 mb-4 uppercase tracking-wide">Item Image</h3>
+            <h3 className="text-sm font-semibold text-gray-700 mb-4 uppercase tracking-wide">
+              Item Image
+            </h3>
             <ImageUploader
               label="Image"
               onChange={handleImageChange}
@@ -173,7 +177,9 @@ const AddItems = ({ header }) => {
 
           {/* Basic Details Section */}
           <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-            <h3 className="text-sm font-semibold text-gray-700 mb-5 uppercase tracking-wide">Basic Details</h3>
+            <h3 className="text-sm font-semibold text-gray-700 mb-5 uppercase tracking-wide">
+              Basic Details
+            </h3>
             <div className="flex flex-col">
               <Input
                 label="Name"
@@ -219,7 +225,9 @@ const AddItems = ({ header }) => {
 
           {/* Pricing & Type Section */}
           <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-            <h3 className="text-sm font-semibold text-gray-700 mb-5 uppercase tracking-wide">Pricing & Type</h3>
+            <h3 className="text-sm font-semibold text-gray-700 mb-5 uppercase tracking-wide">
+              Pricing & Type
+            </h3>
             <div className="flex flex-col">
               <Input
                 label="Price"
@@ -233,7 +241,9 @@ const AddItems = ({ header }) => {
                 onChange={handleChange}
               />
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">Food Type</label>
+                <label className="block text-sm font-medium text-gray-700 mb-3">
+                  Food Type
+                </label>
                 <div className="flex gap-8">
                   <Radio
                     name="food"

@@ -157,7 +157,7 @@ const HistoryContent = ({
             <div className="flex-1">
               {calculateSessionTime(session.createdAt, session.updatedAt)}
             </div>
-            <div className="flex-1">${session.totalAmount.toFixed(2)}</div>
+            <div className="flex-1">₹{session.totalAmount.toFixed(2)}</div>
           </div>
         ))}
       </div>

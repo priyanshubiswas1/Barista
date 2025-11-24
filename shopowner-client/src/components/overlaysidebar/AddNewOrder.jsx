@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { IoAdd, IoRemove, IoClose } from "react-icons/io5";
 import { IoMdArrowDropright, IoMdArrowDropdown } from "react-icons/io";
@@ -32,6 +33,15 @@ const AddNewOrder = ({ header }) => {
 
   const [orderItems, setOrderItems] = useState([]);
   const [expandedCategories, setExpandedCategories] = useState({});
+
+  const handleViewOrderClick = () => {
+    if (!tableId) {
+      setErr((prev) => ({ ...prev, tableId: "Table ID is required" }));
+      toast.error("Please select a table.");
+      return;
+    }
+    setViewOrder(true);
+  };
 
   const queryClient = useQueryClient();
 
@@ -377,6 +387,7 @@ const AddNewOrder = ({ header }) => {
   };
 
   const AddOrder = () => {
+    const navigate = useNavigate();
     return (
       <form className="flex flex-col gap-2 px-6 pt-4">
         <div className="flex flex-col gap-5">
@@ -384,7 +395,12 @@ const AddNewOrder = ({ header }) => {
           <div className="-mx-6 h-px bg-gray-200" />
           <div className="flex gap-3">
             <Searchbar />
-            <Button variant="primary" icon={PiNotepadBold} type="button">
+            <Button
+              variant="primary"
+              icon={PiNotepadBold}
+              type="button"
+              onClick={() => navigate("/menu")}
+            >
               Menu
             </Button>
           </div>
@@ -535,7 +551,7 @@ const AddNewOrder = ({ header }) => {
         <div className="bg-gradient-to-br from-emerald-600 to-emerald-700 text-white px-8 py-6 relative overflow-hidden shadow-lg">
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16" />
           <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full -ml-12 -mb-12" />
-          
+
           <div className="relative z-10 flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="bg-white rounded-full h-12 w-12 flex items-center justify-center shadow-lg">
@@ -543,7 +559,9 @@ const AddNewOrder = ({ header }) => {
               </div>
               <div>
                 {header && <h2 className="font-bold text-2xl">{header}</h2>}
-                <p className="text-emerald-100 text-sm mt-1">Create a new order</p>
+                <p className="text-emerald-100 text-sm mt-1">
+                  Create a new order
+                </p>
               </div>
             </div>
             <button
@@ -576,7 +594,7 @@ const AddNewOrder = ({ header }) => {
           )}
         </h2>
         {!viewOrder ? (
-          <button onClick={() => setViewOrder(true)}>View Order</button>
+          <button onClick={handleViewOrderClick}>View Order</button>
         ) : (
           <button onClick={handleSubmit} disabled={mutation.isLoading}>
             {mutation.isLoading ? "Submitting..." : "Place Order"}
