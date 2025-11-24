@@ -32,7 +32,7 @@ const UpdateItem = ({ header, item }) => {
   const [err, setErr] = useState({
     name: "",
     categoryId: "",
-    price: "0.0",
+    price: "",
   });
 
   const {
