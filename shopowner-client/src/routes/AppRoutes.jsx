@@ -12,11 +12,11 @@ import Register from "../pages/Register.jsx";
 import { useQuery } from "@tanstack/react-query";
 import { verifyUser } from "../api/api.js";
 import { useAuthStore } from "../store/authStore.js";
+import CircleLoading from "../components/CircleLoading";
 
 function Protected({ children }) {
   const token = localStorage.getItem("token");
   if (!token) return <Navigate to="/register" />;
-
   const { data, isLoading } = useQuery({
     queryKey: [token],
     queryFn: () => verifyUser(),
@@ -26,7 +26,7 @@ function Protected({ children }) {
     },
   });
 
-  if (isLoading) return <p>Verifying...</p>;
+  if (isLoading) return <CircleLoading fullScreen text="Verifying..." />;
   if (!data) {
     return <Navigate to="/register" />;
   }

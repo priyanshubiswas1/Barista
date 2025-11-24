@@ -14,6 +14,7 @@ import Radio from "../Radio";
 import ImageUploader from "../ImageUploader";
 import SearchableSelect from "../SearchableSelect";
 import { toast } from "react-toastify";
+import CircleLoading from "../CircleLoading";
 
 const UpdateItem = ({ header, item }) => {
   const { setOverlay } = useOverlay();
@@ -155,7 +156,7 @@ const UpdateItem = ({ header, item }) => {
     mutate(payload);
   };
 
-  if (isLoading) return <p>Loading item...</p>;
+  if (isLoading) return <CircleLoading text="Loading item..." />;
   if (categoryError) return <p>Error: {categoryError.message}</p>;
 
   const categories = data.categories;

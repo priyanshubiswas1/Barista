@@ -12,6 +12,7 @@ import { fetchItemsByShopId } from "../api/api";
 import LeftSidebar from "../components/LeftSidebar";
 import MenuNoItems from "../components/menu/MenuNoItems";
 import Button from "../components/Button";
+import CircleLoading from "../components/CircleLoading";
 
 const MenuSubHeader = ({ onAddItemClick, onManageCategoryClick }) => {
   return (
@@ -47,7 +48,7 @@ const Menu = () => {
     queryFn: () => fetchItemsByShopId(localStorage.getItem("shopId")),
   });
 
-  if (isLoading) return <p>Loading item...</p>;
+  if (isLoading) return <CircleLoading text="Loading items..." />;
   if (error) return <p>Error: {error.message}</p>;
 
   const items = data.items;
@@ -87,41 +88,6 @@ const Menu = () => {
         </div>
         {items.length > 0 ? (
           <div className="px-6 pb-6 pt-2 flex-grow flex flex-col gap-4 overflow-y-auto">
-            {sortedCategoryEntries.map(([category, categoryItems]) => (
-              <MenuContent
-                key={category}
-                category={category}
-                items={categoryItems}
-              />
-            ))}
-            {sortedCategoryEntries.map(([category, categoryItems]) => (
-              <MenuContent
-                key={category}
-                category={category}
-                items={categoryItems}
-              />
-            ))}
-            {sortedCategoryEntries.map(([category, categoryItems]) => (
-              <MenuContent
-                key={category}
-                category={category}
-                items={categoryItems}
-              />
-            ))}
-            {sortedCategoryEntries.map(([category, categoryItems]) => (
-              <MenuContent
-                key={category}
-                category={category}
-                items={categoryItems}
-              />
-            ))}
-            {sortedCategoryEntries.map(([category, categoryItems]) => (
-              <MenuContent
-                key={category}
-                category={category}
-                items={categoryItems}
-              />
-            ))}
             {sortedCategoryEntries.map(([category, categoryItems]) => (
               <MenuContent
                 key={category}

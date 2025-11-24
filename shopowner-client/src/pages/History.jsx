@@ -10,6 +10,7 @@ import LeftSidebar from "../components/LeftSidebar";
 import { Tabs } from "../constants/constants";
 import { useQuery } from "@tanstack/react-query";
 import { getSessionSummary } from "../api/api";
+import CircleLoading from "../components/CircleLoading";
 
 const HistorySubHeader = ({ selectedFilter, setSelectedFilter }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -139,14 +140,14 @@ const HistoryContent = ({
   };
 
   return (
-    <div className="flex flex-col p-2">
-      <div className="flex bg-gray-100 p-2 text-sm font-medium text-gray-600">
+    <div className="flex flex-col p-2 flex-1 overflow-hidden">
+      <div className="flex bg-gray-100 p-2 text-sm font-medium text-gray-600 flex-shrink-0">
         <div className="flex-2">Order ID</div>
         <div className="flex-1">Items</div>
         <div className="flex-1">Session</div>
         <div className="flex-1">Amount</div>
       </div>
-      <div className="w-full h-full flex flex-col gap-2">
+      <div className="w-full flex-1 overflow-y-auto min-h-0 flex flex-col gap-2">
         {sessionSummaries.map((session, index) => (
           <div
             key={index}
@@ -162,7 +163,7 @@ const HistoryContent = ({
         ))}
       </div>
       {totalPages > 1 && (
-        <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-200">
+        <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-200 flex-shrink-0">
           <button
             onClick={() => onPageChange(currentPage - 1)}
             disabled={currentPage === 1}
@@ -240,19 +241,23 @@ const History = () => {
     queryFn: () => getSessionSummary(payload),
   });
 
-  if (isLoading) return <p>Loading history...</p>;
+  if (isLoading) return <CircleLoading text="Loading history..." />;
   if (error) return <p>Error: {error.message}</p>;
 
   return (
     <div className="flex h-screen">
       <LeftSidebar collapsed={isSidebarCollapesed} tab={Tabs.HISTORY} />
-      <div className="p-6 flex flex-col w-full">
-        <TabHeader toggleSidebar={toggleSidebar} tab={Tabs.HISTORY} />
-        <HistorySubHeader
-          selectedFilter={selectedFilter}
-          setSelectedFilter={handleFilterChange}
-        />
-        <div className="flex gap-3 py-3">
+      <div className="p-6 flex flex-col flex-1 overflow-hidden">
+        <div className="flex-shrink-0">
+          <TabHeader toggleSidebar={toggleSidebar} tab={Tabs.HISTORY} />
+        </div>
+        <div className="flex-shrink-0">
+          <HistorySubHeader
+            selectedFilter={selectedFilter}
+            setSelectedFilter={handleFilterChange}
+          />
+        </div>
+        <div className="flex gap-3 py-3 flex-shrink-0">
           <SalesSummaryCard
             filter={selectedFilter}
             totalAmount={data?.totalAmount || 0}

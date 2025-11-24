@@ -5,6 +5,7 @@ import { LuCirclePlus } from "react-icons/lu";
 import { FaArrowRightLong } from "react-icons/fa6";
 import { Overlays, Tabs } from "../constants/constants";
 import LeftSidebar from "../components/LeftSidebar.jsx";
+import CircleLoading from "../components/CircleLoading";
 import { TabHeader } from "../components/TabHeader.jsx";
 import Searchbar from "../components/Searchbar.jsx";
 import Button from "../components/Button.jsx";
@@ -125,7 +126,7 @@ const TableCard = ({ session }) => {
     };
   }, []);
 
-  if (isLoading) return <p>Loading tables...</p>;
+  if (isLoading) return <CircleLoading text="Loading tables..." />;
   if (error) return <p>Error: {error.message}</p>;
 
   const orderItems = data.orderItems;
@@ -219,7 +220,7 @@ const OrderContent = () => {
       ),
     }),
   });
-  if (isLoading) return <p>Loading tables...</p>;
+  if (isLoading) return <CircleLoading text="Loading orders..." />;
   if (error) return <p>Error: {error.message}</p>;
 
   const sessions = data.sessions;

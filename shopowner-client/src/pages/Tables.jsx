@@ -14,7 +14,7 @@ import { FaEllipsis } from "react-icons/fa6";
 import { PiQrCodeLight } from "react-icons/pi";
 import QRView from "../components/overlaysidebar/QRView";
 import { toast } from "react-toastify";
-
+import CircleLoading from "../components/CircleLoading";
 const TableActions = ({ table }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -102,7 +102,7 @@ const TableActions = ({ table }) => {
 
 const TablesContent = ({ table, onViewQR }) => {
   return (
-    <div className="bg-white border-2 border-gray-200 hover:border-gray-300 rounded-xl w-[20%] min-w-[250px] p-4 flex flex-col gap-3 shadow-sm hover:shadow-md transition-all duration-200">
+    <div className="bg-white border-2 border-gray-200 hover:border-gray-300 rounded-xl w-full p-4 flex flex-col gap-3 shadow-sm hover:shadow-md transition-all duration-200">
       <div className="flex justify-between items-center">
         <span className="font-bold text-gray-900">
           Table: {table.tableNumber}
@@ -124,7 +124,7 @@ const TablesContent = ({ table, onViewQR }) => {
 
 const TableSubHeader = ({ onAddNewTableClick }) => {
   return (
-    <div className="w-[100%] flex justify-between items-center pt-2">
+    <div className="w-[100%] flex justify-between items-center pt-2 pb-6 flex-shrink-0">
       <div className="flex items-center gap-5">
         {/* <Searchbar />
         <Button variant="outline" icon={IoFilter}>
@@ -150,7 +150,7 @@ const Tables = () => {
     queryFn: () => fetchTablesByShopId(localStorage.getItem("shopId")),
   });
 
-  if (isLoading) return <p>Loading tables...</p>;
+  if (isLoading) return <CircleLoading text="Loading tables..." />;
   if (error) return <p>Error: {error.message}</p>;
 
   const tables = data.tables;
@@ -170,12 +170,14 @@ const Tables = () => {
   return (
     <div className="flex h-screen">
       <LeftSidebar collapsed={isSidebarCollapesed} tab={Tabs.TABLES} />
-      <div className="p-6 flex flex-col w-full">
-        <TabHeader toggleSidebar={toggleSidebar} tab={Tabs.TABLES} />
+      <div className="p-6 flex flex-col flex-1 overflow-hidden">
+        <div className="flex-shrink-0">
+          <TabHeader toggleSidebar={toggleSidebar} tab={Tabs.TABLES} />
+        </div>
         <TableSubHeader
           onAddNewTableClick={() => setOverlay(Overlays.CREATETABLE)}
         />
-        <div className="pt-5 flex-grow">
+        <div className="px-4 pb-6 pt-2 flex-grow grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6 overflow-y-auto content-start min-h-0">
           {tables.map((table) => (
             <TablesContent
               key={table.tableId}

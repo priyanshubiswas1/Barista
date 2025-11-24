@@ -12,6 +12,7 @@ import Input from "../Input";
 import { useState } from "react";
 import Button from "../Button";
 import { toast } from "react-toastify";
+import CircleLoading from "../CircleLoading";
 
 const CategoryItem = ({ name, id, count, onDelete, onEdit }) => {
   return (
@@ -124,7 +125,7 @@ const ManageCategory = ({ header }) => {
     setEditItemName("");
   };
 
-  if (isLoading) return <p>Loading items...</p>;
+  if (isLoading) return <CircleLoading text="Loading items..." />;
   if (error) return <p>Error: {error.message}</p>;
 
   const categories = data.categories;

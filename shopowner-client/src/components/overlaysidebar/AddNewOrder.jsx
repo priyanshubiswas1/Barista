@@ -15,6 +15,7 @@ import {
 } from "../../api/api";
 import Searchbar from "../Searchbar";
 import { toast } from "react-toastify";
+import CircleLoading from "../CircleLoading";
 
 const AddNewOrder = ({ header }) => {
   const { setOverlay } = useOverlay();
@@ -103,7 +104,7 @@ const AddNewOrder = ({ header }) => {
     mutation.mutate(payload);
   };
 
-  if (isLoading) return <p>Loading tables...</p>;
+  if (isLoading) return <CircleLoading text="Loading tables..." />;
   if (tableError) return <p>Error: {tableError.message}</p>;
 
   const tables = data.tables;
@@ -200,7 +201,7 @@ const AddNewOrder = ({ header }) => {
       }));
     };
 
-    if (isLoading) return <p>Loading menu...</p>;
+    if (isLoading) return <CircleLoading text="Loading menu..." />;
     if (error) return <p>Error: {error.message}</p>;
 
     let items = data.items;
