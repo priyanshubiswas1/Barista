@@ -8,7 +8,9 @@ import Button from "../components/Button";
 import { fetchTableByTableId, placeOrder } from "../api/api";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
+import { useState } from "react";
 import { IoIosArrowBack } from "react-icons/io";
+import CircleLoading from "../components/CircleLoading";
 
 const OrderDetails = ({ orderItems, setOrderItems }) => {
   const navigate = useNavigate();
@@ -234,7 +236,7 @@ const ViewOrder = () => {
     });
   };
 
-  if (tableData.isLoading) return <p className="p-4">Loading...</p>;
+  if (tableData.isLoading) return <CircleLoading text="Loading..." />;
   if (tableData.error)
     return <p className="p-4 text-red-500">Error loading data.</p>;
 

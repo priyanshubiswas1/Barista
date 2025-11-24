@@ -6,6 +6,7 @@ import { IoEllipseSharp, IoTriangleSharp } from "react-icons/io5";
 import { IoIosArrowBack } from "react-icons/io";
 import { getOrdersBySessionId, fetchItemsByShopId } from "../api/api";
 import { useAuthStore } from "../store/authStore";
+import CircleLoading from "../components/CircleLoading";
 
 const formatCurrency = (amount) => {
   if (typeof amount !== "number") return "₹ 0";
@@ -171,7 +172,7 @@ const Orders = () => {
     return map;
   }, [itemsArray]);
 
-  if (isLoading) return <p>Loading orders...</p>;
+  if (isLoading) return <CircleLoading text="Loading orders..." />;
   if (error) return <p>Error: {error.message}</p>;
 
   const orderItemsArray = Array.isArray(data?.orderItems)

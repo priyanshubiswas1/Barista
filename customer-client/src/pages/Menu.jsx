@@ -12,6 +12,7 @@ import { fetchItemsByShopId, getSession } from "../api/api";
 import { useAuthStore } from "../store/authStore";
 import { useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import CircleLoading from "../components/CircleLoading";
 
 const VegNonVegSelect = ({ value, onChange }) => (
   <div className="flex gap-2 pt-4 pb-4 justify-center">
@@ -265,13 +266,7 @@ const Menu = () => {
   const totalItemsCount = orderItems.reduce((total, item) => total + item.quantity, 0);
 
   if (isLoading) return (
-    <div className="flex items-center justify-center h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      <div className="animate-pulse flex flex-col items-center gap-3">
-        <div className="h-16 w-16 bg-gradient-to-br from-emerald-200 to-emerald-300 rounded-full mb-2"></div>
-        <div className="h-4 w-40 bg-gray-300 rounded-full"></div>
-        <div className="h-3 w-32 bg-gray-200 rounded-full"></div>
-      </div>
-    </div>
+    <CircleLoading fullScreen text="Loading menu..." />
   );
   
   if (error) return (

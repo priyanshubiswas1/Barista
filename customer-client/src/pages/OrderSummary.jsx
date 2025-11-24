@@ -6,6 +6,7 @@ import { IoEllipseSharp, IoTriangleSharp } from "react-icons/io5";
 import { IoIosArrowBack } from "react-icons/io";
 import { getOrdersBySessionId, fetchItemsByShopId } from "../api/api";
 import { useAuthStore } from "../store/authStore";
+import CircleLoading from "../components/CircleLoading";
 
 const BackButton = () => {
   const shopId = localStorage.getItem("shopId");
@@ -133,7 +134,7 @@ const OrderSummary = () => {
     return map;
   }, [itemsArray]);
 
-  if (isLoading) return <p>Loading menu...</p>;
+  if (isLoading) return <CircleLoading text="Loading menu..." />;
   if (error) return <p>Error: {error.message}</p>;
 
   const orders = Array.isArray(data?.orderItems)

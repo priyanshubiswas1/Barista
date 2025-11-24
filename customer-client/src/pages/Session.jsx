@@ -5,6 +5,7 @@ import { useState } from "react";
 import Input from "../components/Input";
 import Button from "../components/Button";
 import { useAuthStore } from "../store/authStore";
+import CircleLoading from "../components/CircleLoading";
 
 const SendOTP = () => {
   const [otpSent, setOtpSent] = useState(false);
@@ -102,7 +103,7 @@ const Session = () => {
   });
 
   if (isLoading) {
-    return <p>Loading...</p>;
+    return <CircleLoading fullScreen text="Loading session..." />;
   }
 
   if (isFetched) {
