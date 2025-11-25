@@ -50,59 +50,74 @@ const Login = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      <div className="h-screen w-screen flex flex-col gap-6 items-center justify-center">
-        <header className="flex flex-col gap-2 items-center">
-          <div className="w-12 h-12 bg-gray-800 rounded-lg mb-2"></div>
-          <h1 className="text-3xl font-bold text-gray-900">
-            Sign in to Barista
-          </h1>
-          <p className="text-gray-600">Welcome back! Please enter your details</p>
-        </header>
-        <div className="w-96 flex flex-col gap-3 bg-white p-8 rounded-2xl shadow-xl border-2 border-gray-200">
-          <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-            <Input
-              label="Email"
-              type="email"
-              name="email"
-              placeholder="Enter your email"
-              helperText={err.email}
-              error={!!err.email}
-              value={formData.email}
-              onChange={handleChange}
-            />
-            <Input
-              label="Password"
-              type="password"
-              name="password"
-              placeholder="Enter your password"
-              autocomplete="current-password"
-              helperText={err.password}
-              error={!!err.password}
-              value={formData.password}
-              onChange={handleChange}
-            />
-            <div className="flex justify-end w-full">
-              <button
-                type="button"
-                className="text-sm text-emerald-700 hover:text-emerald-800 hover:underline cursor-pointer font-medium"
-              >
-                Forgot Password?
-              </button>
+    <div className="flex h-screen bg-gradient-to-br from-gray-50 via-emerald-50/30 to-gray-100">
+      <div className="h-screen w-screen flex items-center justify-center p-4">
+        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden relative">
+          {/* Header with gradient */}
+          <div className="bg-gradient-to-br from-emerald-600 to-emerald-700 text-white p-8 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16" />
+            <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full -ml-12 -mb-12" />
+            
+            <div className="relative z-10 flex flex-col items-center">
+              <div className="bg-white rounded-full h-16 w-16 mb-3 flex items-center justify-center shadow-lg">
+                <span className="text-3xl">☕</span>
+              </div>
+              <h2 className="font-bold text-2xl mb-1">Welcome to Barista</h2>
+              <p className="text-emerald-100 text-sm">Sign in to manage your café</p>
             </div>
-            <Button type="submit" variant="primary">
-              {isPending ? "Logging in..." : "Continue"}
-            </Button>
-            <div className="flex justify-center gap-1 w-full text-sm">
-              <p className="text-gray-600">Don't have an account?</p>
-              <button
-                type="button"
-                className="text-emerald-700 hover:text-emerald-800 hover:underline cursor-pointer font-medium"
-              >
-                Sign Up
-              </button>
+          </div>
+
+          {/* Form Section */}
+          <div className="p-8 bg-gradient-to-b from-gray-50 to-white">
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+              <Input
+                label="Email"
+                type="email"
+                name="email"
+                placeholder="Enter your email"
+                helperText={err.email}
+                error={!!err.email}
+                value={formData.email}
+                onChange={handleChange}
+              />
+              <Input
+                label="Password"
+                type="password"
+                name="password"
+                placeholder="Enter your password"
+                autocomplete="current-password"
+                helperText={err.password}
+                error={!!err.password}
+                value={formData.password}
+                onChange={handleChange}
+              />
+              <div className="flex justify-end w-full -mt-2">
+                <button
+                  type="button"
+                  className="text-sm text-emerald-700 hover:text-emerald-800 hover:underline cursor-pointer font-medium transition-colors"
+                >
+                  Forgot Password?
+                </button>
+              </div>
+              <Button type="submit" variant="primary">
+                {isPending ? "Signing in..." : "Sign In"}
+              </Button>
+              <div className="flex justify-center gap-1 w-full text-sm mt-2">
+                <p className="text-gray-600">Don't have an account?</p>
+                <button
+                  type="button"
+                  onClick={() => navigate("/register")}
+                  className="text-emerald-700 hover:text-emerald-800 hover:underline cursor-pointer font-medium transition-colors"
+                >
+                  Sign Up
+                </button>
+              </div>
+            </form>
+            
+            <div className="mt-6 text-center">
+              <p className="text-gray-400 text-xs">Powered by Barista</p>
             </div>
-          </form>
+          </div>
         </div>
       </div>
     </div>

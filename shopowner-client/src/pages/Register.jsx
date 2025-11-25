@@ -5,6 +5,7 @@ import { useMutation } from "@tanstack/react-query";
 import { registerUser } from "../api/api";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
+import { toast } from "react-toastify";
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -26,7 +27,7 @@ const Register = () => {
   const { mutate, isPending, isError, isSuccess, error } = useMutation({
     mutationFn: registerUser,
     onSuccess: (data) => {
-      // alert("Logged in ✅");
+      toast.success("Registration successful!");
       localStorage.setItem("token", data.token);
       localStorage.setItem("shopId", data.shopId);
       localStorage.setItem("menuId", data.menuId);
@@ -37,7 +38,7 @@ const Register = () => {
       navigate("/menu");
     },
     onError: (error) => {
-      console.log("Registration failed: ", error);
+      toast.error("Registration failed: " + error.message);
     },
   });
 
@@ -48,96 +49,121 @@ const Register = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const newError = { email: "", password: "" };
+    const newError = { 
+      name: "",
+      email: "",
+      password: "",
+      phone: "",
+      address: ""
+    };
 
-    if (!formData.email) newError.email = "Email is required";
+    if (!formData.name) newError.name = "Please enter your name";
+    if (!formData.email) newError.email = "Please enter your email";
     else if (!formData.email.includes("@"))
       newError.email = "Enter a valid email";
-    if (!formData.password) newError.password = "Password is required";
+    if (!formData.phone) newError.phone = "Please enter your phone number";
+    if (!formData.password) newError.password = "Please enter your password";
+    if (!formData.address) newError.address = "Please enter your address";
 
     setErr(newError);
-    if (newError.email || newError.password) return;
+    if (Object.values(newError).some(error => error !== "")) return;
 
     mutate(formData);
   };
 
   return (
-    <div className="flex h-screen">
-      <div className="h-screen w-screen flex flex-col gap-6 items-center justify-center bg-white">
-        <header className="flex flex-col gap-2 items-center">
-          <h1 className="text-2xl font-semibold text-gray-800">
-            Register to MyCafeApp
-          </h1>
-        </header>
-        <div className="w-100 flex flex-col gap-2 bg-white p-5 rounded-md">
-          <form onSubmit={handleSubmit} className="flex flex-col gap-2">
-            <Input
-              label="Name"
-              type="text"
-              name="name"
-              placeholder="Enter your name"
-              helperText={err.name}
-              error={!!err.name}
-              value={formData.name}
-              onChange={handleChange}
-            />
-            <Input
-              label="Email"
-              type="email"
-              name="email"
-              placeholder="Enter your email"
-              helperText={err.email}
-              error={!!err.email}
-              value={formData.email}
-              onChange={handleChange}
-            />
-            <Input
-              label="Phone"
-              type="text"
-              name="phone"
-              placeholder="Enter your phone number"
-              prefix={"+91"}
-              helperText={err.phone}
-              error={!!err.phone}
-              value={formData.phone}
-              onChange={handleChange}
-            />
-            <Input
-              label="Password"
-              type="password"
-              name="password"
-              placeholder="Enter your password"
-              autocomplete="new-password"
-              helperText={err.password}
-              error={!!err.password}
-              value={formData.password}
-              onChange={handleChange}
-            />
-            <Input
-              label="Address"
-              type="text"
-              name="address"
-              placeholder="Enter your address"
-              helperText={err.address}
-              error={!!err.address}
-              value={formData.address}
-              onChange={handleChange}
-            />
-
-            <Button type="submit" variant="primary">
-              {isPending ? "Registering..." : "Register"}
-            </Button>
-            <div className="flex justify-center w-full gap-1 items-center">
-              <p className="text-gray-500">Already have an account?</p>
-              <button
-                type="button"
-                className=" text-sm text-gray-800 hover:underline cursor-pointer"
-                onClick={() => navigate("/login")}
-              >
-                Sign In
-              </button>
+    <div className="flex h-screen bg-gradient-to-br from-gray-50 via-emerald-50/30 to-gray-100">
+      <div className="h-screen w-screen flex items-center justify-center p-4">
+        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden relative">
+          {/* Header with gradient */}
+          <div className="bg-gradient-to-br from-emerald-600 to-emerald-700 text-white p-6 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16" />
+            <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full -ml-12 -mb-12" />
+            
+            <div className="relative z-10 flex flex-col items-center">
+              <div className="bg-white rounded-full h-14 w-14 mb-2 flex items-center justify-center shadow-lg">
+                <span className="text-3xl">☕</span>
+              </div>
+              <h2 className="font-bold text-xl mb-1">Join Barista</h2>
+              <p className="text-emerald-100 text-xs">Create your café account</p>
             </div>
-          </form>
+          </div>
+
+          {/* Form Section */}
+          <div className="p-6 bg-gradient-to-b from-gray-50 to-white">
+            <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+              <Input
+                label="Name"
+                type="text"
+                name="name"
+                placeholder="Enter your name"
+                helperText={err.name}
+                error={!!err.name}
+                value={formData.name}
+                onChange={handleChange}
+              />
+              <Input
+                label="Email"
+                type="email"
+                name="email"
+                placeholder="Enter your email"
+                helperText={err.email}
+                error={!!err.email}
+                value={formData.email}
+                onChange={handleChange}
+              />
+              <Input
+                label="Phone"
+                type="text"
+                name="phone"
+                placeholder="Enter your phone number"
+                prefix={"+91"}
+                helperText={err.phone}
+                error={!!err.phone}
+                value={formData.phone}
+                onChange={handleChange}
+              />
+              <Input
+                label="Password"
+                type="password"
+                name="password"
+                placeholder="Enter your password"
+                autocomplete="new-password"
+                helperText={err.password}
+                error={!!err.password}
+                value={formData.password}
+                onChange={handleChange}
+              />
+              <Input
+                label="Address"
+                type="text"
+                name="address"
+                placeholder="Enter your address"
+                helperText={err.address}
+                error={!!err.address}
+                value={formData.address}
+                onChange={handleChange}
+              />
+
+              <Button type="submit" variant="primary">
+                {isPending ? "Creating..." : "Create Account"}
+              </Button>
+              <div className="flex justify-center w-full gap-1 items-center text-sm">
+                <p className="text-gray-600">Already have an account?</p>
+                <button
+                  type="button"
+                  className="text-emerald-700 hover:text-emerald-800 hover:underline cursor-pointer font-medium transition-colors"
+                  onClick={() => navigate("/login")}
+                >
+                  Sign In
+                </button>
+              </div>
+            </form>
+            
+            <div className="mt-4 text-center">
+              <p className="text-gray-400 text-xs">Powered by Barista</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
