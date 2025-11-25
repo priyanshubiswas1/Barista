@@ -193,12 +193,11 @@ const OrderContent = () => {
     }),
   });
 
-
   // WebSocket connection
   useEffect(() => {
     const wsBaseUrl = import.meta.env.VITE_WS_URL || "ws://localhost:8081/ws";
     const shopId = localStorage.getItem("shopId");
-    
+
     if (!shopId) {
       console.error("No shopId found in localStorage");
       return;
@@ -215,7 +214,10 @@ const OrderContent = () => {
         const message = JSON.parse(event.data);
 
         if (message.type === "order_placed") {
-          queryClient.invalidateQueries({ queryKey: ["order-items"] });
+          queryClient.invalidateQueries({
+            queryKey: ["order-items"],
+            exact: false,
+          });
           queryClient.invalidateQueries({ queryKey: ["sessions"] });
         }
       } catch (err) {
