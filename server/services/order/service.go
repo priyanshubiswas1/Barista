@@ -153,6 +153,7 @@ func (s *service) CreateOrderAdmin(ctx context.Context, order pkg.OrderAdminReq)
 		log.Println("failed to UpdateSession error: ", err)
 		return pkg.CreateOrderRes{}, err
 	}
+	SendPlaceOrderEvent(order.ShopId, s.ws+"/send-event")
 	if succ {
 		var hisOrdItemsReq []pkg.AddOrderHistoryReq
 		for _, hOi := range res.OrderItems {

@@ -89,43 +89,12 @@ const OrderCard = ({ orderId, orderItems, index, onClick }) => {
 };
 
 const TableCard = ({ session }) => {
-  const queryClient = useQueryClient();
-
   const { data, isLoading, error } = useQuery({
     queryKey: ["order-items", session.tableId],
     queryFn: () => fetchOrdersBySessionId(session.sessionId),
   });
 
   const { setOverlay } = useOverlay();
-
-  useEffect(() => {
-    const wsBaseUrl = import.meta.env.VITE_WS_URL || "ws://localhost:8081/ws";
-    const ws = new WebSocket(
-      `${wsBaseUrl}?id=${localStorage.getItem("shopId")}`
-    );
-    ws.onopen = () => {
-      console.log("WebSocket connected");
-    };
-    ws.onmessage = (event) => {
-      const message = JSON.parse(event.data);
-
-      if (message.type === "order_placed") {
-        console.log("Order placed event received");
-        queryClient.invalidateQueries(["order-items", session.tableId]);
-      }
-    };
-    ws.onerror = (err) => {
-      console.error("WebSocket error", err);
-    };
-
-    ws.onclose = () => {
-      console.log("WebSocket disconnected");
-    };
-
-    return () => {
-      ws.close();
-    };
-  }, []);
 
   if (isLoading) return <CircleLoading text="Loading tables..." />;
   if (error) return <p>Error: {error.message}</p>;
@@ -211,6 +180,8 @@ const TableCard = ({ session }) => {
 };
 
 const OrderContent = () => {
+  const queryClient = useQueryClient();
+
   const { data, isLoading, error } = useQuery({
     queryKey: ["sessions"],
     queryFn: () => fetchActiveSessions(localStorage.getItem("shopId")),
@@ -221,6 +192,50 @@ const OrderContent = () => {
       ),
     }),
   });
+
+
+  // WebSocket connection
+  useEffect(() => {
+    const wsBaseUrl = import.meta.env.VITE_WS_URL || "ws://localhost:8081/ws";
+    const shopId = localStorage.getItem("shopId");
+    
+    if (!shopId) {
+      console.error("No shopId found in localStorage");
+      return;
+    }
+
+    const ws = new WebSocket(`${wsBaseUrl}?id=${shopId}`);
+
+    ws.onopen = () => {
+      console.log("WebSocket connected");
+    };
+
+    ws.onmessage = (event) => {
+      try {
+        const message = JSON.parse(event.data);
+
+        if (message.type === "order_placed") {
+          queryClient.invalidateQueries({ queryKey: ["order-items"] });
+          queryClient.invalidateQueries({ queryKey: ["sessions"] });
+        }
+      } catch (err) {
+        console.error("Error parsing WebSocket message:", err);
+      }
+    };
+
+    ws.onerror = (err) => {
+      console.error("WebSocket error:", err);
+    };
+
+    ws.onclose = () => {
+      console.log("WebSocket disconnected");
+    };
+
+    return () => {
+      ws.close();
+    };
+  }, [queryClient]);
+
   if (isLoading) return <CircleLoading text="Loading orders..." />;
   if (error) return <p>Error: {error.message}</p>;
 
