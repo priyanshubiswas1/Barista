@@ -92,6 +92,7 @@ const TableCard = ({ session }) => {
   const { data, isLoading, error } = useQuery({
     queryKey: ["order-items", session.tableId],
     queryFn: () => fetchOrdersBySessionId(session.sessionId),
+    staleTime: 0,
   });
 
   const { setOverlay } = useOverlay();
@@ -209,16 +210,13 @@ const OrderContent = () => {
       console.log("WebSocket connected");
     };
 
-    ws.onmessage = (event) => {
+    ws.onmessage = async (event) => {
       try {
         const message = JSON.parse(event.data);
 
         if (message.type === "order_placed") {
-          queryClient.invalidateQueries({
-            queryKey: ["order-items"],
-            exact: false,
-          });
-          queryClient.invalidateQueries({ queryKey: ["sessions"] });
+          await queryClient.refetchQueries({ queryKey: ["order-items"] });
+          await queryClient.refetchQueries({ queryKey: ["sessions"] });
         }
       } catch (err) {
         console.error("Error parsing WebSocket message:", err);
