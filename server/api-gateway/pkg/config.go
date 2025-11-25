@@ -5,16 +5,17 @@ import (
 )
 
 type Config struct {
-	Port          string `envconfig:"PORT" default:"8000"`
-	AuthClient    string `envconfig:"AUTH_CLIENT" default:"localhost:8080"`
-	ShopClient    string `envconfig:"SHOP_CLIENT" default:"localhost:8081"`
-	MenuClient    string `envconfig:"MENU_CLIENT" default:"localhost:8082"`
-	TableClient   string `envconfig:"TABLE_CLIENT" default:"localhost:8083"`
-	SessionClient string `envconfig:"SESSION_CLIENT" default:"localhost:8084"`
-	OrderClient   string `envconfig:"ORDER_CLIENT" default:"localhost:8085"`
-	PaymentClient string `envconfig:"PAYMENT_CLIENT" default:"localhost:8086"`
-	HistoryClient string `envconfig:"HISTORY_CLIENT" default:"localhost:8087"`
-	JwtKey        string `envconfig:"JWT_KEY" default:"key"`
+	Port           string `envconfig:"PORT" default:"8000"`
+	AuthClient     string `envconfig:"AUTH_CLIENT" default:"localhost:8080"`
+	ShopClient     string `envconfig:"SHOP_CLIENT" default:"localhost:8081"`
+	MenuClient     string `envconfig:"MENU_CLIENT" default:"localhost:8082"`
+	TableClient    string `envconfig:"TABLE_CLIENT" default:"localhost:8083"`
+	SessionClient  string `envconfig:"SESSION_CLIENT" default:"localhost:8084"`
+	OrderClient    string `envconfig:"ORDER_CLIENT" default:"localhost:8085"`
+	PaymentClient  string `envconfig:"PAYMENT_CLIENT" default:"localhost:8086"`
+	HistoryClient  string `envconfig:"HISTORY_CLIENT" default:"localhost:8087"`
+	JwtKey         string `envconfig:"JWT_KEY" default:"key"`
+	AllowedOrigins string `envconfig:"ALLOWED_ORIGINS" default:"http://localhost:5173,http://localhost:5174,https://paintings-oils-experience-tones.trycloudflare.com,https://assembly-blackberry-correct-penny.trycloudflare.com"`
 }
 
 func GetConfig() (*Config, error) {

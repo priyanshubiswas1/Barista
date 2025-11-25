@@ -5,8 +5,8 @@ import (
 )
 
 type Config struct {
-	Port       string `json:"PORT" default:"8080"`
-	DbUrl      string `json:"DB_URL" default:"postgresql://postgres.qwjlqyuxcadqwvmarwlo:Barista@2025@aws-1-ap-southeast-1.pooler.supabase.com:5432/postgres"`
+	Port       string `envconfig:"PORT" default:"8080"`
+	DbUrl      string `envconfig:"DB_URL" default:"postgresql://postgres.qwjlqyuxcadqwvmarwlo:Barista@2025@aws-1-ap-southeast-1.pooler.supabase.com:5432/postgres"`
 	ShopClient string `envconfig:"SHOP_CLIENT" default:"localhost:8081"`
 	MenuClient string `envconfig:"MENU_CLIENT" default:"localhost:8082"`
 }

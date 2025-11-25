@@ -13,7 +13,7 @@ func main() {
 	}
 	log.Println("config loaded")
 
-	server, err := NewAPIServer(cfg.AuthClient, cfg.ShopClient, cfg.MenuClient, cfg.TableClient, cfg.SessionClient, cfg.OrderClient, cfg.PaymentClient, cfg.HistoryClient)
+	server, err := NewAPIServer(cfg.AuthClient, cfg.ShopClient, cfg.MenuClient, cfg.TableClient, cfg.SessionClient, cfg.OrderClient, cfg.PaymentClient, cfg.HistoryClient, cfg.AllowedOrigins)
 	if err != nil {
 		log.Fatal("failed to create server")
 	}

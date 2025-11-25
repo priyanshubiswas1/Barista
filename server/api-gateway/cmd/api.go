@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -24,6 +25,7 @@ type APIServer struct {
 	orderClientUrl   string
 	paymentClientUrl string
 	historyClientUrl string
+	allowedOrigins   string
 }
 
 func NewAPIServer(
@@ -34,7 +36,8 @@ func NewAPIServer(
 	sessionClientUrl,
 	orderClientUrl,
 	paymentClientUrl,
-	historyClientUrl string,
+	historyClientUrl,
+	allowedOrigins string,
 ) (*APIServer, error) {
 	return &APIServer{
 		authClientUrl:    authClient,
@@ -45,6 +48,7 @@ func NewAPIServer(
 		orderClientUrl:   orderClientUrl,
 		paymentClientUrl: paymentClientUrl,
 		historyClientUrl: historyClientUrl,
+		allowedOrigins:   allowedOrigins,
 	}, nil
 }
 
@@ -84,8 +88,18 @@ func (s *APIServer) ListenServer(port string) error {
 
 	router := mux.NewRouter()
 
+	// Parse allowed origins from comma-separated string
+	origins := strings.Split(s.allowedOrigins, ",")
+	allowedOriginsList := make([]string, 0, len(origins))
+	for _, origin := range origins {
+		trimmedOrigin := strings.TrimSpace(origin)
+		if trimmedOrigin != "" {
+			allowedOriginsList = append(allowedOriginsList, trimmedOrigin)
+		}
+	}
+
 	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:5173", "http://localhost:5174", "https://paintings-oils-experience-tones.trycloudflare.com", "https://assembly-blackberry-correct-penny.trycloudflare.com"},
+		AllowedOrigins:   allowedOriginsList,
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Content-Type", "Authorization", "Session"},
 		AllowCredentials: true,

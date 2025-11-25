@@ -7,12 +7,14 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 	"sync"
 
 	"github.com/gorilla/websocket"
 )
 
 var (
+	allowedOriginsMap map[string]bool
 	websocketUpgrader = websocket.Upgrader{
 		CheckOrigin:     checkOrigin,
 		ReadBufferSize:  1024,
@@ -27,7 +29,17 @@ type Manager struct {
 	handlers map[string]EventHandler
 }
 
-func NewManager() *Manager {
+func NewManager(allowedOrigins string) *Manager {
+	// Parse allowed origins from comma-separated string
+	allowedOriginsMap = make(map[string]bool)
+	origins := strings.Split(allowedOrigins, ",")
+	for _, origin := range origins {
+		trimmedOrigin := strings.TrimSpace(origin)
+		if trimmedOrigin != "" {
+			allowedOriginsMap[trimmedOrigin] = true
+		}
+	}
+
 	m := &Manager{
 		clients:  make(ClientList),
 		handlers: make(map[string]EventHandler),
@@ -135,12 +147,10 @@ func (m *Manager) removeClient(client *Client) {
 
 func checkOrigin(r *http.Request) bool {
 	origin := r.Header.Get("Origin")
-	switch origin {
-	case "http://localhost:5173":
-		return true
-	case "https://paintings-oils-experience-tones.trycloudflare.com":
-		return true
-	default:
-		return false
+	// Check if origin is in the allowed origins map
+	if allowedOriginsMap == nil {
+		// Fallback if not initialized
+		return origin == "http://localhost:5173"
 	}
+	return allowedOriginsMap[origin]
 }

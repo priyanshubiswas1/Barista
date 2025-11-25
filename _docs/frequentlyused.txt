@@ -15,3 +15,6 @@ go clean -modcache
 docker builder prune
 
 https://qrcoderaptor.com/
+
+cloudflared tunnel --url http://localhost:8000
+cloudflared tunnel --url http://localhost:8081

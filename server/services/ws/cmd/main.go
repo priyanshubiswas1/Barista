@@ -21,7 +21,7 @@ func main() {
 	}
 	log.Println("config loaded")
 
-	manager := ws.NewManager()
+	manager := ws.NewManager(cfg.AllowedOrigins)
 	http.HandleFunc("/ws", manager.ServeWS)
 	http.HandleFunc("/send-event", makeHttpHandleFunc(manager.RouteEvent))
 
