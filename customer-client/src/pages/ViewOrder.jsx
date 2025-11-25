@@ -182,22 +182,26 @@ const OrderPlaced = ({ placedOrderId }) => {
   console.log(placedOrderId);
 
   return (
-    <div className="flex flex-col gap-6 items-center justify-center min-h-[60vh] px-4">
+    <div className="">
       <BackButton />
-      <div className="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full text-center border-2 border-emerald-100">
-        <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-full w-20 h-20 text-white flex justify-center items-center text-3xl mx-auto mb-6 shadow-lg">
-          <FaCheck />
+      <div className="flex flex-col gap-6 items-center justify-center min-h-[60vh] px-4">
+        <div className="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full text-center border-2 border-emerald-100">
+          <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-full w-20 h-20 text-white flex justify-center items-center text-3xl mx-auto mb-6 shadow-lg">
+            <FaCheck />
+          </div>
+          <h2 className="font-bold text-2xl text-gray-900 mb-2">
+            Order Placed!
+          </h2>
+          <p className="text-gray-600 mb-6">
+            Your order has been successfully placed
+          </p>
+          <button
+            onClick={() => navigate(`/order/${placedOrderId}`)}
+            className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 rounded-xl text-white px-8 py-3 font-bold shadow-lg hover:shadow-xl hover:from-emerald-700 hover:to-emerald-800 transition-all duration-200 active:scale-95"
+          >
+            View Order Details
+          </button>
         </div>
-        <h2 className="font-bold text-2xl text-gray-900 mb-2">Order Placed!</h2>
-        <p className="text-gray-600 mb-6">
-          Your order has been successfully placed
-        </p>
-        <button
-          onClick={() => navigate(`/order/${placedOrderId}`)}
-          className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 rounded-xl text-white px-8 py-3 font-bold shadow-lg hover:shadow-xl hover:from-emerald-700 hover:to-emerald-800 transition-all duration-200 active:scale-95"
-        >
-          View Order Details
-        </button>
       </div>
     </div>
   );
@@ -261,6 +265,7 @@ const ViewOrder = () => {
         <OrderPlaced placedOrderId={placedOrderId} />
       ) : (
         <>
+          <BackButton />
           <OrderDetails orderItems={orderItems} setOrderItems={setOrderItems} />
           <BillingDetails orderItems={orderItems} />
           <BasicDetails tableNo={tableData.data.table.tableNumber} />

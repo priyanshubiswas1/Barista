@@ -64,9 +64,14 @@ const OrderCard = ({ order, itemsMap }) => {
           const itemName = itemInfo.itemName ?? it.itemName ?? "Item";
 
           return (
-            <div key={it.itemId} className="flex justify-between items-center py-1">
+            <div
+              key={it.itemId}
+              className="flex justify-between items-center py-1"
+            >
               <div className="flex items-center gap-2">
-                <h4 className="text-sm text-gray-800 font-medium">{itemName}</h4>
+                <h4 className="text-sm text-gray-800 font-medium">
+                  {itemName}
+                </h4>
                 <div
                   className={`${
                     isVeg
@@ -80,7 +85,9 @@ const OrderCard = ({ order, itemsMap }) => {
                     <IoTriangleSharp size={8} />
                   )}
                 </div>
-                <p className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">Qty: {it.quantity}</p>
+                <p className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
+                  Qty: {it.quantity}
+                </p>
               </div>
               <p className="text-sm text-gray-900 font-semibold">
                 {formatCurrency(calculateLineTotal(it))}
@@ -120,17 +127,31 @@ const Orders = () => {
       <div className="w-screen h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex flex-col">
         <div className="sticky top-0 z-10 bg-white shadow-sm">
           <Navbar />
-          <BackButton />
         </div>
+        <BackButton />
         <div className="flex-1 flex flex-col items-center justify-center p-4 max-w-md mx-auto">
           <div className="bg-white rounded-2xl shadow-xl p-8 text-center border border-gray-200">
             <div className="w-16 h-16 bg-gray-100 rounded-full mx-auto mb-4 flex items-center justify-center">
-              <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              <svg
+                className="w-8 h-8 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
               </svg>
             </div>
-            <p className="text-gray-700 text-base mb-2 font-semibold">No orders yet</p>
-            <p className="text-gray-500 text-sm mb-6">Place your first order to see it here!</p>
+            <p className="text-gray-700 text-base mb-2 font-semibold">
+              No orders yet
+            </p>
+            <p className="text-gray-500 text-sm mb-6">
+              Place your first order to see it here!
+            </p>
             <button
               onClick={() => navigate(`/${shopId}/${tableId}`)}
               className="px-8 py-3 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl hover:from-emerald-700 hover:to-emerald-800 transition-all duration-200 active:scale-95"
@@ -204,15 +225,17 @@ const Orders = () => {
     <div className="w-screen h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex flex-col">
       <div className="sticky top-0 z-10 bg-white shadow-sm">
         <Navbar />
-        <BackButton />
       </div>
+      <BackButton />
 
       <div className="flex-1 overflow-y-auto max-w-3xl mx-auto w-full p-4 flex flex-col gap-4">
         {ordersArr.length === 0 && (
           <div className="flex-1 flex items-center justify-center">
             <div className="bg-white rounded-2xl shadow-lg p-8 text-center border border-gray-200">
               <p className="text-gray-600 font-medium">No orders found</p>
-              <p className="text-gray-400 text-sm mt-1">Your orders will appear here</p>
+              <p className="text-gray-400 text-sm mt-1">
+                Your orders will appear here
+              </p>
             </div>
           </div>
         )}
