@@ -99,8 +99,9 @@ const TableCard = ({ session }) => {
   const { setOverlay } = useOverlay();
 
   useEffect(() => {
+    const wsBaseUrl = import.meta.env.VITE_WS_URL || "ws://localhost:8081/ws";
     const ws = new WebSocket(
-      `ws://localhost:8081/ws?id=${localStorage.getItem("shopId")}`
+      `${wsBaseUrl}?id=${localStorage.getItem("shopId")}`
     );
     ws.onopen = () => {
       console.log("WebSocket connected");
