@@ -8,7 +8,6 @@ import Button from "../components/Button";
 import { fetchTableByTableId, placeOrder } from "../api/api";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { useState } from "react";
 import { IoIosArrowBack } from "react-icons/io";
 import CircleLoading from "../components/CircleLoading";
 
@@ -42,7 +41,9 @@ const OrderDetails = ({ orderItems, setOrderItems }) => {
   return (
     <div className="w-full max-w-3xl mx-auto px-4 pt-4">
       <div className="p-4 border-2 border-gray-200 rounded-2xl bg-white shadow-md hover:shadow-lg transition-shadow duration-200">
-        <h2 className="text-base font-bold text-gray-900 mb-3">Order Details</h2>
+        <h2 className="text-base font-bold text-gray-900 mb-3">
+          Order Details
+        </h2>
 
         {orderItems.length ? (
           orderItems.map((item) => (
@@ -51,7 +52,9 @@ const OrderDetails = ({ orderItems, setOrderItems }) => {
               className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0"
             >
               <div className="flex flex-1 items-center gap-2">
-                <h2 className="text-sm text-gray-800 font-medium">{item.itemName}</h2>
+                <h2 className="text-sm text-gray-800 font-medium">
+                  {item.itemName}
+                </h2>
                 <div className="text-green-700 border-2 border-green-700 rounded p-0.5">
                   <IoEllipseSharp size={6} />
                 </div>
@@ -111,7 +114,9 @@ const BillingDetails = ({ orderItems }) => {
   return (
     <div className="w-full max-w-3xl mx-auto px-4 pt-3">
       <div className="p-4 border-2 border-gray-200 rounded-2xl bg-white shadow-md">
-        <h2 className="text-base font-bold text-gray-900 mb-3">Billing Details</h2>
+        <h2 className="text-base font-bold text-gray-900 mb-3">
+          Billing Details
+        </h2>
         <div className="flex flex-col py-2 gap-2 text-sm">
           <div className="flex justify-between">
             <p className="text-gray-600">Subtotal</p>
@@ -133,7 +138,9 @@ const BasicDetails = ({ tableNo }) => {
   return (
     <div className="w-full max-w-3xl mx-auto px-4 pt-3">
       <div className="p-4 border-2 border-gray-200 rounded-2xl bg-white shadow-md">
-        <h2 className="text-base font-bold text-gray-900 mb-3">Basic Details</h2>
+        <h2 className="text-base font-bold text-gray-900 mb-3">
+          Basic Details
+        </h2>
         <div className="flex flex-col py-2 gap-2 text-sm">
           <div className="flex justify-between">
             <p className="text-gray-600">Table No.</p>
@@ -182,7 +189,9 @@ const OrderPlaced = ({ placedOrderId }) => {
           <FaCheck />
         </div>
         <h2 className="font-bold text-2xl text-gray-900 mb-2">Order Placed!</h2>
-        <p className="text-gray-600 mb-6">Your order has been successfully placed</p>
+        <p className="text-gray-600 mb-6">
+          Your order has been successfully placed
+        </p>
         <button
           onClick={() => navigate(`/order/${placedOrderId}`)}
           className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 rounded-xl text-white px-8 py-3 font-bold shadow-lg hover:shadow-xl hover:from-emerald-700 hover:to-emerald-800 transition-all duration-200 active:scale-95"
