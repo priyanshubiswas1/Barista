@@ -11,6 +11,27 @@ import { useState } from "react";
 import { IoIosArrowBack } from "react-icons/io";
 import CircleLoading from "../components/CircleLoading";
 
+const BackButton = () => {
+  const shopId = localStorage.getItem("shopId");
+  const tableId = localStorage.getItem("tableId");
+  const navigate = useNavigate();
+  const { setOrderItems } = useAuthStore();
+
+  return (
+    <div className="w-full max-w-3xl mx-auto px-4 py-3 flex justify-start items-center">
+      <button
+        onClick={() => {
+          setOrderItems([]);
+          navigate(`/${shopId}/${tableId}`);
+        }}
+        className="bg-white border-2 border-gray-300 rounded-lg flex justify-center items-center text-xl text-gray-600 p-2 hover:border-emerald-600 hover:text-emerald-600 hover:bg-emerald-50 transition-all duration-200"
+      >
+        <IoIosArrowBack />
+      </button>
+    </div>
+  );
+};
+
 const OrderDetails = ({ orderItems, setOrderItems }) => {
   const navigate = useNavigate();
   const { shopid, tableid } = useParams();
@@ -159,27 +180,6 @@ const BasicDetails = ({ tableNo }) => {
 const OrderPlaced = ({ placedOrderId }) => {
   const navigate = useNavigate();
   console.log(placedOrderId);
-
-  const BackButton = () => {
-    const shopId = localStorage.getItem("shopId");
-    const tableId = localStorage.getItem("tableId");
-    const navigate = useNavigate();
-    const { setOrderItems } = useAuthStore();
-
-    return (
-      <div className="w-full max-w-3xl mx-auto px-4 pt-4 flex justify-start items-center">
-        <button
-          onClick={() => {
-            setOrderItems([]);
-            navigate(`/${shopId}/${tableId}`);
-          }}
-          className="bg-white border-2 border-gray-300 rounded-lg flex justify-center items-center text-xl text-gray-600 p-2 hover:border-emerald-600 hover:text-emerald-600 hover:bg-emerald-50 transition-all duration-200"
-        >
-          <IoIosArrowBack />
-        </button>
-      </div>
-    );
-  };
 
   return (
     <div className="flex flex-col gap-6 items-center justify-center min-h-[60vh] px-4">
