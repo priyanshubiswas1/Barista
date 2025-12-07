@@ -1,6 +1,10 @@
 import React from "react";
 
-const CircleLoading = ({ size = "md", fullScreen = false, text = "Loading..." }) => {
+const CircleLoading = ({
+  size = "md",
+  fullScreen = false,
+  text = "Loading...",
+}) => {
   const sizeClasses = {
     sm: "w-6 h-6 border-2",
     md: "w-10 h-10 border-4",
@@ -10,10 +14,10 @@ const CircleLoading = ({ size = "md", fullScreen = false, text = "Loading..." })
   const spinner = (
     <div className="flex flex-col items-center justify-center gap-4">
       <div
-        className={`${sizeClasses[size]} animate-spin rounded-full border-emerald-200 border-t-emerald-700`}
+        className={`${sizeClasses[size]} animate-spin rounded-full border-indigo-200 border-t-indigo-700`}
       />
       {text && (
-        <p className="text-emerald-700 font-medium animate-pulse">{text}</p>
+        <p className="text-indigo-700 font-medium animate-pulse">{text}</p>
       )}
     </div>
   );

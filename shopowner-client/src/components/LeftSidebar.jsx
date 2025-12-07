@@ -24,7 +24,7 @@ const SidebarItem = ({
     "flex items-center px-2 rounded-md text-sm cursor-pointer h-10 transition-all duration-300";
   const VARIANTS = {
     default: "bg-white text-gray-600 hover:bg-gray-50 hover:text-gray-800",
-    active: "bg-emerald-200 text-emerald-700 font-medium shadow-sm",
+    active: "bg-indigo-200 text-indigo-700 font-medium shadow-sm",
   };
   const variantClasses = VARIANTS[variant] || VARIANTS.default;
 
@@ -44,7 +44,7 @@ const SidebarItem = ({
 };
 
 const SidebarHeader = ({ collapsed }) => (
-  <div className="bg-gradient-to-br from-emerald-600 to-emerald-700 p-6 relative overflow-hidden transition-all duration-300 mb-2">
+  <div className="bg-gradient-to-br from-indigo-600 to-indigo-700 p-6 relative overflow-hidden transition-all duration-300 mb-2">
     {/* Decorative circles */}
     <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -mr-12 -mt-12" />
     <div className="absolute bottom-0 left-0 w-16 h-16 bg-white/10 rounded-full -ml-8 -mb-8" />
@@ -60,7 +60,7 @@ const SidebarHeader = ({ collapsed }) => (
       {!collapsed && (
         <div className="flex flex-col transition-opacity duration-300">
           <h3 className="text-white font-bold text-lg">Barista</h3>
-          <p className="text-emerald-100 text-xs">Shop Owner Portal</p>
+          <p className="text-indigo-100 text-xs">Shop Owner Portal</p>
         </div>
       )}
     </div>
@@ -69,14 +69,14 @@ const SidebarHeader = ({ collapsed }) => (
 
 const SidebarProfile = ({ collapsed }) => (
   <div
-    className={`bg-gradient-to-br from-emerald-600 to-emerald-700 ${
+    className={`bg-gradient-to-br from-indigo-600 to-indigo-700 ${
       collapsed ? "p-4" : "p-5"
-    } border-t border-emerald-500/30 transition-all duration-300`}
+    } border-t border-indigo-500/30 transition-all duration-300`}
   >
     <div
       className={`flex ${collapsed ? "justify-center" : "gap-3"} items-center`}
     >
-      <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg flex-shrink-0 font-bold text-emerald-700">
+      <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg flex-shrink-0 font-bold text-indigo-700">
         {localStorage.getItem("name")?.charAt(0).toUpperCase() || "U"}
       </div>
       {!collapsed && (
@@ -84,7 +84,7 @@ const SidebarProfile = ({ collapsed }) => (
           <h3 className="text-white font-semibold text-sm truncate">
             {localStorage.getItem("name")}
           </h3>
-          <p className="text-emerald-100 text-xs truncate">
+          <p className="text-indigo-100 text-xs truncate">
             {localStorage.getItem("email")}
           </p>
         </div>

@@ -55,7 +55,7 @@ const MenuContentHeader = ({ category, count }) => {
     <div className="flex items-center gap-3 pb-3">
       <CaretDown size={16} weight="fill" className="text-gray-700" />
       <h3 className="font-bold text-gray-900">{category}</h3>
-      <div className="bg-emerald-100 border border-emerald-200 rounded-lg h-6 px-2.5 flex items-center justify-center text-xs font-bold text-emerald-700">
+      <div className="bg-indigo-100 border border-indigo-200 rounded-lg h-6 px-2.5 flex items-center justify-center text-xs font-bold text-indigo-700">
         {count}
       </div>
     </div>
@@ -158,10 +158,10 @@ const MenuContentBody = ({ items }) => {
               Item Name
             </th>
             <th className="py-3.5 font-semibold text-left w-[15%]">Price</th>
-            <th className="py-3.5 font-semibold text-left w-[15%]">
-              Type
+            <th className="py-3.5 font-semibold text-left w-[15%]">Type</th>
+            <th className="py-3.5 font-semibold text-left w-[12%]">
+              Available
             </th>
-            <th className="py-3.5 font-semibold text-left w-[12%]">Available</th>
             <th className="py-3.5 font-semibold text-left w-[8%]"></th>
           </tr>
         </thead>
@@ -188,7 +188,9 @@ const MenuContentBody = ({ items }) => {
                   ) : (
                     <div className="w-9 h-9 bg-gray-300 rounded-full" />
                   )}
-                  <div className="font-medium text-gray-900">{item.itemName}</div>
+                  <div className="font-medium text-gray-900">
+                    {item.itemName}
+                  </div>
                 </div>
               </td>
 

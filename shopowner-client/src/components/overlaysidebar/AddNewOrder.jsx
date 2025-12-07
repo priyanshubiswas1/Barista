@@ -549,7 +549,7 @@ const AddNewOrder = ({ header }) => {
     <div className="flex flex-col w-full h-full">
       <div className="flex flex-col w-full h-full overflow-auto">
         {/* Header with gradient */}
-        <div className="bg-gradient-to-br from-emerald-600 to-emerald-700 text-white px-8 py-6 relative overflow-hidden shadow-lg">
+        <div className="bg-gradient-to-br from-indigo-600 to-indigo-700 text-white px-8 py-6 relative overflow-hidden shadow-lg">
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16" />
           <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full -ml-12 -mb-12" />
 
@@ -560,7 +560,7 @@ const AddNewOrder = ({ header }) => {
               </div>
               <div>
                 {header && <h2 className="font-bold text-2xl">{header}</h2>}
-                <p className="text-emerald-100 text-sm mt-1">
+                <p className="text-indigo-100 text-sm mt-1">
                   Create a new order
                 </p>
               </div>
@@ -586,7 +586,7 @@ const AddNewOrder = ({ header }) => {
         )}
       </div>
 
-      <div className="bg-emerald-700 text-white flex justify-around items-center py-8">
+      <div className="bg-indigo-700 text-white flex justify-around items-center py-8">
         <h2>
           Items added | ₹{" "}
           {orderItems.reduce(

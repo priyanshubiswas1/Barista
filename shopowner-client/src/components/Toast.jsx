@@ -5,7 +5,7 @@ const Toast = ({ children, action, onAction }) => {
       {action && (
         <button
           onClick={onAction}
-          className="text-sm text-emerald-500 font-medium cursor-pointer"
+          className="text-sm text-indigo-500 font-medium cursor-pointer"
         >
           {action}
         </button>

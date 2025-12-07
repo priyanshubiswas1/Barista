@@ -9,7 +9,7 @@ const MenuNoItems = () => {
   return (
     <div className="w-full h-[75%] bg-white p-8 flex flex-col items-center justify-center rounded-xl border-2 border-gray-200 shadow-sm">
       <div className="flex flex-col w-80 gap-6 items-center">
-        <div className="w-24 h-24 bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-full flex items-center justify-center mb-2">
+        <div className="w-24 h-24 bg-gradient-to-br from-indigo-100 to-indigo-200 rounded-full flex items-center justify-center mb-2">
           <span className="text-5xl">☕</span>
         </div>
         <div className="flex flex-col w-full gap-2 items-center">

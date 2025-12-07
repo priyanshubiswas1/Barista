@@ -41,10 +41,10 @@ const AddTable = ({ header }) => {
   return (
     <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden relative">
       {/* Header with gradient */}
-      <div className="bg-gradient-to-br from-emerald-600 to-emerald-700 text-white p-8 relative overflow-hidden">
+      <div className="bg-gradient-to-br from-indigo-600 to-indigo-700 text-white p-8 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16" />
         <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full -ml-12 -mb-12" />
-        
+
         <div className="relative z-10 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="bg-white rounded-full h-12 w-12 flex items-center justify-center shadow-lg">
@@ -52,7 +52,9 @@ const AddTable = ({ header }) => {
             </div>
             <div>
               <h2 className="font-bold text-2xl">{header}</h2>
-              <p className="text-emerald-100 text-sm mt-1">Enter table details</p>
+              <p className="text-indigo-100 text-sm mt-1">
+                Enter table details
+              </p>
             </div>
           </div>
           <button

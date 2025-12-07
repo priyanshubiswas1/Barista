@@ -135,7 +135,7 @@ const AddItems = ({ header }) => {
   return (
     <div className="flex flex-col w-full h-full bg-gradient-to-b from-gray-50 to-white">
       {/* Header with gradient */}
-      <div className="bg-gradient-to-br from-emerald-600 to-emerald-700 text-white px-8 py-6 relative overflow-hidden shadow-lg">
+      <div className="bg-gradient-to-br from-indigo-600 to-indigo-700 text-white px-8 py-6 relative overflow-hidden shadow-lg">
         <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16" />
         <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full -ml-12 -mb-12" />
 
@@ -146,7 +146,7 @@ const AddItems = ({ header }) => {
             </div>
             <div>
               <h2 className="text-2xl font-bold">{header}</h2>
-              <p className="text-emerald-100 text-sm mt-1">
+              <p className="text-indigo-100 text-sm mt-1">
                 Fill in the details below
               </p>
             </div>

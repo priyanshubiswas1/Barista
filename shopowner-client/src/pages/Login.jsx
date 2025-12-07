@@ -50,20 +50,22 @@ const Login = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gradient-to-br from-gray-50 via-emerald-50/30 to-gray-100">
+    <div className="flex h-screen bg-gradient-to-br from-gray-50 via-indigo-50/30 to-gray-100">
       <div className="h-screen w-screen flex items-center justify-center p-4">
         <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden relative">
           {/* Header with gradient */}
-          <div className="bg-gradient-to-br from-emerald-600 to-emerald-700 text-white p-8 relative overflow-hidden">
+          <div className="bg-gradient-to-br from-indigo-600 to-indigo-700 text-white p-8 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16" />
             <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full -ml-12 -mb-12" />
-            
+
             <div className="relative z-10 flex flex-col items-center">
               <div className="bg-white rounded-full h-16 w-16 mb-3 flex items-center justify-center shadow-lg">
                 <span className="text-3xl">☕</span>
               </div>
               <h2 className="font-bold text-2xl mb-1">Welcome to Barista</h2>
-              <p className="text-emerald-100 text-sm">Sign in to manage your café</p>
+              <p className="text-indigo-100 text-sm">
+                Sign in to manage your café
+              </p>
             </div>
           </div>
 
@@ -94,7 +96,7 @@ const Login = () => {
               <div className="flex justify-end w-full -mt-2">
                 <button
                   type="button"
-                  className="text-sm text-emerald-700 hover:text-emerald-800 hover:underline cursor-pointer font-medium transition-colors"
+                  className="text-sm text-indigo-700 hover:text-indigo-800 hover:underline cursor-pointer font-medium transition-colors"
                 >
                   Forgot Password?
                 </button>
@@ -107,13 +109,13 @@ const Login = () => {
                 <button
                   type="button"
                   onClick={() => navigate("/register")}
-                  className="text-emerald-700 hover:text-emerald-800 hover:underline cursor-pointer font-medium transition-colors"
+                  className="text-indigo-700 hover:text-indigo-800 hover:underline cursor-pointer font-medium transition-colors"
                 >
                   Sign Up
                 </button>
               </div>
             </form>
-            
+
             <div className="mt-6 text-center">
               <p className="text-gray-400 text-xs">Powered by Barista</p>
             </div>

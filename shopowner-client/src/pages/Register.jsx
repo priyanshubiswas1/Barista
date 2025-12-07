@@ -49,12 +49,12 @@ const Register = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const newError = { 
+    const newError = {
       name: "",
       email: "",
       password: "",
       phone: "",
-      address: ""
+      address: "",
     };
 
     if (!formData.name) newError.name = "Please enter your name";
@@ -66,26 +66,28 @@ const Register = () => {
     if (!formData.address) newError.address = "Please enter your address";
 
     setErr(newError);
-    if (Object.values(newError).some(error => error !== "")) return;
+    if (Object.values(newError).some((error) => error !== "")) return;
 
     mutate(formData);
   };
 
   return (
-    <div className="flex h-screen bg-gradient-to-br from-gray-50 via-emerald-50/30 to-gray-100">
+    <div className="flex h-screen bg-gradient-to-br from-gray-50 via-indigo-50/30 to-gray-100">
       <div className="h-screen w-screen flex items-center justify-center p-4">
         <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden relative">
           {/* Header with gradient */}
-          <div className="bg-gradient-to-br from-emerald-600 to-emerald-700 text-white p-6 relative overflow-hidden">
+          <div className="bg-gradient-to-br from-indigo-600 to-indigo-700 text-white p-6 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16" />
             <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full -ml-12 -mb-12" />
-            
+
             <div className="relative z-10 flex flex-col items-center">
               <div className="bg-white rounded-full h-14 w-14 mb-2 flex items-center justify-center shadow-lg">
                 <span className="text-3xl">☕</span>
               </div>
               <h2 className="font-bold text-xl mb-1">Join Barista</h2>
-              <p className="text-emerald-100 text-xs">Create your café account</p>
+              <p className="text-indigo-100 text-xs">
+                Create your café account
+              </p>
             </div>
           </div>
 
@@ -152,14 +154,14 @@ const Register = () => {
                 <p className="text-gray-600">Already have an account?</p>
                 <button
                   type="button"
-                  className="text-emerald-700 hover:text-emerald-800 hover:underline cursor-pointer font-medium transition-colors"
+                  className="text-indigo-700 hover:text-indigo-800 hover:underline cursor-pointer font-medium transition-colors"
                   onClick={() => navigate("/login")}
                 >
                   Sign In
                 </button>
               </div>
             </form>
-            
+
             <div className="mt-4 text-center">
               <p className="text-gray-400 text-xs">Powered by Barista</p>
             </div>

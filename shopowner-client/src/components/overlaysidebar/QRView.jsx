@@ -64,29 +64,31 @@ const QRView = ({ table, onClose }) => {
               className="w-64 h-64"
             />
           </div>
-          <p className="mt-4 text-gray-600 text-sm font-medium">Table {table.tableNumber}</p>
+          <p className="mt-4 text-gray-600 text-sm font-medium">
+            Table {table.tableNumber}
+          </p>
         </div>
       ) : (
         <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden relative">
           {/* Header with gradient */}
-          <div className="bg-gradient-to-br from-emerald-600 to-emerald-700 text-white p-8 relative overflow-hidden">
+          <div className="bg-gradient-to-br from-indigo-600 to-indigo-700 text-white p-8 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16" />
             <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full -ml-12 -mb-12" />
-            
+
             <div className="relative z-10 flex flex-col items-center">
               <div className="bg-white rounded-full h-16 w-16 mb-3 flex items-center justify-center shadow-lg">
                 <span className="text-3xl">☕</span>
               </div>
               <h2 className="font-bold text-2xl mb-1">Barista</h2>
-              <p className="text-emerald-100 text-sm">Scan & Order</p>
+              <p className="text-indigo-100 text-sm">Scan & Order</p>
             </div>
           </div>
 
           {/* QR Code Section */}
           <div className="p-8 flex flex-col items-center bg-gradient-to-b from-gray-50 to-white">
             <div className="mb-4">
-              <div className="inline-block bg-emerald-100 border-2 border-emerald-200 rounded-lg px-4 py-2">
-                <h3 className="font-bold text-emerald-700 text-lg">
+              <div className="inline-block bg-indigo-100 border-2 border-indigo-200 rounded-lg px-4 py-2">
+                <h3 className="font-bold text-indigo-700 text-lg">
                   Table {table.tableNumber}
                 </h3>
               </div>
@@ -101,7 +103,9 @@ const QRView = ({ table, onClose }) => {
             </div>
 
             <div className="mt-6 text-center">
-              <p className="text-gray-600 text-sm font-medium">Scan this code to place your order</p>
+              <p className="text-gray-600 text-sm font-medium">
+                Scan this code to place your order
+              </p>
               <p className="text-gray-400 text-xs mt-1">Powered by Barista</p>
             </div>
           </div>
@@ -133,7 +137,7 @@ const QRView = ({ table, onClose }) => {
         </button>
         <button
           onClick={() => setQrOnly(!qrOnly)}
-          className="bg-emerald-700 hover:bg-emerald-800 text-white font-medium px-6 py-3 rounded-xl shadow-lg transition-all duration-200 hover:shadow-xl"
+          className="bg-indigo-700 hover:bg-indigo-800 text-white font-medium px-6 py-3 rounded-xl shadow-lg transition-all duration-200 hover:shadow-xl"
         >
           {qrOnly ? "Show Card" : "QR Only"}
         </button>

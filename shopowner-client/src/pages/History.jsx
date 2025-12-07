@@ -88,7 +88,7 @@ const SalesSummaryCard = ({ filter, totalAmount }) => {
     <div className="bg-white border-2 p-4 border-gray-200 hover:border-gray-300 rounded-xl flex flex-col gap-y-4 w-65 shadow-sm hover:shadow-md transition-all duration-200">
       <div className="flex justify-between gap-10 text-xs font-semibold items-center">
         <h2 className="text-gray-600">Total Sales</h2>
-        <h2 className="bg-emerald-100 border-emerald-200 rounded-lg px-3 py-1 text-emerald-700">
+        <h2 className="bg-indigo-100 border-indigo-200 rounded-lg px-3 py-1 text-indigo-700">
           {filter}
         </h2>
       </div>
@@ -105,7 +105,7 @@ const SessionsSummaryCard = ({ filter, totalSessions }) => {
     <div className="bg-white border-2 p-4 border-gray-200 hover:border-gray-300 rounded-xl flex flex-col gap-y-4 w-65 shadow-sm hover:shadow-md transition-all duration-200">
       <div className="flex justify-between gap-10 text-xs font-semibold items-center">
         <h2 className="text-gray-600">Total Sessions</h2>
-        <h2 className="bg-emerald-100 border-emerald-200 rounded-lg px-3 py-1 text-emerald-700">
+        <h2 className="bg-indigo-100 border-indigo-200 rounded-lg px-3 py-1 text-indigo-700">
           {filter}
         </h2>
       </div>

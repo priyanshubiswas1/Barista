@@ -209,10 +209,10 @@ const OrderDetails = ({ header }) => {
     <div className="flex flex-col w-full h-full relative">
       <div className="flex flex-col w-full h-full overflow-auto">
         {/* Header with gradient */}
-        <div className="bg-gradient-to-br from-emerald-600 to-emerald-700 text-white px-8 py-6 relative overflow-hidden shadow-lg">
+        <div className="bg-gradient-to-br from-indigo-600 to-indigo-700 text-white px-8 py-6 relative overflow-hidden shadow-lg">
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16" />
           <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full -ml-12 -mb-12" />
-          
+
           <div className="relative z-10 flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="bg-white rounded-full h-12 w-12 flex items-center justify-center shadow-lg">
@@ -220,7 +220,9 @@ const OrderDetails = ({ header }) => {
               </div>
               <div>
                 {header && <h2 className="font-bold text-2xl">{header}</h2>}
-                <p className="text-emerald-100 text-sm mt-1">Order information</p>
+                <p className="text-indigo-100 text-sm mt-1">
+                  Order information
+                </p>
               </div>
             </div>
             <button

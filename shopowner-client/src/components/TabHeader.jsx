@@ -2,7 +2,7 @@ import { SidebarSimple } from "phosphor-react";
 
 export const TabHeader = ({ toggleSidebar, tab }) => {
   return (
-    <div className="bg-gradient-to-br from-emerald-600 to-emerald-700 -mx-6 -mt-6 px-6 py-6 mb-6 relative overflow-hidden">
+    <div className="bg-gradient-to-br from-indigo-600 to-indigo-700 -mx-6 -mt-6 px-6 py-6 mb-6 relative overflow-hidden">
       {/* Decorative circles */}
       <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -mr-12 -mt-12" />
       <div className="absolute bottom-0 left-0 w-16 h-16 bg-white/10 rounded-full -ml-8 -mb-8" />
