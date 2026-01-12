@@ -24,6 +24,8 @@ services:
       ORDER_CLIENT: orderservice:8080
       PAYMENT_CLIENT: paymentservice:8080
       HISTORY_CLIENT: historyservice:8080
+      JWT_KEY: "key"
+      ALLOWED_ORIGINS: "http://localhost:5173,http://localhost:5174,https://barista-admin.onrender.com,https://barista-jwtf.onrender.com"
     restart: on-failure
   rabbitmqservice:
     build:
@@ -43,6 +45,7 @@ services:
       dockerfile: ./app.dockerfile
     environment:
       PORT: "8080"
+      ALLOWED_ORIGINS: "http://localhost:5173,https://barista-admin.onrender.com"
     ports:
       - "8081:8080"
     restart: on-failure
@@ -83,7 +86,13 @@ services:
     environment:
       PORT: "8080"
       DB_URL: "postgresql://postgres.qwjlqyuxcadqwvmarwlo:Barista@2025@aws-1-ap-southeast-1.pooler.supabase.com:5432/postgres"
-      RMQHost: rabbitmqservice:5672
+      RMQ_HOST: rabbitmqservice:5672
+      RMQ_USER_NAME: "admin"
+      RMQ_PASSWORD: "7866"
+      RMQ_VHOST: "barista"
+      CLIENT_URL: "https://barista-jwtf.onrender.com"
+      EXCHANGE: "gen_qr_event"
+      CONSUMER_NAME: "qr_gen_service"
     restart: on-failure
   qrgenservice:
     build:
@@ -92,7 +101,14 @@ services:
     depends_on:
       - rabbitmqservice
     environment:
-      RMQHost: rabbitmqservice:5672
+      RMQ_HOST: rabbitmqservice:5672
+      RMQ_USER_NAME: "admin"
+      RMQ_PASSWORD: "7866"
+      RMQ_VHOST: "barista"
+      QUEUE_NAME: "qr_gen_queue"
+      CON_BINDING_KEY: "gen_qr"
+      EXCHANGE: "gen_qr_event"
+      CONSUMER_NAME: "qr_gen_service"
     restart: on-failure
   sessionservice:
     build:

@@ -18,3 +18,16 @@ https://qrcoderaptor.com/
 
 cloudflared tunnel --url http://localhost:8000
 cloudflared tunnel --url http://localhost:8081
+
+VITE_API_BASE_URL=https://printing-permits-toddler-states.trycloudflare.com/api
+VITE_WS_URL=wss://register-poll-carefully-obtain.trycloudflare.com/ws
+
+useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
