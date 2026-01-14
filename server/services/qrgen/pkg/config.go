@@ -3,6 +3,7 @@ package pkg
 import "github.com/kelseyhightower/envconfig"
 
 type Config struct {
+	Port              string `envconfig:"PORT"`
 	RMQUsername       string `envconfig:"RMQ_USER_NAME"`
 	RMQPassword       string `envconfig:"RMQ_PASSWORD"`
 	RMQHost           string `envconfig:"RMQ_HOST"`

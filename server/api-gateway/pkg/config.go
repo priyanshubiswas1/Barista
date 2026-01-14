@@ -6,14 +6,14 @@ import (
 
 type Config struct {
 	Port           string `envconfig:"PORT"`
-	AuthClient     string `envconfig:"AUTH_CLIENT"`
-	ShopClient     string `envconfig:"SHOP_CLIENT"`
-	MenuClient     string `envconfig:"MENU_CLIENT"`
-	TableClient    string `envconfig:"TABLE_CLIENT"`
-	SessionClient  string `envconfig:"SESSION_CLIENT"`
-	OrderClient    string `envconfig:"ORDER_CLIENT"`
-	PaymentClient  string `envconfig:"PAYMENT_CLIENT"`
-	HistoryClient  string `envconfig:"HISTORY_CLIENT"`
+	AuthService    string `envconfig:"AUTH_SERVICE_URL"`
+	ShopService    string `envconfig:"SHOP_SERVICE_URL"`
+	MenuService    string `envconfig:"MENU_SERVICE_URL"`
+	TableService   string `envconfig:"TABLE_SERVICE_URL"`
+	SessionService string `envconfig:"SESSION_SERVICE_URL"`
+	OrderService   string `envconfig:"ORDER_SERVICE_URL"`
+	PaymentService string `envconfig:"PAYMENT_SERVICE_URL"`
+	HistoryService string `envconfig:"HISTORY_SERVICE_URL"`
 	JwtKey         string `envconfig:"JWT_KEY"`
 	AllowedOrigins string `envconfig:"ALLOWED_ORIGINS"`
 }

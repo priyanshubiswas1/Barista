@@ -15,6 +15,9 @@ func main() {
 	if err != nil {
 		log.Fatal("failed to get config: ", err)
 	}
+	// Environment Variable Validation
+	validateEnv(&cfg)
+
 	var r session.IRepository
 	retry.ForeverSleep(2*time.Second, func(_ int) (err error) {
 		r, err = session.NewPostgresRepository(cfg.DbUrl)
@@ -35,18 +38,20 @@ func main() {
 	log.Println("redis client created")
 
 	log.Println("creating table grpc client")
-	tableClient, err := client.NewTable(cfg.TableClient)
+	tableClient, err := client.NewTable(cfg.TableService)
 	if err != nil {
-		log.Fatal("failed to create table grpc client: ", err)
+		log.Printf("Warning: failed to create table grpc client: %v", err)
+	} else {
+		log.Println("table grpc client created")
 	}
-	log.Println("table grpc client created")
 
 	log.Println("creating history grpc client")
-	historyClient, err := client.NewHistory(cfg.HistoryClient)
+	historyClient, err := client.NewHistory(cfg.HistoryService)
 	if err != nil {
-		log.Fatal("failed to create history grpc client: ", err)
+		log.Printf("Warning: failed to create history grpc client: %v", err)
+	} else {
+		log.Println("history grpc client created")
 	}
-	log.Println("history grpc client created")
 
 	service, err := session.NewService(r, redisClient, tableClient, historyClient)
 	if err != nil {
@@ -59,5 +64,20 @@ func main() {
 		log.Fatal("failed to create grpc server: ", err)
 	}
 	log.Println("listening on port: ", cfg.Port)
+}
 
+func validateEnv(cfg *pkg.Config) {
+	required := map[string]string{
+		"PORT":                cfg.Port,
+		"DB_URL":              cfg.DbUrl,
+		"REDIS_URL":           cfg.RedisUrl,
+		"TABLE_SERVICE_URL":   cfg.TableService,
+		"HISTORY_SERVICE_URL": cfg.HistoryService,
+	}
+
+	for name, val := range required {
+		if val == "" {
+			log.Fatalf("Environment variable %s is required", name)
+		}
+	}
 }

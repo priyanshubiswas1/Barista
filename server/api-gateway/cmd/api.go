@@ -17,71 +17,71 @@ import (
 type APIFunc func(context.Context, http.ResponseWriter, *http.Request) error
 
 type APIServer struct {
-	authClientUrl    string
-	shopClientUrl    string
-	menuClientUrl    string
-	tableClientUrl   string
-	sessionClientUrl string
-	orderClientUrl   string
-	paymentClientUrl string
-	historyClientUrl string
-	allowedOrigins   string
+	authServiceUrl    string
+	shopServiceUrl    string
+	menuServiceUrl    string
+	tableServiceUrl   string
+	sessionServiceUrl string
+	orderServiceUrl   string
+	paymentServiceUrl string
+	historyServiceUrl string
+	allowedOrigins    string
 }
 
 func NewAPIServer(
-	authClient,
-	shopClientUrl,
-	menuClientUrl,
-	tableClientUrl,
-	sessionClientUrl,
-	orderClientUrl,
-	paymentClientUrl,
-	historyClientUrl,
+	authServiceUrl,
+	shopServiceUrl,
+	menuServiceUrl,
+	tableServiceUrl,
+	sessionServiceUrl,
+	orderServiceUrl,
+	paymentServiceUrl,
+	historyServiceUrl,
 	allowedOrigins string,
 ) (*APIServer, error) {
 	return &APIServer{
-		authClientUrl:    authClient,
-		shopClientUrl:    shopClientUrl,
-		menuClientUrl:    menuClientUrl,
-		tableClientUrl:   tableClientUrl,
-		sessionClientUrl: sessionClientUrl,
-		orderClientUrl:   orderClientUrl,
-		paymentClientUrl: paymentClientUrl,
-		historyClientUrl: historyClientUrl,
-		allowedOrigins:   allowedOrigins,
+		authServiceUrl:    authServiceUrl,
+		shopServiceUrl:    shopServiceUrl,
+		menuServiceUrl:    menuServiceUrl,
+		tableServiceUrl:   tableServiceUrl,
+		sessionServiceUrl: sessionServiceUrl,
+		orderServiceUrl:   orderServiceUrl,
+		paymentServiceUrl: paymentServiceUrl,
+		historyServiceUrl: historyServiceUrl,
+		allowedOrigins:    allowedOrigins,
 	}, nil
 }
 
 func (s *APIServer) ListenServer(port string) error {
-	authClient, err := handler.NewClient(s.authClientUrl)
+	authClient, err := handler.NewClient(s.authServiceUrl)
 	if err != nil {
 		return err
 	}
-	shopClient, err := handler.NewShop(s.shopClientUrl)
+	shopClient, err := handler.NewShop(s.shopServiceUrl)
 	if err != nil {
 		return err
 	}
-	menuClient, err := handler.NewMenu(s.menuClientUrl)
+	menuClient, err := handler.NewMenu(s.menuServiceUrl)
 	if err != nil {
 		return err
 	}
-	tableClient, err := handler.NewTable(s.tableClientUrl)
+	tableClient, err := handler.NewTable(s.tableServiceUrl)
 	if err != nil {
 		return err
 	}
-	sessionClient, err := handler.NewSession(s.sessionClientUrl)
+	sessionClient, err := handler.NewSession(s.sessionServiceUrl)
 	if err != nil {
 		return err
 	}
-	orderClient, err := handler.NewOrder(s.orderClientUrl)
+	orderClient, err := handler.NewOrder(s.orderServiceUrl)
 	if err != nil {
 		return err
 	}
-	paymentClient, err := handler.NewPayment(s.paymentClientUrl)
+	paymentClient, err := handler.NewPayment(s.paymentServiceUrl)
 	if err != nil {
 		return err
 	}
-	historyClient, err := handler.NewHistory(s.historyClientUrl)
+	historyClient, err := handler.NewHistory(s.historyServiceUrl)
 	if err != nil {
 		return err
 	}

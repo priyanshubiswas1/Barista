@@ -14,6 +14,9 @@ func main() {
 	if err != nil {
 		log.Fatal("failed to get config: ", err)
 	}
+	// Environment Variable Validation
+	validateEnv(cfg)
+
 	var r shop.IRepository
 	retry.ForeverSleep(2*time.Second, func(_ int) (err error) {
 		r, err = shop.NewPostgresRepository(cfg.DbUrl)
@@ -37,4 +40,17 @@ func main() {
 		log.Fatal("failed to create grpc server: ", err)
 	}
 	log.Println("listening on port: ", cfg.Port)
+}
+
+func validateEnv(cfg *pkg.Config) {
+	required := map[string]string{
+		"PORT":   cfg.Port,
+		"DB_URL": cfg.DbUrl,
+	}
+
+	for name, val := range required {
+		if val == "" {
+			log.Fatalf("Environment variable %s is required", name)
+		}
+	}
 }

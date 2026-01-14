@@ -6,8 +6,11 @@ import (
 	"log"
 	"net"
 
+	"net/http"
+
 	"github.com/priyanshubiswas1/barista/menuservice/pkg"
 	menuPb "github.com/priyanshubiswas1/baristacontracts/gen/menu"
+	"github.com/soheilhy/cmux"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
@@ -22,10 +25,36 @@ func ListenGRPC(service IService, port string) error {
 	if err != nil {
 		return err
 	}
-	server := grpc.NewServer()
-	menuPb.RegisterMenuServiceServer(server, &gRPCserver{service: service})
-	reflection.Register(server)
-	return server.Serve(lis)
+
+	m := cmux.New(lis)
+	grpcL := m.MatchWithWriters(cmux.HTTP2MatchHeaderFieldSendSettings("content-type", "application/grpc"))
+	httpL := m.Match(cmux.HTTP1Fast())
+
+	grpcS := grpc.NewServer()
+	menuPb.RegisterMenuServiceServer(grpcS, &gRPCserver{service: service})
+	reflection.Register(grpcS)
+
+	httpS := &http.Server{
+		Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if r.URL.Path == "/health" {
+				w.WriteHeader(http.StatusOK)
+				w.Write([]byte("OK"))
+				return
+			}
+			if r.URL.Path == "/ready" {
+				w.WriteHeader(http.StatusOK)
+				w.Write([]byte("Ready"))
+				return
+			}
+			http.NotFound(w, r)
+		}),
+	}
+
+	go grpcS.Serve(grpcL)
+	go httpS.Serve(httpL)
+
+	fmt.Printf("menu service listening on %s (gRPC and HTTP health checks)\n", port)
+	return m.Serve()
 }
 
 func (s *gRPCserver) CreateMenu(ctx context.Context, req *menuPb.CreateMenuRequest) (*menuPb.CreateMenuResponse, error) {

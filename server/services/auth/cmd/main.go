@@ -15,6 +15,9 @@ func main() {
 	if err != nil {
 		log.Fatal("failed to get config: ", err)
 	}
+	// Environment Variable Validation
+	validateEnv(cfg)
+
 	var r auth.Repository
 	retry.ForeverSleep(2*time.Second, func(_ int) (err error) {
 		r, err = auth.NewPostgresRepository(cfg.DbUrl)
@@ -27,19 +30,16 @@ func main() {
 	defer r.Close()
 	log.Println("auth repo created")
 
-	log.Println("creating shop grpc client")
-	shopClient, err := client.NewShop(cfg.ShopClient)
+	// auth service is useless without shop service and menu service
+	shopClient, err := client.NewShop(cfg.ShopService)
 	if err != nil {
-		log.Fatal("failed to create session grpc client: ", err)
+		log.Printf("Warning: failed to connect to shop service: %v", err)
 	}
-	log.Println("session grpc client created")
 
-	log.Println("creating menu grpc client")
-	menuClient, err := client.NewMenu(cfg.MenuClient)
+	menuClient, err := client.NewMenu(cfg.MenuService)
 	if err != nil {
-		log.Fatal("failed to create session grpc client: ", err)
+		log.Printf("Warning: failed to connect to menu service: %v", err)
 	}
-	log.Println("session grpc client created")
 
 	s := auth.NewService(r, shopClient, menuClient)
 	log.Println("starting grpc server on port: ", cfg.Port)
@@ -47,4 +47,19 @@ func main() {
 		log.Fatal("failed to create grpc server: ", err)
 	}
 	log.Println("listening on port: ", cfg.Port)
+}
+
+func validateEnv(cfg *pkg.Config) {
+	required := map[string]string{
+		"PORT":             cfg.Port,
+		"DB_URL":           cfg.DbUrl,
+		"SHOP_SERVICE_URL": cfg.ShopService,
+		"MENU_SERVICE_URL": cfg.MenuService,
+	}
+
+	for name, val := range required {
+		if val == "" {
+			log.Fatalf("Environment variable %s is required", name)
+		}
+	}
 }

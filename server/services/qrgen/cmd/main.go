@@ -4,6 +4,9 @@ import (
 	"log"
 	"sync"
 
+	"fmt"
+	"net/http"
+
 	internal "github.com/priyanshubiswas1/barista/qrgenservice"
 	"github.com/priyanshubiswas1/barista/qrgenservice/pkg"
 	"github.com/rabbitmq/amqp091-go"
@@ -14,6 +17,25 @@ func main() {
 	if err != nil {
 		log.Fatal("failed to get config: ", err)
 	}
+
+	// Environment Variable Validation
+	validateEnv(cfg)
+
+	// Start health check server
+	go func() {
+		http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte("OK"))
+		})
+		http.HandleFunc("/ready", func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte("Ready"))
+		})
+		log.Printf("Health check server listening on port %s", cfg.Port)
+		if err := http.ListenAndServe(fmt.Sprintf(":%s", cfg.Port), nil); err != nil {
+			log.Printf("Warning: health check server failed: %v", err)
+		}
+	}()
 
 	// PUBLISH CONN
 	log.Println("starting pub rabbitmq connection")
@@ -95,4 +117,20 @@ func main() {
 
 	log.Println("Service is running, press CTRL+C to exit.")
 	select {}
+}
+
+func validateEnv(cfg *pkg.Config) {
+	required := map[string]string{
+		"PORT":          cfg.Port,
+		"RMQ_HOST":      cfg.RMQHost,
+		"RMQ_USER_NAME": cfg.RMQUsername,
+		"RMQ_PASSWORD":  cfg.RMQPassword,
+		"QUEUE_NAME":    cfg.ConsumeQueueName,
+	}
+
+	for name, val := range required {
+		if val == "" {
+			log.Fatalf("Environment variable %s is required", name)
+		}
+	}
 }

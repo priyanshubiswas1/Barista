@@ -5,37 +5,66 @@ import (
 	"fmt"
 	"net"
 
+	"net/http"
+
 	"github.com/priyanshubiswas1/barista/tableservice/pkg"
-	"github.com/priyanshubiswas1/baristacontracts/gen/table"
+	tablePb "github.com/priyanshubiswas1/baristacontracts/gen/table"
+	"github.com/soheilhy/cmux"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
 
 type gRPCserver struct {
 	service IService
-	table.UnimplementedTableServiceServer
+	tablePb.UnimplementedTableServiceServer
 }
 
 func ListenGRPC(service IService, port string) error {
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", port))
+	lis, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%s", port))
 	if err != nil {
 		return err
 	}
-	server := grpc.NewServer()
-	table.RegisterTableServiceServer(server, &gRPCserver{
+
+	m := cmux.New(lis)
+	grpcL := m.MatchWithWriters(cmux.HTTP2MatchHeaderFieldSendSettings("content-type", "application/grpc"))
+	httpL := m.Match(cmux.HTTP1Fast())
+
+	grpcS := grpc.NewServer()
+	tablePb.RegisterTableServiceServer(grpcS, &gRPCserver{
 		service: service,
 	})
-	reflection.Register(server)
-	return server.Serve(lis)
+	reflection.Register(grpcS)
+
+	httpS := &http.Server{
+		Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if r.URL.Path == "/health" {
+				w.WriteHeader(http.StatusOK)
+				w.Write([]byte("OK"))
+				return
+			}
+			if r.URL.Path == "/ready" {
+				w.WriteHeader(http.StatusOK)
+				w.Write([]byte("Ready"))
+				return
+			}
+			http.NotFound(w, r)
+		}),
+	}
+
+	go grpcS.Serve(grpcL)
+	go httpS.Serve(httpL)
+
+	fmt.Printf("table service listening on %s (gRPC and HTTP health checks)\n", port)
+	return m.Serve()
 }
 
-func (s *gRPCserver) CreateTable(ctx context.Context, req *table.CreateTableRequest) (*table.CreateTableResponse, error) {
+func (s *gRPCserver) CreateTable(ctx context.Context, req *tablePb.CreateTableRequest) (*tablePb.CreateTableResponse, error) {
 	pkgTable, err := s.service.CreateTable(ctx, req.ShopId, req.TableNumber)
 	if err != nil {
 		return nil, err
 	}
-	return &table.CreateTableResponse{
-		Table: &table.Table{
+	return &tablePb.CreateTableResponse{
+		Table: &tablePb.Table{
 			Id:          pkgTable.TableId,
 			ShopId:      pkgTable.ShopId,
 			TableNumber: pkgTable.TableNumber,
@@ -45,13 +74,13 @@ func (s *gRPCserver) CreateTable(ctx context.Context, req *table.CreateTableRequ
 	}, nil
 }
 
-func (s *gRPCserver) GetTable(ctx context.Context, req *table.GetTableRequest) (*table.GetTableResponse, error) {
+func (s *gRPCserver) GetTable(ctx context.Context, req *tablePb.GetTableRequest) (*tablePb.GetTableResponse, error) {
 	pkgTable, err := s.service.GetTable(ctx, req.Id)
 	if err != nil {
 		return nil, err
 	}
-	return &table.GetTableResponse{
-		Table: &table.Table{
+	return &tablePb.GetTableResponse{
+		Table: &tablePb.Table{
 			Id:          pkgTable.TableId,
 			ShopId:      pkgTable.ShopId,
 			TableNumber: pkgTable.TableNumber,
@@ -61,14 +90,14 @@ func (s *gRPCserver) GetTable(ctx context.Context, req *table.GetTableRequest) (
 	}, nil
 }
 
-func (s *gRPCserver) GetTables(ctx context.Context, req *table.GetTablesRequest) (*table.GetTablesResponse, error) {
+func (s *gRPCserver) GetTables(ctx context.Context, req *tablePb.GetTablesRequest) (*tablePb.GetTablesResponse, error) {
 	pkgTables, err := s.service.GetTables(ctx, req.ShopId)
 	if err != nil {
 		return nil, err
 	}
-	tables := []*table.Table{}
+	tables := []*tablePb.Table{}
 	for _, pkgTable := range pkgTables {
-		tables = append(tables, &table.Table{
+		tables = append(tables, &tablePb.Table{
 			Id:          pkgTable.TableId,
 			ShopId:      pkgTable.ShopId,
 			TableNumber: pkgTable.TableNumber,
@@ -76,12 +105,12 @@ func (s *gRPCserver) GetTables(ctx context.Context, req *table.GetTablesRequest)
 			Qr:          pkgTable.QR,
 		})
 	}
-	return &table.GetTablesResponse{
+	return &tablePb.GetTablesResponse{
 		Tables: tables,
 	}, nil
 }
 
-func (s *gRPCserver) UpdateTable(ctx context.Context, req *table.UpdateTableRequest) (*table.UpdateTableResponse, error) {
+func (s *gRPCserver) UpdateTable(ctx context.Context, req *tablePb.UpdateTableRequest) (*tablePb.UpdateTableResponse, error) {
 	if err := s.service.UpdateTable(ctx, pkg.Table{
 		TableId:     req.Table.Id,
 		ShopId:      req.Table.ShopId,
@@ -91,12 +120,12 @@ func (s *gRPCserver) UpdateTable(ctx context.Context, req *table.UpdateTableRequ
 	}); err != nil {
 		return nil, err
 	}
-	return &table.UpdateTableResponse{
+	return &tablePb.UpdateTableResponse{
 		Success: true,
 	}, nil
 }
 
-func (s *gRPCserver) UpdateTableStatus(ctx context.Context, req *table.UpdateTableStatusRequest) (*table.UpdateTableStatusResponse, error) {
+func (s *gRPCserver) UpdateTableStatus(ctx context.Context, req *tablePb.UpdateTableStatusRequest) (*tablePb.UpdateTableStatusResponse, error) {
 	if err := s.service.UpdateTableStatus(ctx, pkg.Table{
 		TableId: req.TableId,
 		ShopId:  req.ShopId,
@@ -104,16 +133,16 @@ func (s *gRPCserver) UpdateTableStatus(ctx context.Context, req *table.UpdateTab
 	}); err != nil {
 		return nil, err
 	}
-	return &table.UpdateTableStatusResponse{
+	return &tablePb.UpdateTableStatusResponse{
 		Success: true,
 	}, nil
 }
 
-func (s *gRPCserver) DeleteTable(ctx context.Context, req *table.DeleteTableRequest) (*table.DeleteTableResponse, error) {
+func (s *gRPCserver) DeleteTable(ctx context.Context, req *tablePb.DeleteTableRequest) (*tablePb.DeleteTableResponse, error) {
 	if err := s.service.DeleteTable(ctx, req.Id, req.ShopId); err != nil {
 		return nil, err
 	}
-	return &table.DeleteTableResponse{
+	return &tablePb.DeleteTableResponse{
 		Success: true,
 	}, nil
 }

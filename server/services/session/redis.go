@@ -3,6 +3,7 @@ package session
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/go-redis/redis/v8"
@@ -19,15 +20,33 @@ type redisClient struct {
 }
 
 func NewRedisClient(redisUrl string) (IRedisClient, error) {
-	client := redis.NewClient(&redis.Options{
-		Addr: redisUrl,
-	})
+	var opt *redis.Options
+	var err error
 
-	pong, err := client.Ping(context.Background()).Result()
-	fmt.Println(pong, err)
+	if strings.HasPrefix(redisUrl, "redis://") || strings.HasPrefix(redisUrl, "rediss://") {
+		opt, err = redis.ParseURL(redisUrl)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse redis url: %v", err)
+		}
+	} else {
+		opt = &redis.Options{
+			Addr: redisUrl,
+		}
+	}
+
+	client := redis.NewClient(opt)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	_, err = client.Ping(ctx).Result()
+	if err != nil {
+		return nil, fmt.Errorf("failed to ping redis: %v", err)
+	}
+
 	return &redisClient{
 		client: client,
-	}, err
+	}, nil
 }
 
 func (c *redisClient) SetValue(ctx context.Context, key string, value interface{}, expiration time.Duration) error {

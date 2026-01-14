@@ -24,6 +24,14 @@ func main() {
 	manager := ws.NewManager(cfg.AllowedOrigins)
 	http.HandleFunc("/ws", manager.ServeWS)
 	http.HandleFunc("/send-event", makeHttpHandleFunc(manager.RouteEvent))
+	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("OK"))
+	})
+	http.HandleFunc("/ready", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("Ready"))
+	})
 
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", cfg.Port), nil))
 }

@@ -15,6 +15,9 @@ func main() {
 	if err != nil {
 		log.Fatal("failed to get config: ", err)
 	}
+	// Environment Variable Validation
+	validateEnv(&cfg)
+
 	var r order.IRepository
 	retry.ForeverSleep(2*time.Second, func(_ int) (err error) {
 		r, err = order.NewPostgresRepository(cfg.DbUrl)
@@ -28,18 +31,20 @@ func main() {
 	log.Println("order repo created")
 
 	log.Println("creating session grpc client")
-	sessionClient, err := client.NewSession(cfg.SessionClient)
+	sessionClient, err := client.NewSession(cfg.SessionService)
 	if err != nil {
-		log.Fatal("failed to create session grpc client: ", err)
+		log.Printf("Warning: failed to create session grpc client: %v", err)
+	} else {
+		log.Println("session grpc client created")
 	}
-	log.Println("session grpc client created")
 
 	log.Println("creating history grpc client")
-	historyClient, err := client.NewHistory(cfg.HistoryClient)
+	historyClient, err := client.NewHistory(cfg.HistoryService)
 	if err != nil {
-		log.Fatal("failed to create history grpc client: ", err)
+		log.Printf("Warning: failed to create history grpc client: %v", err)
+	} else {
+		log.Println("history grpc client created")
 	}
-	log.Println("history grpc client created")
 
 	service, err := order.NewService(r, sessionClient, historyClient, cfg.WebSocketService)
 	if err != nil {
@@ -52,5 +57,20 @@ func main() {
 		log.Fatal("failed to create grpc server: ", err)
 	}
 	log.Println("listening on port: ", cfg.Port)
+}
 
+func validateEnv(cfg *pkg.Config) {
+	required := map[string]string{
+		"PORT":                  cfg.Port,
+		"DB_URL":                cfg.DbUrl,
+		"SESSION_SERVICE_URL":   cfg.SessionService,
+		"WEBSOCKET_SERVICE_URL": cfg.WebSocketService,
+		"HISTORY_SERVICE_URL":   cfg.HistoryService,
+	}
+
+	for name, val := range required {
+		if val == "" {
+			log.Fatalf("Environment variable %s is required", name)
+		}
+	}
 }

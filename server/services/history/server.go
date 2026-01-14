@@ -5,8 +5,11 @@ import (
 	"fmt"
 	"net"
 
+	"net/http"
+
 	"github.com/priyanshubiswas1/barista/historyservice/pkg"
 	history "github.com/priyanshubiswas1/baristacontracts/gen/history"
+	"github.com/soheilhy/cmux"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -14,20 +17,46 @@ import (
 
 type gRPCserver struct {
 	service IService
-	history.HistoryServiceServer
+	history.UnimplementedHistoryServiceServer
 }
 
 func ListenGRPC(service IService, port string) error {
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", port))
+	lis, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%s", port))
 	if err != nil {
 		return err
 	}
-	server := grpc.NewServer()
-	history.RegisterHistoryServiceServer(server, &gRPCserver{
+
+	m := cmux.New(lis)
+	grpcL := m.MatchWithWriters(cmux.HTTP2MatchHeaderFieldSendSettings("content-type", "application/grpc"))
+	httpL := m.Match(cmux.HTTP1Fast())
+
+	grpcS := grpc.NewServer()
+	history.RegisterHistoryServiceServer(grpcS, &gRPCserver{
 		service: service,
 	})
-	reflection.Register(server)
-	return server.Serve(lis)
+	reflection.Register(grpcS)
+
+	httpS := &http.Server{
+		Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if r.URL.Path == "/health" {
+				w.WriteHeader(http.StatusOK)
+				w.Write([]byte("OK"))
+				return
+			}
+			if r.URL.Path == "/ready" {
+				w.WriteHeader(http.StatusOK)
+				w.Write([]byte("Ready"))
+				return
+			}
+			http.NotFound(w, r)
+		}),
+	}
+
+	go grpcS.Serve(grpcL)
+	go httpS.Serve(httpL)
+
+	fmt.Printf("history service listening on %s (gRPC and HTTP health checks)\n", port)
+	return m.Serve()
 }
 
 func (s *gRPCserver) GetSessionSummary(ctx context.Context, req *history.SessionSummaryRequest) (*history.SessionSummaryResponse, error) {

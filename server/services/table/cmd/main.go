@@ -15,6 +15,9 @@ func main() {
 		log.Fatal("failed to get config: ", err)
 	}
 
+	// Environment Variable Validation
+	validateEnv(cfg)
+
 	var r table.IRepository
 	retry.ForeverSleep(2*time.Second, func(_ int) (err error) {
 		r, err = table.NewPostgresRepository(cfg.DbUrl)
@@ -30,16 +33,20 @@ func main() {
 	log.Println("creating rmq pub connection")
 	rmqPubConn, err := table.ConnectRabbitMQ(cfg.RMQUsername, cfg.RMQPassword, cfg.RMQHost, cfg.RMQVhost)
 	if err != nil {
-		log.Fatal("failed to connect to rabbitmq server: ", err)
+		log.Printf("Warning: failed to connect to rabbitmq pub server: %v", err)
 	}
-	defer rmqPubConn.Close()
+	if rmqPubConn != nil {
+		defer rmqPubConn.Close()
+	}
 
 	log.Println("creating rmq consumer connection")
 	rmqConsumeConn, err := table.ConnectRabbitMQ(cfg.RMQUsername, cfg.RMQPassword, cfg.RMQHost, cfg.RMQVhost)
 	if err != nil {
-		log.Fatal("failed to connect to rabbitmq server: ", err)
+		log.Printf("Warning: failed to connect to rabbitmq consumer server: %v", err)
 	}
-	defer rmqConsumeConn.Close()
+	if rmqConsumeConn != nil {
+		defer rmqConsumeConn.Close()
+	}
 
 	service := table.NewService(r, rmqPubConn, rmqConsumeConn, cfg.ClientUrl, cfg.Exchange, cfg.ConsumerName)
 	log.Println("table service created")
@@ -50,4 +57,20 @@ func main() {
 	}
 
 	log.Println("listening on port: ", cfg.Port)
+}
+
+func validateEnv(cfg *pkg.Config) {
+	required := map[string]string{
+		"PORT":          cfg.Port,
+		"DB_URL":        cfg.DbUrl,
+		"RMQ_HOST":      cfg.RMQHost,
+		"RMQ_USER_NAME": cfg.RMQUsername,
+		"RMQ_PASSWORD":  cfg.RMQPassword,
+	}
+
+	for name, val := range required {
+		if val == "" {
+			log.Fatalf("Environment variable %s is required", name)
+		}
+	}
 }

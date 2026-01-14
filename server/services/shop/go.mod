@@ -7,11 +7,12 @@ require (
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/lib/pq v1.10.9
 	github.com/priyanshubiswas1/baristacontracts v1.1.3
+	github.com/soheilhy/cmux v0.1.5
+	github.com/tinrab/retry v1.0.0
 	google.golang.org/grpc v1.75.0
 )
 
 require (
-	github.com/tinrab/retry v1.0.0 // indirect
 	golang.org/x/net v0.41.0 // indirect
 	golang.org/x/sys v0.33.0 // indirect
 	golang.org/x/text v0.26.0 // indirect

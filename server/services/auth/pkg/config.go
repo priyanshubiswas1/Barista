@@ -5,10 +5,10 @@ import (
 )
 
 type Config struct {
-	Port       string `envconfig:"PORT"`
-	DbUrl      string `envconfig:"DB_URL"`
-	ShopClient string `envconfig:"SHOP_CLIENT"`
-	MenuClient string `envconfig:"MENU_CLIENT"`
+	Port        string `envconfig:"PORT"`
+	DbUrl       string `envconfig:"DB_URL"`
+	ShopService string `envconfig:"SHOP_SERVICE_URL"`
+	MenuService string `envconfig:"MENU_SERVICE_URL"`
 }
 
 func GetConfig() (*Config, error) {
