@@ -5,12 +5,23 @@ USER=${RABBITMQ_USER:-admin}
 PASS=${RABBITMQ_PASS:-7866}
 VHOST=${RABBITMQ_VHOST:-barista}
 
-echo "Waiting for RabbitMQ to be ready..."
+echo "Waiting for RabbitMQ to be fully started..."
 
-until rabbitmqctl status; do
-  echo "Still waiting..."
+# Robust wait loop using rabbitmq-diagnostics
+MAX_RETRIES=30
+RETRY_COUNT=0
+until rabbitmq-diagnostics -q check_running; do
+  RETRY_COUNT=$((RETRY_COUNT+1))
+  if [ $RETRY_COUNT -ge $MAX_RETRIES ]; then
+    echo "Error: RabbitMQ failed to start after $MAX_RETRIES attempts."
+    exit 1
+  fi
+  echo "Still waiting ($RETRY_COUNT/$MAX_RETRIES)..."
   sleep 2
 done
+
+# Small extra buffer to ensure management plugin and internal apps are ready
+sleep 5
 
 echo "Configuring RabbitMQ for user: $USER and vhost: $VHOST..."
 

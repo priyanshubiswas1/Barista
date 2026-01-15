@@ -72,9 +72,11 @@ Deploy the specialized RabbitMQ service used by `table` and `qrgen`.
 2. Connect your repository.
 3. **Name**: `rabbitmq-service` (or any name you prefer)
 4. **Environment**: `Docker`
-5. **Root Directory**: `server`
-6. **Dockerfile Path**: `./services/rabbitmq/app.dockerfile`
+5. **Root Directory**: `server/services/rabbitmq`
+6. **Dockerfile Path**: `./app.dockerfile`
 7. **Advanced Settings**:
+   - **Health Check Path**: `/` (This checks the Management UI)
+   - **Health Check Port**: `15672`
    - **Disk**: (Recommended) Add a 1GB disk at `/var/lib/rabbitmq` for persistent messages.
 8. **Environment Variables**:
    - `RABBITMQ_USER`: Your desired username (e.g., `admin`).
