@@ -17,19 +17,24 @@ These services will have a public URL (e.g., `https://api-gateway-xxx.onrender.c
 ### api-gateway
 1. Click **New +** > **Web Service**.
 2. Connect your repository.
-3. **Region**: Choose the same region for all services to minimize latency.
-4. **Build Command**: `go build -o server ./api-gateway/cmd/main.go`
-5. **Start Command**: `./server`
-6. **Environment Variables**:
+3. **Region**: Choose the same region for all services.
+4. **Runtime**: `Go`
+5. **Root Directory**: `server/api-gateway`
+6. **Build Command**: `go build -o server ./cmd/main.go`
+7. **Start Command**: `./server`
+8. **Environment Variables**:
    - `PORT`: `8080` (Render will map traffic to this)
    - `JWT_KEY`: A long random string.
-   - `ALLOWED_ORIGINS`: Your frontend URL.
+   - `ALLOWED_ORIGINS`: Your frontend URL (e.g., `https://barista.onrender.com`). For multiple origins, use a comma-separated list: `https://app1.com, https://app2.com`.
    - `AUTH_SERVICE_URL`, `SHOP_SERVICE_URL`, etc.: Use the **Internal Service Name** (e.g., `http://auth-service:8080`).
 
 ### ws (WebSocket Service)
 1. Click **New +** > **Web Service**.
-2. **Build Command**: `go build -o server ./services/ws/cmd/main.go`
-3. **Environment Variables**:
+2. **Runtime**: `Go`
+3. **Root Directory**: `server/services/ws`
+4. **Build Command**: `go build -o server ./cmd/main.go`
+5. **Start Command**: `./server`
+6. **Environment Variables**:
    - `PORT`: `8080`
    - `ALLOWED_ORIGINS`: Your frontend URL.
 
@@ -43,11 +48,13 @@ These services are **not** accessible from the internet. They are reachable only
 
 1. Click **New +** > **Private Service**.
 2. Connect your repository.
-3. **Build Command**: `go build -o server ./services/<service_name>/cmd/main.go`
-4. **Start Command**: `./server`
-5. **Advanced Settings**:
+3. **Runtime**: `Go`
+4. **Root Directory**: `server/services/<service_name>`
+5. **Build Command**: `go build -o server ./cmd/main.go`
+6. **Start Command**: `./server`
+7. **Advanced Settings**:
    - **Health Check Path**: `/health`
-6. **Environment Variables**:
+8. **Environment Variables**:
    - `PORT`: `8080` (Internal port)
    - `DB_URL`: PostgreSQL connection string.
    - `REDIS_URL`: (For `session` service) External/Internal Redis string.
@@ -63,15 +70,24 @@ Deploy the specialized RabbitMQ service used by `table` and `qrgen`.
 
 1. Click **New +** > **Private Service**.
 2. Connect your repository.
-3. **Build Filter**: No change needed.
-4. **Environment**: `Docker`.
-5. **Dockerfile Path**: `server/services/rabbitmq/app.dockerfile`.
-6. **Advanced Settings**:
-   - **Disk**: (Optional but recommended) Add a 1GB disk at `/var/lib/rabbitmq` for persistent messages.
-7. **Default Credentials**:
-   - **Username**: `admin`
-   - **Password**: `7866`
-   - **VHost**: `barista`
+3. **Name**: `rabbitmq-service` (or any name you prefer)
+4. **Environment**: `Docker`
+5. **Root Directory**: `server`
+6. **Dockerfile Path**: `./services/rabbitmq/app.dockerfile`
+7. **Advanced Settings**:
+   - **Disk**: (Recommended) Add a 1GB disk at `/var/lib/rabbitmq` for persistent messages.
+8. **Environment Variables**:
+   - `RABBITMQ_USER`: Your desired username (e.g., `admin`).
+   - `RABBITMQ_PASS`: Your desired password (e.g., `7866`).
+   - `RABBITMQ_VHOST`: Your desired vhost (e.g., `barista`).
+
+> [!IMPORTANT]
+> **Connecting to RabbitMQ**:
+> Other services (like `table` and `qrgen`) must be configured to connect to this instance.
+> - **RMQ_HOST**: Use the internal service name with the default AMQP port (e.g., `rabbitmq-service:5672`).
+> - **RMQ_USER_NAME**: Must match `RABBITMQ_USER`.
+> - **RMQ_PASSWORD**: Must match `RABBITMQ_PASS`.
+> - **RMQ_VHOST**: Must match `RABBITMQ_VHOST`.
 
 ---
 
