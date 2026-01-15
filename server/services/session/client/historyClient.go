@@ -4,6 +4,8 @@ import (
 	"context"
 	"log"
 
+	"errors"
+
 	history "github.com/priyanshubiswas1/baristacontracts/gen/history"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -21,6 +23,9 @@ type historyClient struct {
 }
 
 func NewHistory(url string) (IHistoryClient, error) {
+	if url == "" {
+		return &historyClient{}, nil
+	}
 	client, err := grpc.NewClient(url, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, err
@@ -32,6 +37,9 @@ func NewHistory(url string) (IHistoryClient, error) {
 }
 
 func (c *historyClient) CreateSession(ctx context.Context, sessionId, shopId string, sessionNumber int32) error {
+	if c.service == nil {
+		return errors.New("history service URL not configured")
+	}
 	log.Println("SessionService: History Client Create Session")
 	_, err := c.service.CreateSession(ctx, &history.CreateSessionRequest{
 		SessionId:     sessionId,
@@ -45,6 +53,9 @@ func (c *historyClient) CreateSession(ctx context.Context, sessionId, shopId str
 }
 
 func (c *historyClient) CloseSession(ctx context.Context, sessionId string) error {
+	if c.service == nil {
+		return errors.New("history service URL not configured")
+	}
 	_, err := c.service.CloseSession(ctx, &history.CloseSessionRequest{
 		SessionId: sessionId,
 	})
@@ -55,6 +66,9 @@ func (c *historyClient) CloseSession(ctx context.Context, sessionId string) erro
 }
 
 func (c *historyClient) UpdateSession(ctx context.Context, sessionId string, totalAmount float32) error {
+	if c.service == nil {
+		return errors.New("history service URL not configured")
+	}
 	_, err := c.service.UpdateSession(ctx, &history.UpdateSessionRequest{
 		SessionId:   sessionId,
 		TotalAmount: totalAmount,

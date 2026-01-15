@@ -3,6 +3,8 @@ package client
 import (
 	"context"
 
+	"errors"
+
 	"github.com/priyanshubiswas1/barista/authservice/pkg"
 	menu "github.com/priyanshubiswas1/baristacontracts/gen/menu"
 	"google.golang.org/grpc"
@@ -20,6 +22,9 @@ type MenuClient struct {
 }
 
 func NewMenu(url string) (IMenuClient, error) {
+	if url == "" {
+		return &MenuClient{}, nil
+	}
 	client, err := grpc.NewClient(url, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, err
@@ -31,6 +36,9 @@ func NewMenu(url string) (IMenuClient, error) {
 }
 
 func (c *MenuClient) CreateMenu(ctx context.Context, menuReq pkg.CreateMenuReq) (string, error) {
+	if c.service == nil {
+		return "", errors.New("menu service URL not configured")
+	}
 	res, err := c.service.CreateMenu(ctx, &menu.CreateMenuRequest{
 		ShopId: menuReq.ShopId,
 		Name:   menuReq.MenuName,
@@ -42,6 +50,9 @@ func (c *MenuClient) CreateMenu(ctx context.Context, menuReq pkg.CreateMenuReq) 
 }
 
 func (c *MenuClient) GetMenus(ctx context.Context, shopId string) ([]string, error) {
+	if c.service == nil {
+		return nil, errors.New("menu service URL not configured")
+	}
 	res, err := c.service.GetMenus(ctx, &menu.GetMenusRequest{
 		ShopId: shopId,
 	})

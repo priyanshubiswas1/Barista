@@ -4,6 +4,8 @@ import (
 	"context"
 	"log"
 
+	"errors"
+
 	"github.com/priyanshubiswas1/barista/orderservice/pkg"
 	history "github.com/priyanshubiswas1/baristacontracts/gen/history"
 	"google.golang.org/grpc"
@@ -21,6 +23,9 @@ type historyClient struct {
 }
 
 func NewHistory(url string) (IHistoryClient, error) {
+	if url == "" {
+		return &historyClient{}, nil
+	}
 	client, err := grpc.NewClient(url, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, err
@@ -32,6 +37,9 @@ func NewHistory(url string) (IHistoryClient, error) {
 }
 
 func (c *historyClient) AddOrder(ctx context.Context, sessionId string, orderItems []pkg.AddOrderHistoryReq) error {
+	if c.service == nil {
+		return errors.New("history service URL not configured")
+	}
 	var hisOrdItems []*history.OrderItems
 	for _, oi := range orderItems {
 		hisOrdItems = append(hisOrdItems, &history.OrderItems{
@@ -53,6 +61,9 @@ func (c *historyClient) AddOrder(ctx context.Context, sessionId string, orderIte
 }
 
 func (c *historyClient) RemoveOrderItems(ctx context.Context, sessionId string, orderItemIds []string) error {
+	if c.service == nil {
+		return errors.New("history service URL not configured")
+	}
 	_, err := c.service.RemoveOrderItems(ctx, &history.RemoveOrderItemsRequest{
 		SessionId:    sessionId,
 		OrderItemIds: orderItemIds,

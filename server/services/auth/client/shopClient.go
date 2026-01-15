@@ -3,6 +3,8 @@ package client
 import (
 	"context"
 
+	"errors"
+
 	"github.com/priyanshubiswas1/barista/authservice/pkg"
 	shop "github.com/priyanshubiswas1/baristacontracts/gen/shop"
 	"google.golang.org/grpc"
@@ -20,6 +22,9 @@ type ShopClient struct {
 }
 
 func NewShop(url string) (IShopClient, error) {
+	if url == "" {
+		return &ShopClient{}, nil
+	}
 	client, err := grpc.NewClient(url, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, err
@@ -31,6 +36,9 @@ func NewShop(url string) (IShopClient, error) {
 }
 
 func (c *ShopClient) RegisterShop(ctx context.Context, shopReq pkg.CreateShopReq) (string, error) {
+	if c.service == nil {
+		return "", errors.New("shop service URL not configured")
+	}
 	res, err := c.service.RegisterShop(ctx, &shop.CreateRequest{
 		OwnerId:  shopReq.OwnerId,
 		ShopName: shopReq.ShopName,
@@ -42,6 +50,9 @@ func (c *ShopClient) RegisterShop(ctx context.Context, shopReq pkg.CreateShopReq
 }
 
 func (c *ShopClient) GetShopByOwnerId(ctx context.Context, id string) ([]string, error) {
+	if c.service == nil {
+		return nil, errors.New("shop service URL not configured")
+	}
 	res, err := c.service.GetShopByOwnerId(ctx, &shop.GetByOwnerIdRequest{
 		OwnerId: id,
 	})

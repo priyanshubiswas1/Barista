@@ -7,7 +7,7 @@ This guide provides step-by-step instructions for deploying the Barista project 
 - A GitHub repository with the Barista code.
 - A PostgreSQL database (Render managed or external).
 - A Redis instance (Render managed).
-- A RabbitMQ instance (Render managed or external).
+- A RabbitMQ instance (See [Section 4](#4-custom-rabbitmq-service) for custom deployment).
 
 ---
 
@@ -58,7 +58,24 @@ These services are **not** accessible from the internet. They are reachable only
 
 ---
 
-## 4. Environment Variables Reference
+## 4. Custom RabbitMQ Service
+Deploy the specialized RabbitMQ service used by `table` and `qrgen`.
+
+1. Click **New +** > **Private Service**.
+2. Connect your repository.
+3. **Build Filter**: No change needed.
+4. **Environment**: `Docker`.
+5. **Dockerfile Path**: `server/services/rabbitmq/app.dockerfile`.
+6. **Advanced Settings**:
+   - **Disk**: (Optional but recommended) Add a 1GB disk at `/var/lib/rabbitmq` for persistent messages.
+7. **Default Credentials**:
+   - **Username**: `admin`
+   - **Password**: `7866`
+   - **VHost**: `barista`
+
+---
+
+## 5. Environment Variables Reference
 Copy `server/.env.example` as a template for your Render environment groups.
 
 ### Core Configuration
@@ -67,10 +84,10 @@ Copy `server/.env.example` as a template for your Render environment groups.
 
 ---
 
-## 5. Deployment Order
-1. **Infrastructure**: Deploy PostgreSQL, Redis, and RabbitMQ first.
+## 6. Deployment Order
+1. **Infrastructure**: Deploy PostgreSQL, Redis, and RabbitMQ (Custom) first.
 2. **Internal Services**: Deploy `auth`, `menu`, `shop`, `table`, `history` etc.
 3. **Public Services**: Deploy `api-gateway` and `ws` last.
 
-## 6. Health & Readiness Checks
+## 7. Health & Readiness Checks
 All services are implemented with `cmux` (or standalone HTTP) to expose `/health` and `/ready` on the same port as gRPC. Render uses these to determine if a service should receive traffic or restart.

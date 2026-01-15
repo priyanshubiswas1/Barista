@@ -3,6 +3,8 @@ package client
 import (
 	"context"
 
+	"errors"
+
 	"github.com/priyanshubiswas1/barista/sessionservice/pkg"
 	table "github.com/priyanshubiswas1/baristacontracts/gen/table"
 	"google.golang.org/grpc"
@@ -20,6 +22,9 @@ type TableClient struct {
 }
 
 func NewTable(url string) (ITableClient, error) {
+	if url == "" {
+		return &TableClient{}, nil
+	}
 	client, err := grpc.NewClient(url, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, err
@@ -31,6 +36,9 @@ func NewTable(url string) (ITableClient, error) {
 }
 
 func (c *TableClient) GetTable(ctx context.Context, tableId, shopId string) (pkg.GetTableResponse, error) {
+	if c.service == nil {
+		return pkg.GetTableResponse{}, errors.New("table service URL not configured")
+	}
 	res, err := c.service.GetTable(ctx, &table.GetTableRequest{
 		Id:     tableId,
 		ShopId: shopId,
@@ -49,6 +57,9 @@ func (c *TableClient) GetTable(ctx context.Context, tableId, shopId string) (pkg
 }
 
 func (c *TableClient) UpdateTableStatus(ctx context.Context, tableId, shopId, status string) (pkg.UpdateTableStatusResponse, error) {
+	if c.service == nil {
+		return pkg.UpdateTableStatusResponse{}, errors.New("table service URL not configured")
+	}
 	res, err := c.service.UpdateTableStatus(ctx, &table.UpdateTableStatusRequest{
 		TableId: tableId,
 		ShopId:  shopId,

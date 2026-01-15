@@ -3,6 +3,8 @@ package client
 import (
 	"context"
 
+	"errors"
+
 	"github.com/priyanshubiswas1/barista/paymentservice/pkg"
 	session "github.com/priyanshubiswas1/baristacontracts/gen/session"
 	"google.golang.org/grpc"
@@ -20,6 +22,9 @@ type SessionClient struct {
 }
 
 func NewSession(url string) (ISessionClient, error) {
+	if url == "" {
+		return &SessionClient{}, nil
+	}
 	client, err := grpc.NewClient(url, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, err
@@ -31,6 +36,9 @@ func NewSession(url string) (ISessionClient, error) {
 }
 
 func (c *SessionClient) UpdateSession(ctx context.Context, updateSession pkg.UpdateSessionRequest) (bool, error) {
+	if c.service == nil {
+		return false, errors.New("session service URL not configured")
+	}
 	res, err := c.service.UpdateSession(ctx, &session.UpdateSessionRequest{
 		Session: &session.Session{
 			SessionId:     updateSession.Session.Id,
@@ -52,6 +60,9 @@ func (c *SessionClient) UpdateSession(ctx context.Context, updateSession pkg.Upd
 }
 
 func (c *SessionClient) GetSessionById(ctx context.Context, sessionId string) (pkg.Session, error) {
+	if c.service == nil {
+		return pkg.Session{}, errors.New("session service URL not configured")
+	}
 	res, err := c.service.GetSessionById(ctx, &session.GetSessionRequest{
 		SessionId: sessionId,
 	})
