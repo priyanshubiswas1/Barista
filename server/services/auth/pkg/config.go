@@ -7,8 +7,8 @@ import (
 type Config struct {
 	Port        string `envconfig:"PORT"`
 	DbUrl       string `envconfig:"DB_URL"`
-	ShopService string `envconfig:"SHOP_SERVICE_URL"`
-	MenuService string `envconfig:"MENU_SERVICE_URL"`
+	ShopService string `envconfig:"SHOP_CLIENT"`
+	MenuService string `envconfig:"MENU_CLIENT"`
 }
 
 func GetConfig() (*Config, error) {

@@ -6,8 +6,8 @@ type Config struct {
 	Port           string `envconfig:"PORT"`
 	DbUrl          string `envconfig:"DB_URL"`
 	RedisUrl       string `envconfig:"REDIS_URL"`
-	TableService   string `envconfig:"TABLE_SERVICE_URL"`
-	HistoryService string `envconfig:"HISTORY_SERVICE_URL"`
+	TableService   string `envconfig:"TABLE_CLIENT"`
+	HistoryService string `envconfig:"HISTORY_CLIENT"`
 }
 
 func GetConfig() (Config, error) {
