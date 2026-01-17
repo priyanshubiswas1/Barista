@@ -60,7 +60,8 @@ func NewMenu(url string) (IMenuClient, error) {
 	return &MenuClient{
 		url: url,
 		client: &http.Client{
-			Timeout: 30 * time.Second, // Long timeout for image uploads?
+			// Increased to 60s to handle cold starts (and large image uploads)
+			Timeout: 60 * time.Second,
 		},
 	}, nil
 }

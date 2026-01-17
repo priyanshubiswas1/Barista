@@ -36,7 +36,8 @@ func NewClient(url string) (IAuthClient, error) {
 	return &AuthClient{
 		url: url,
 		client: &http.Client{
-			Timeout: 10 * time.Second,
+			// Increased to 60s to handle cold starts
+			Timeout: 60 * time.Second,
 		},
 	}, nil
 }

@@ -205,7 +205,8 @@ func (s *APIServer) ListenServer(port string) error {
 
 func makeHttpHandleFunc(apiFunc APIFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
+		// Increased timeout to 60s to handle Render free tier cold starts
+		ctx, cancel := context.WithTimeout(r.Context(), 60*time.Second)
 		defer cancel()
 		if err := apiFunc(ctx, w, r); err != nil {
 			writeJSON(w, http.StatusBadRequest, map[string]any{"error": err.Error()})
