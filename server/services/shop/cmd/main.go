@@ -35,9 +35,9 @@ func main() {
 	}
 	log.Println("shop service created")
 
-	log.Println("starting grpc server on port: ", cfg.Port)
-	if err := shop.ListenGRPC(service, cfg.Port); err != nil {
-		log.Fatal("failed to create grpc server: ", err)
+	log.Println("starting http server on port: ", cfg.Port)
+	if err := shop.ListenHTTP(service, cfg.Port); err != nil {
+		log.Fatal("failed to create http server: ", err)
 	}
 	log.Println("listening on port: ", cfg.Port)
 }

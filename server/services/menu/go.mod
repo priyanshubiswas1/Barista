@@ -10,6 +10,8 @@ require (
 	github.com/tinrab/retry v1.0.0
 )
 
+require github.com/gorilla/mux v1.8.1 // indirect
+
 require (
 	github.com/priyanshubiswas1/baristacontracts v1.6.4
 	golang.org/x/net v0.41.0 // indirect

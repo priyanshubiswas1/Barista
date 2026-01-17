@@ -1,18 +1,17 @@
 package handler
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
 	"io"
+	"mime/multipart"
 	"net/http"
-	"strconv"
+	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/priyanshubiswas1/barista/apigateway/pkg"
-	menu "github.com/priyanshubiswas1/baristacontracts/gen/menu"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 )
 
 type IMenuClient interface {
@@ -38,7 +37,7 @@ type IMenuClient interface {
 	DeleteMenuItem(ctx context.Context, w http.ResponseWriter, r *http.Request) error
 	DeleteMenuItems(ctx context.Context, w http.ResponseWriter, r *http.Request) error
 
-	//MENU-ITEMS
+	//CATEGORIES
 	CreateCategory(ctx context.Context, w http.ResponseWriter, r *http.Request) error
 	UpdateCategory(ctx context.Context, w http.ResponseWriter, r *http.Request) error
 	GetCategories(ctx context.Context, w http.ResponseWriter, r *http.Request) error
@@ -50,40 +49,52 @@ type IMenuClient interface {
 }
 
 type MenuClient struct {
-	client  *grpc.ClientConn
-	service menu.MenuServiceClient
+	url    string
+	client *http.Client
 }
 
 func NewMenu(url string) (IMenuClient, error) {
-	client, err := grpc.NewClient(url, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		return nil, err
+	if url == "" {
+		return &MenuClient{}, nil
 	}
-
 	return &MenuClient{
-		client:  client,
-		service: menu.NewMenuServiceClient(client),
+		url: url,
+		client: &http.Client{
+			Timeout: 30 * time.Second, // Long timeout for image uploads?
+		},
 	}, nil
 }
 
 func (c *MenuClient) CreateMenu(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
-	req := pkg.CreateMenuRequest{}
+	var req pkg.CreateMenuRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return err
 	}
-	res, err := c.service.CreateMenu(ctx, &menu.CreateMenuRequest{
-		ShopId: req.ShopId,
-		Name:   req.Name,
-	})
+
+	body, _ := json.Marshal(req)
+	httpReq, err := http.NewRequestWithContext(ctx, "POST", fmt.Sprintf("%s/menu", c.url), bytes.NewBuffer(body))
 	if err != nil {
 		return err
 	}
+	httpReq.Header.Set("Content-Type", "application/json")
+
+	resp, err := c.client.Do(httpReq)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("menu service returned status: %d", resp.StatusCode)
+	}
+
+	var res pkg.Menu
+	if err := json.NewDecoder(resp.Body).Decode(&res); err != nil {
+		return err
+	}
+
 	return pkg.WriteJSON(w, http.StatusOK, pkg.CreateMenuResponse{
-		Menu: pkg.Menu{
-			MenuId: res.Menu.MenuId,
-			ShopId: res.Menu.ShopId,
-			Name:   res.Menu.Name,
-		},
+		Menu: res,
 	})
 }
 
@@ -91,24 +102,30 @@ func (c *MenuClient) GetMenus(ctx context.Context, w http.ResponseWriter, r *htt
 	vars := mux.Vars(r)
 	shopId := vars["shopid"]
 
-	res, err := c.service.GetMenus(ctx, &menu.GetMenusRequest{
-		ShopId: shopId,
-	})
+	httpReq, err := http.NewRequestWithContext(ctx, "GET", fmt.Sprintf("%s/menus/%s", c.url, shopId), nil)
 	if err != nil {
 		return err
 	}
 
-	menus := []pkg.Menu{}
-	for _, m := range res.Menus {
-		menu := pkg.Menu{
-			MenuId: m.MenuId,
-			ShopId: m.ShopId,
-			Name:   m.Name,
-		}
-		menus = append(menus, menu)
+	resp, err := c.client.Do(httpReq)
+	if err != nil {
+		return err
 	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("menu service returned status: %d", resp.StatusCode)
+	}
+
+	var res struct {
+		Menus []pkg.Menu `json:"menus"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&res); err != nil {
+		return err
+	}
+
 	return pkg.WriteJSON(w, http.StatusOK, pkg.GetMenusResponse{
-		Menus: menus,
+		Menus: res.Menus,
 	})
 }
 
@@ -116,15 +133,26 @@ func (c *MenuClient) SetMenu(ctx context.Context, w http.ResponseWriter, r *http
 	vars := mux.Vars(r)
 	menuId := vars["menuid"]
 
-	res, err := c.service.SetMenu(ctx, &menu.SetMenuRequest{
-		MenuId: menuId,
-	})
+	httpReq, err := http.NewRequestWithContext(ctx, "PUT", fmt.Sprintf("%s/menu/%s", c.url, menuId), nil)
 	if err != nil {
 		return err
 	}
 
+	resp, err := c.client.Do(httpReq)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("menu service returned status: %d", resp.StatusCode)
+	}
+
+	var res map[string]bool
+	json.NewDecoder(resp.Body).Decode(&res)
+
 	return pkg.WriteJSON(w, http.StatusOK, pkg.SetMenuResponse{
-		Success: res.Success,
+		Success: res["success"],
 	})
 }
 
@@ -132,150 +160,154 @@ func (c *MenuClient) DeleteMenu(ctx context.Context, w http.ResponseWriter, r *h
 	vars := mux.Vars(r)
 	menuId := vars["menuid"]
 
-	res, err := c.service.DeleteMenu(ctx, &menu.DeleteMenuRequest{
-		MenuId: menuId,
-	})
+	httpReq, err := http.NewRequestWithContext(ctx, "DELETE", fmt.Sprintf("%s/menu/%s", c.url, menuId), nil)
 	if err != nil {
 		return err
 	}
+
+	resp, err := c.client.Do(httpReq)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("menu service returned status: %d", resp.StatusCode)
+	}
+
+	var res map[string]bool
+	json.NewDecoder(resp.Body).Decode(&res)
+
 	return pkg.WriteJSON(w, http.StatusOK, pkg.DeleteMenuResponse{
-		Success: res.Success,
+		Success: res["success"],
 	})
 }
 
+// CreateItem - Supports Multipart
 func (c *MenuClient) CreateItem(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 	contentType := r.Header.Get("Content-Type")
-	
-	var itemName, shopId, description, categoryId string
-	var veg bool
-	var price float32
-	var available bool
-	var imageUrl string
 
-	// Check if request is multipart/form-data (for file uploads)
+	// If it's multipart, we need to forward it as multipart to menu service?
+	// OR construct a new multipart request.
 	if contentType != "" && len(contentType) >= 19 && contentType[:19] == "multipart/form-data" {
-		// Parse multipart form with 10MB max memory
-		err := r.ParseMultipartForm(10 << 20) // 10MB
+		// New Multipart Request Buffer
+		var b bytes.Buffer
+		wMw := multipart.NewWriter(&b)
+
+		// Parse Incoming Form
+		if err := r.ParseMultipartForm(10 << 20); err != nil {
+			return err
+		}
+
+		// Copy fields
+		for key, val := range r.MultipartForm.Value {
+			// val is []string, usually take first
+			if len(val) > 0 {
+				wMw.WriteField(key, val[0])
+			}
+		}
+
+		// Copy Files (Image)
+		for key, files := range r.MultipartForm.File {
+			for _, fileHeader := range files {
+				file, err := fileHeader.Open()
+				if err != nil {
+					return err
+				}
+				fw, err := wMw.CreateFormFile(key, fileHeader.Filename)
+				if err != nil {
+					file.Close()
+					return err
+				}
+				io.Copy(fw, file)
+				file.Close()
+			}
+		}
+		wMw.Close()
+
+		httpReq, err := http.NewRequestWithContext(ctx, "POST", fmt.Sprintf("%s/item", c.url), &b)
 		if err != nil {
 			return err
 		}
+		httpReq.Header.Set("Content-Type", wMw.FormDataContentType())
 
-		// Extract form fields
-		itemName = r.FormValue("name")
-		shopId = r.FormValue("shopId")
-		description = r.FormValue("description")
-		categoryId = r.FormValue("categoryId")
-		
-		// Parse boolean values
-		vegStr := r.FormValue("veg")
-		veg = vegStr == "true"
-		
-		availableStr := r.FormValue("available")
-		available = availableStr == "true" || availableStr == ""
+		resp, err := c.client.Do(httpReq)
+		if err != nil {
+			return err
+		}
+		defer resp.Body.Close()
 
-		// Parse price
-		priceStr := r.FormValue("price")
-		if priceStr != "" {
-			parsedPrice, err := strconv.ParseFloat(priceStr, 32)
-			if err != nil {
-				return fmt.Errorf("invalid price: %w", err)
-			}
-			price = float32(parsedPrice)
+		if resp.StatusCode != http.StatusOK {
+			return fmt.Errorf("menu service returned status: %d", resp.StatusCode)
 		}
 
-		// Handle image upload if present
-		file, header, err := r.FormFile("image")
-		if err == nil {
-			// Image file provided, upload it
-			defer file.Close()
-
-			// Read file data into bytes
-			imageData, err := io.ReadAll(file)
-			if err != nil {
-				return err
-			}
-
-			// Get filename
-			filename := header.Filename
-			if filename == "" {
-				filename = "image.jpg"
-			}
-
-			// Upload image to Cloudinary via menu service
-			uploadRes, err := c.service.UploadImage(ctx, &menu.UploadImageRequest{
-				ImageData: imageData,
-				Filename:  filename,
-			})
-			if err != nil {
-				return fmt.Errorf("failed to upload image: %w", err)
-			}
-			imageUrl = uploadRes.ImageUrl
+		var res map[string]pkg.Item // { "item": ... }
+		if err := json.NewDecoder(resp.Body).Decode(&res); err != nil {
+			return err
 		}
+		return pkg.WriteJSON(w, http.StatusOK, pkg.CreateItemResponse{
+			Item: res["item"],
+		})
+
 	} else {
-		req := pkg.CreateItemRequest{}
+		// JSON
+		var req pkg.CreateItemRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			return err
 		}
-		itemName = req.ItemName
-		shopId = req.ShopId
-		description = req.Description
-		categoryId = req.CategoryId
-		veg = req.Veg
-		price = req.Price
-		imageUrl = req.Image
-		available = req.Available
-	}
 
-	res, err := c.service.CreateItem(ctx, &menu.CreateItemRequest{
-		Name:        itemName,
-		ShopId:      shopId,
-		Description: description,
-		CategoryId:  categoryId,
-		Veg:         veg,
-		Price:       price,
-		Image:       imageUrl,
-		IsAvailable: available,
-	})
-	if err != nil {
-		return err
+		body, _ := json.Marshal(req)
+		httpReq, err := http.NewRequestWithContext(ctx, "POST", fmt.Sprintf("%s/item", c.url), bytes.NewBuffer(body))
+		if err != nil {
+			return err
+		}
+		httpReq.Header.Set("Content-Type", "application/json")
+
+		resp, err := c.client.Do(httpReq)
+		if err != nil {
+			return err
+		}
+		defer resp.Body.Close()
+
+		if resp.StatusCode != http.StatusOK {
+			return fmt.Errorf("menu service returned status: %d", resp.StatusCode)
+		}
+
+		var res map[string]pkg.Item
+		if err := json.NewDecoder(resp.Body).Decode(&res); err != nil {
+			return err
+		}
+		return pkg.WriteJSON(w, http.StatusOK, pkg.CreateItemResponse{
+			Item: res["item"],
+		})
 	}
-	return pkg.WriteJSON(w, http.StatusOK, pkg.CreateItemResponse{
-		Item: pkg.Item{
-			ItemId:      res.Item.ItemId,
-			ShopId:      res.Item.ShopId,
-			ItemName:    res.Item.Name,
-			Description: res.Item.Description,
-			Category:    res.Item.Category,
-			Veg:         res.Item.Veg,
-			Price:       res.Item.Price,
-			Image:       res.Item.Image,
-			Available:   res.Item.IsAvailable,
-		},
-	})
 }
 
 func (c *MenuClient) GetItem(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 	vars := mux.Vars(r)
 	itemId := vars["itemid"]
 
-	res, err := c.service.GetItem(ctx, &menu.GetItemRequest{
-		ItemId: itemId,
-	})
+	httpReq, err := http.NewRequestWithContext(ctx, "GET", fmt.Sprintf("%s/item/%s", c.url, itemId), nil)
 	if err != nil {
 		return err
 	}
+
+	resp, err := c.client.Do(httpReq)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("menu service returned status: %d", resp.StatusCode)
+	}
+
+	var res map[string]pkg.Item
+	if err := json.NewDecoder(resp.Body).Decode(&res); err != nil {
+		return err
+	}
 	return pkg.WriteJSON(w, http.StatusOK, pkg.GetItemResponse{
-		Item: pkg.Item{
-			ItemId:      res.Item.ItemId,
-			ShopId:      res.Item.ShopId,
-			ItemName:    res.Item.Name,
-			Description: res.Item.Description,
-			Category:    res.Item.Category,
-			Veg:         res.Item.Veg,
-			Price:       res.Item.Price,
-			Image:       res.Item.Image,
-			Available:   res.Item.IsAvailable,
-		},
+		Item: res["item"],
 	})
 }
 
@@ -283,29 +315,27 @@ func (c *MenuClient) GetItems(ctx context.Context, w http.ResponseWriter, r *htt
 	vars := mux.Vars(r)
 	shopId := vars["shopid"]
 
-	res, err := c.service.GetItems(ctx, &menu.GetItemsRequest{
-		ShopId: shopId,
-	})
+	httpReq, err := http.NewRequestWithContext(ctx, "GET", fmt.Sprintf("%s/items/%s", c.url, shopId), nil)
 	if err != nil {
 		return err
 	}
-	items := []pkg.Item{}
-	for _, it := range res.Items {
-		item := pkg.Item{
-			ItemId:      it.ItemId,
-			ShopId:      it.ShopId,
-			ItemName:    it.Name,
-			Description: it.Description,
-			Category:    it.Category,
-			Veg:         it.Veg,
-			Price:       it.Price,
-			Image:       it.Image,
-			Available:   it.IsAvailable,
-		}
-		items = append(items, item)
+
+	resp, err := c.client.Do(httpReq)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("menu service returned status: %d", resp.StatusCode)
+	}
+
+	var res map[string][]pkg.Item
+	if err := json.NewDecoder(resp.Body).Decode(&res); err != nil {
+		return err
 	}
 	return pkg.WriteJSON(w, http.StatusOK, pkg.GetItemsResponse{
-		Items: items,
+		Items: res["items"],
 	})
 }
 
@@ -313,73 +343,89 @@ func (c *MenuClient) GetItemsAdmin(ctx context.Context, w http.ResponseWriter, r
 	vars := mux.Vars(r)
 	shopId := vars["shopid"]
 
-	res, err := c.service.GetItemsAdmin(ctx, &menu.GetItemsRequest{
-		ShopId: shopId,
-	})
+	httpReq, err := http.NewRequestWithContext(ctx, "GET", fmt.Sprintf("%s/items/admin/%s", c.url, shopId), nil)
 	if err != nil {
 		return err
 	}
-	items := []pkg.Item{}
-	for _, it := range res.Items {
-		item := pkg.Item{
-			ItemId:      it.ItemId,
-			ShopId:      it.ShopId,
-			ItemName:    it.Name,
-			Description: it.Description,
-			Category:    it.Category,
-			Veg:         it.Veg,
-			Price:       it.Price,
-			Image:       it.Image,
-			Available:   it.IsAvailable,
-		}
-		items = append(items, item)
+
+	resp, err := c.client.Do(httpReq)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("menu service returned status: %d", resp.StatusCode)
+	}
+
+	var res map[string][]pkg.Item
+	if err := json.NewDecoder(resp.Body).Decode(&res); err != nil {
+		return err
 	}
 	return pkg.WriteJSON(w, http.StatusOK, pkg.GetItemsResponse{
-		Items: items,
+		Items: res["items"],
 	})
 }
 
 func (c *MenuClient) UpdateItem(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
-	item := pkg.UpdateItemRequest{}
-	if err := json.NewDecoder(r.Body).Decode(&item); err != nil {
+	var req pkg.UpdateItemRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return err
 	}
 
-	res, err := c.service.UpdateItem(ctx, &menu.UpdateItemRequest{
-		ItemId:      item.ItemId,
-		ShopId:      item.ShopId,
-		Name:        item.ItemName,
-		Description: item.Description,
-		CategoryId:  item.CategoryId,
-		Veg:         item.Veg,
-		Price:       item.Price,
-		Image:       item.Image,
-		IsAvailable: item.Available,
-	})
+	body, _ := json.Marshal(req)
+	httpReq, err := http.NewRequestWithContext(ctx, "PUT", fmt.Sprintf("%s/item", c.url), bytes.NewBuffer(body))
 	if err != nil {
 		return err
 	}
+	httpReq.Header.Set("Content-Type", "application/json")
+
+	resp, err := c.client.Do(httpReq)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("menu service returned status: %d", resp.StatusCode)
+	}
+
+	var res map[string]bool
+	json.NewDecoder(resp.Body).Decode(&res)
+
 	return pkg.WriteJSON(w, http.StatusOK, pkg.UpdateItemResponse{
-		Success: res.Success,
+		Success: res["success"],
 	})
 }
 
 func (c *MenuClient) UpdateItemAvailable(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
-	item := pkg.UpdateItemAvailableRequest{}
-	if err := json.NewDecoder(r.Body).Decode(&item); err != nil {
+	var req pkg.UpdateItemAvailableRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return err
 	}
 
-	res, err := c.service.UpdateItemAvailable(ctx, &menu.UpdateItemAvailableRequest{
-		ItemId:      item.ItemId,
-		ShopId:      item.ShopId,
-		IsAvailable: item.Available,
-	})
+	body, _ := json.Marshal(req)
+	httpReq, err := http.NewRequestWithContext(ctx, "PUT", fmt.Sprintf("%s/item/available", c.url), bytes.NewBuffer(body))
 	if err != nil {
 		return err
 	}
+	httpReq.Header.Set("Content-Type", "application/json")
+
+	resp, err := c.client.Do(httpReq)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("menu service returned status: %d", resp.StatusCode)
+	}
+
+	var res map[string]bool
+	json.NewDecoder(resp.Body).Decode(&res)
+
 	return pkg.WriteJSON(w, http.StatusOK, pkg.UpdateItemAvailableResponse{
-		Success: res.Success,
+		Success: res["success"],
 	})
 }
 
@@ -387,35 +433,59 @@ func (c *MenuClient) DeleteItem(ctx context.Context, w http.ResponseWriter, r *h
 	vars := mux.Vars(r)
 	itemId := vars["itemid"]
 
-	res, err := c.service.DeleteItem(ctx, &menu.DeleteItemRequest{
-		ItemId: itemId,
-	})
+	httpReq, err := http.NewRequestWithContext(ctx, "DELETE", fmt.Sprintf("%s/item/%s", c.url, itemId), nil)
 	if err != nil {
 		return err
 	}
+
+	resp, err := c.client.Do(httpReq)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("menu service returned status: %d", resp.StatusCode)
+	}
+
+	var res map[string]bool
+	json.NewDecoder(resp.Body).Decode(&res)
+
 	return pkg.WriteJSON(w, http.StatusOK, pkg.DeleteItemResponse{
-		Success: res.Success,
+		Success: res["success"],
 	})
 }
 
 func (c *MenuClient) CreateMenuItem(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
-	req := pkg.CreateMenuItemRequest{}
+	var req pkg.CreateMenuItemRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return err
 	}
-	res, err := c.service.CreateMenuItem(ctx, &menu.CreateMenuItemRequest{
-		MenuId: req.MenuId,
-		ItemId: req.ItemId,
-	})
+
+	body, _ := json.Marshal(req)
+	httpReq, err := http.NewRequestWithContext(ctx, "POST", fmt.Sprintf("%s/menu-item", c.url), bytes.NewBuffer(body))
 	if err != nil {
 		return err
 	}
+	httpReq.Header.Set("Content-Type", "application/json")
+
+	resp, err := c.client.Do(httpReq)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("menu service returned status: %d", resp.StatusCode)
+	}
+
+	var res map[string]pkg.MenuItem
+	if err := json.NewDecoder(resp.Body).Decode(&res); err != nil {
+		return err
+	}
+
 	return pkg.WriteJSON(w, http.StatusOK, pkg.CreateMenuItemResponse{
-		MenuItem: pkg.MenuItem{
-			MenuItemId: res.MenuItem.MenuItemId,
-			MenuId:     res.MenuItem.MenuId,
-			ItemId:     res.MenuItem.ItemId,
-		},
+		MenuItem: res["menuItem"],
 	})
 }
 
@@ -423,29 +493,27 @@ func (c *MenuClient) GetMenuItems(ctx context.Context, w http.ResponseWriter, r 
 	vars := mux.Vars(r)
 	menuId := vars["menuid"]
 
-	res, err := c.service.GetMenuItems(ctx, &menu.GetMenuItemsRequest{
-		MenuId: menuId,
-	})
+	httpReq, err := http.NewRequestWithContext(ctx, "GET", fmt.Sprintf("%s/menu-item/%s", c.url, menuId), nil)
 	if err != nil {
 		return err
 	}
-	items := []pkg.Item{}
-	for _, i := range res.Items {
-		item := pkg.Item{
-			ItemId:      i.ItemId,
-			ShopId:      i.ShopId,
-			ItemName:    i.Name,
-			Description: i.Description,
-			Category:    i.Category,
-			Veg:         i.Veg,
-			Price:       i.Price,
-			Image:       i.Image,
-			Available:   i.IsAvailable,
-		}
-		items = append(items, item)
+
+	resp, err := c.client.Do(httpReq)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("menu service returned status: %d", resp.StatusCode)
+	}
+
+	var res map[string][]pkg.Item
+	if err := json.NewDecoder(resp.Body).Decode(&res); err != nil {
+		return err
 	}
 	return pkg.WriteJSON(w, http.StatusOK, pkg.GetMenuItemsResponse{
-		Items: items,
+		Items: res["items"],
 	})
 }
 
@@ -453,46 +521,66 @@ func (c *MenuClient) GetMenuItemsAdmin(ctx context.Context, w http.ResponseWrite
 	vars := mux.Vars(r)
 	menuId := vars["menuid"]
 
-	res, err := c.service.GetMenuItemsAdmin(ctx, &menu.GetMenuItemsRequest{
-		MenuId: menuId,
-	})
+	httpReq, err := http.NewRequestWithContext(ctx, "GET", fmt.Sprintf("%s/menu-item/admin/%s", c.url, menuId), nil)
 	if err != nil {
 		return err
 	}
-	items := []pkg.Item{}
-	for _, i := range res.Items {
-		item := pkg.Item{
-			ItemId:      i.ItemId,
-			ShopId:      i.ShopId,
-			ItemName:    i.Name,
-			Description: i.Description,
-			Category:    i.Category,
-			Veg:         i.Veg,
-			Price:       i.Price,
-			Image:       i.Image,
-			Available:   i.IsAvailable,
-		}
-		items = append(items, item)
+
+	resp, err := c.client.Do(httpReq)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("menu service returned status: %d", resp.StatusCode)
+	}
+
+	var res map[string][]pkg.Item
+	if err := json.NewDecoder(resp.Body).Decode(&res); err != nil {
+		return err
 	}
 	return pkg.WriteJSON(w, http.StatusOK, pkg.GetMenuItemsResponse{
-		Items: items,
+		Items: res["items"],
 	})
 }
 
 func (c *MenuClient) DeleteMenuItem(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
-	req := pkg.DeleteMenuItemRequest{}
+	var req pkg.DeleteMenuItemRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return err
 	}
-	res, err := c.service.DeleteMenuItem(ctx, &menu.DeleteMenuItemRequest{
-		MenuId: req.MenuId,
-		ItemId: req.ItemId,
-	})
+
+	// Uses Query Params in `menu/server.go` implementation?
+	// Ah, my logic in `DeleteMenuItem` (menu service) logic checked Query params OR Body.
+	// So I can send Body or Query params.
+	// I'll send Query params as a safer bet (or body).
+	// Let's send Query params.
+
+	httpReq, err := http.NewRequestWithContext(ctx, "DELETE", fmt.Sprintf("%s/menu-item", c.url), nil)
 	if err != nil {
 		return err
 	}
+	q := httpReq.URL.Query()
+	q.Add("menuId", req.MenuId)
+	q.Add("itemId", req.ItemId)
+	httpReq.URL.RawQuery = q.Encode()
+
+	resp, err := c.client.Do(httpReq)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("menu service returned status: %d", resp.StatusCode)
+	}
+
+	var res map[string]bool
+	json.NewDecoder(resp.Body).Decode(&res)
+
 	return pkg.WriteJSON(w, http.StatusOK, pkg.DeleteMenuItemResponse{
-		Success: res.Success,
+		Success: res["success"],
 	})
 }
 
@@ -500,57 +588,90 @@ func (c *MenuClient) DeleteMenuItems(ctx context.Context, w http.ResponseWriter,
 	vars := mux.Vars(r)
 	menuId := vars["menuid"]
 
-	res, err := c.service.DeleteMenuItems(ctx, &menu.DeleteMenuItemsRequest{
-		MenuId: menuId,
-	})
+	httpReq, err := http.NewRequestWithContext(ctx, "DELETE", fmt.Sprintf("%s/menu-items/%s", c.url, menuId), nil)
 	if err != nil {
 		return err
 	}
+
+	resp, err := c.client.Do(httpReq)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("menu service returned status: %d", resp.StatusCode)
+	}
+
+	var res map[string]bool
+	json.NewDecoder(resp.Body).Decode(&res)
+
 	return pkg.WriteJSON(w, http.StatusOK, pkg.DeleteMenuItemsResponse{
-		Success: res.Success,
+		Success: res["success"],
 	})
 }
 
 func (c *MenuClient) CreateCategory(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
-	req := pkg.CreateCategoryRequest{}
+	var req pkg.CreateCategoryRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return err
 	}
-	res, err := c.service.CreateCategory(ctx, &menu.CreateCategoryRequest{
-		ShopId: req.ShopId,
-		Name:   req.Name,
-	})
+
+	body, _ := json.Marshal(req)
+	httpReq, err := http.NewRequestWithContext(ctx, "POST", fmt.Sprintf("%s/category", c.url), bytes.NewBuffer(body))
 	if err != nil {
 		return err
 	}
+	httpReq.Header.Set("Content-Type", "application/json")
+
+	resp, err := c.client.Do(httpReq)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("menu service returned status: %d", resp.StatusCode)
+	}
+
+	var res map[string]pkg.Category
+	if err := json.NewDecoder(resp.Body).Decode(&res); err != nil {
+		return err
+	}
 	return pkg.WriteJSON(w, http.StatusOK, pkg.CreateCategoryResponse{
-		Category: pkg.Category{
-			CategoryId: res.Category.Id,
-			ShopId:     res.Category.ShopId,
-			Name:       res.Category.Name,
-		},
+		Category: res["category"],
 	})
 }
 
 func (c *MenuClient) UpdateCategory(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
-	req := pkg.Category{}
+	var req pkg.Category
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return err
 	}
-	res, err := c.service.UpdateCategory(ctx, &menu.UpdateCategoryRequest{
-		CategoryId: req.CategoryId,
-		ShopId:     req.ShopId,
-		Name:       req.Name,
-	})
+
+	body, _ := json.Marshal(req)
+	httpReq, err := http.NewRequestWithContext(ctx, "PUT", fmt.Sprintf("%s/category", c.url), bytes.NewBuffer(body))
 	if err != nil {
 		return err
 	}
+	httpReq.Header.Set("Content-Type", "application/json")
+
+	resp, err := c.client.Do(httpReq)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("menu service returned status: %d", resp.StatusCode)
+	}
+
+	var res map[string]pkg.Category
+	if err := json.NewDecoder(resp.Body).Decode(&res); err != nil {
+		return err
+	}
 	return pkg.WriteJSON(w, http.StatusOK, pkg.CreateCategoryResponse{
-		Category: pkg.Category{
-			CategoryId: res.Category.Id,
-			ShopId:     res.Category.ShopId,
-			Name:       res.Category.Name,
-		},
+		Category: res["category"],
 	})
 }
 
@@ -558,23 +679,27 @@ func (c *MenuClient) GetCategories(ctx context.Context, w http.ResponseWriter, r
 	vars := mux.Vars(r)
 	shopId := vars["shopid"]
 
-	res, err := c.service.GetCategory(ctx, &menu.GetCategoryRequest{
-		ShopId: shopId,
-	})
+	httpReq, err := http.NewRequestWithContext(ctx, "GET", fmt.Sprintf("%s/category/%s", c.url, shopId), nil)
 	if err != nil {
 		return err
 	}
-	categories := []pkg.Category{}
-	for _, c := range res.Categories {
-		category := pkg.Category{
-			CategoryId: c.Id,
-			ShopId:     c.ShopId,
-			Name:       c.Name,
-		}
-		categories = append(categories, category)
+
+	resp, err := c.client.Do(httpReq)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("menu service returned status: %d", resp.StatusCode)
+	}
+
+	var res map[string][]pkg.Category
+	if err := json.NewDecoder(resp.Body).Decode(&res); err != nil {
+		return err
 	}
 	return pkg.WriteJSON(w, http.StatusOK, pkg.GetCategoriesResponse{
-		Categories: categories,
+		Categories: res["categories"],
 	})
 }
 
@@ -582,94 +707,106 @@ func (c *MenuClient) GetCategoriesWithItems(ctx context.Context, w http.Response
 	vars := mux.Vars(r)
 	shopId := vars["shopid"]
 
-	res, err := c.service.GetCategoryWithItems(ctx, &menu.GetCategoryRequest{
-		ShopId: shopId,
-	})
+	httpReq, err := http.NewRequestWithContext(ctx, "GET", fmt.Sprintf("%s/category-items/%s", c.url, shopId), nil)
 	if err != nil {
 		return err
 	}
-	categories := []pkg.CategoryWithItems{}
-	for _, c := range res.Categories {
-		items := []pkg.Item{}
-		for _, i := range c.Items {
-			items = append(items, pkg.Item{
-				ItemId:      i.ItemId,
-				ShopId:      i.ShopId,
-				ItemName:    i.Name,
-				Description: i.Description,
-				Category:    i.Category,
-				Veg:         i.Veg,
-				Price:       i.Price,
-				Image:       i.Image,
-				Available:   i.IsAvailable,
-			})
-		}
-		category := pkg.CategoryWithItems{
-			CategoryId: c.Id,
-			ShopId:     c.ShopId,
-			Name:       c.Name,
-			Items:      items,
-		}
-		categories = append(categories, category)
+
+	resp, err := c.client.Do(httpReq)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("menu service returned status: %d", resp.StatusCode)
+	}
+
+	var res map[string][]pkg.CategoryWithItems
+	if err := json.NewDecoder(resp.Body).Decode(&res); err != nil {
+		return err
 	}
 	return pkg.WriteJSON(w, http.StatusOK, pkg.GetCategoriesWithItemsResponse{
-		Categories: categories,
+		Categories: res["categories"],
 	})
 }
 
 func (c *MenuClient) DeleteCategory(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
-	req := pkg.DeleteCategoryRequest{}
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		return err
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	// Needs shopId
+	shopId := r.URL.Query().Get("shopId")
+	if shopId == "" {
+		// Read body
+		var req struct {
+			ShopId string `json:"shopId"`
+		}
+		// Careful consuming body if query not present
+		json.NewDecoder(r.Body).Decode(&req)
+		shopId = req.ShopId
 	}
-	res, err := c.service.DeleteCategory(ctx, &menu.DeleteCategoryRequest{
-		Id:     req.CategoryId,
-		ShopId: req.ShopId,
-	})
+
+	httpReq, err := http.NewRequestWithContext(ctx, "DELETE", fmt.Sprintf("%s/category/%s", c.url, id), nil)
 	if err != nil {
 		return err
 	}
+	// Add query param for shopId
+	q := httpReq.URL.Query()
+	q.Add("shopId", shopId)
+	httpReq.URL.RawQuery = q.Encode()
+
+	resp, err := c.client.Do(httpReq)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("menu service returned status: %d", resp.StatusCode)
+	}
+
+	var res map[string]bool
+	json.NewDecoder(resp.Body).Decode(&res)
+
 	return pkg.WriteJSON(w, http.StatusOK, pkg.DeleteCategoryResponse{
-		Success: res.Success,
+		Success: res["success"],
 	})
 }
 
 func (c *MenuClient) UploadImage(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
-	// Parse multipart form with 10MB max memory
-	err := r.ParseMultipartForm(10 << 20) // 10MB
+	// Need to forward multipart request
+	// r.Body is the multipart stream.
+	// r.Header["Content-Type"] gives boundary.
+
+	// We can't just forward r.Body because we need to construct a new request to target URL.
+	// But we can pass r.Body as the body of new request, and copy Content-Type header.
+
+	httpReq, err := http.NewRequestWithContext(ctx, "POST", fmt.Sprintf("%s/upload-image", c.url), r.Body)
 	if err != nil {
 		return err
 	}
+	httpReq.Header.Set("Content-Type", r.Header.Get("Content-Type"))
+	httpReq.ContentLength = r.ContentLength // Important for multipart
 
-	// Get the file from the form
-	file, header, err := r.FormFile("image")
+	resp, err := c.client.Do(httpReq)
 	if err != nil {
 		return err
 	}
-	defer file.Close()
+	defer resp.Body.Close()
 
-	// Read file data into bytes
-	imageData, err := io.ReadAll(file)
-	if err != nil {
-		return err
+	if resp.StatusCode != http.StatusOK {
+		// read error from body
+		b, _ := io.ReadAll(resp.Body)
+		return fmt.Errorf("menu service returned status: %d, body: %s", resp.StatusCode, string(b))
 	}
 
-	// Get filename
-	filename := header.Filename
-	if filename == "" {
-		filename = "image.jpg"
-	}
-
-	// Call menu service
-	res, err := c.service.UploadImage(ctx, &menu.UploadImageRequest{
-		ImageData: imageData,
-		Filename:  filename,
-	})
-	if err != nil {
+	var res map[string]string
+	if err := json.NewDecoder(resp.Body).Decode(&res); err != nil {
 		return err
 	}
 
 	return pkg.WriteJSON(w, http.StatusOK, pkg.UploadImageResponse{
-		ImageUrl: res.ImageUrl,
+		ImageUrl: res["imageUrl"],
 	})
 }

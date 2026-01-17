@@ -19,6 +19,8 @@ https://qrcoderaptor.com/
 cloudflared tunnel --url http://localhost:8000
 cloudflared tunnel --url http://localhost:8081
 
+https://api.cloudamqp.com/console/a41b94d9-aa56-48b0-b646-547665dac5f0/details
+
 VITE_API_BASE_URL=https://printing-permits-toddler-states.trycloudflare.com/api
 VITE_WS_URL=wss://register-poll-carefully-obtain.trycloudflare.com/ws
 

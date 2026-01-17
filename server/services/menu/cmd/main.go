@@ -38,7 +38,7 @@ func main() {
 	service := menu.NewService(r, cloudinaryService)
 	log.Println("menu service created")
 
-	if err = menu.ListenGRPC(service, cfg.Port); err != nil {
+	if err = menu.ListenHTTP(service, cfg.Port); err != nil {
 		log.Fatal("failed to start server: ", err)
 	}
 	log.Println("Listening to port: ", cfg.Port)

@@ -34,3 +34,26 @@ type CreateMenuReq struct {
 	ShopId   string `json:"shopId"`
 	MenuName string `json:"menuName"`
 }
+
+type RegisterReq struct {
+	User     User   `json:"user"`
+	Password string `json:"password"`
+}
+
+type LoginReq struct {
+	Email       string `json:"email"`
+	Phonenumber string `json:"phonenumber"`
+	Password    string `json:"password"`
+}
+
+type UpdateReq struct {
+	Id          string `json:"id"`
+	OldPassword string `json:"oldpassword"`
+	NewPassword string `json:"newpassword"`
+	User        User   `json:"user"`
+}
+
+type DeleteReq struct {
+	Id       string `json:"id"`
+	Password string `json:"password"`
+}

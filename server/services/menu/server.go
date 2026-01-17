@@ -1,448 +1,384 @@
 package menu
 
 import (
-	"context"
+	"encoding/json"
 	"fmt"
+	"io"
 	"log"
-	"net"
-
 	"net/http"
 
+	"github.com/gorilla/mux"
 	"github.com/priyanshubiswas1/barista/menuservice/pkg"
-	menuPb "github.com/priyanshubiswas1/baristacontracts/gen/menu"
-	"github.com/soheilhy/cmux"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/reflection"
 )
 
-type gRPCserver struct {
+type httpServer struct {
 	service IService
-	menuPb.UnimplementedMenuServiceServer
 }
 
-func ListenGRPC(service IService, port string) error {
-	lis, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%s", port))
+func ListenHTTP(service IService, port string) error {
+	router := mux.NewRouter()
+	s := &httpServer{service: service}
+
+	// Health checks
+	router.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("OK"))
+	}).Methods("GET")
+	router.HandleFunc("/ready", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("Ready"))
+	}).Methods("GET")
+
+	// API Routes
+	// Menu
+	router.HandleFunc("/menu", s.CreateMenu).Methods("POST")
+	router.HandleFunc("/menus/{shopid}", s.GetMenus).Methods("GET")
+	router.HandleFunc("/menu/{menuid}", s.SetMenu).Methods("PUT")
+	router.HandleFunc("/menu/{menuid}", s.DeleteMenu).Methods("DELETE")
+
+	// Items
+	router.HandleFunc("/item", s.CreateItem).Methods("POST")
+	router.HandleFunc("/item/{itemid}", s.GetItem).Methods("GET")
+	router.HandleFunc("/items/{shopid}", s.GetItems).Methods("GET")
+	router.HandleFunc("/items/admin/{shopid}", s.GetItemsAdmin).Methods("GET")
+	router.HandleFunc("/item", s.UpdateItem).Methods("PUT")
+	router.HandleFunc("/item/available", s.UpdateItemAvailable).Methods("PUT")
+	router.HandleFunc("/item/{itemid}", s.DeleteItem).Methods("DELETE")
+
+	// Menu Items
+	router.HandleFunc("/menu-item", s.CreateMenuItem).Methods("POST")
+	router.HandleFunc("/menu-item/{menuid}", s.GetMenuItems).Methods("GET")
+	router.HandleFunc("/menu-item/admin/{menuid}", s.GetMenuItemsAdmin).Methods("GET")
+	router.HandleFunc("/menu-item", s.DeleteMenuItem).Methods("DELETE") // Params in body or query?
+	router.HandleFunc("/menu-items/{menuid}", s.DeleteMenuItems).Methods("DELETE")
+
+	// Categories
+	router.HandleFunc("/category", s.CreateCategory).Methods("POST")
+	router.HandleFunc("/category/{shopid}", s.GetCategories).Methods("GET")
+	router.HandleFunc("/category-items/{shopid}", s.GetCategoryWithItems).Methods("GET")
+	router.HandleFunc("/category", s.UpdateCategory).Methods("PUT")
+	router.HandleFunc("/category/{id}", s.DeleteCategory).Methods("DELETE")
+
+	// Image Upload
+	router.HandleFunc("/upload-image", s.UploadImage).Methods("POST")
+
+	log.Printf("menu service listening on HTTP %s", port)
+	return http.ListenAndServe(fmt.Sprintf(":%s", port), router)
+}
+
+func (s *httpServer) CreateMenu(w http.ResponseWriter, r *http.Request) {
+	var req pkg.CreateMenuReq
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	id, err := s.service.CreateMenu(r.Context(), req.ShopId, req.Name)
 	if err != nil {
-		return err
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
-
-	m := cmux.New(lis)
-	grpcL := m.MatchWithWriters(cmux.HTTP2MatchHeaderFieldSendSettings("content-type", "application/grpc"))
-	httpL := m.Match(cmux.HTTP1Fast())
-
-	grpcS := grpc.NewServer()
-	menuPb.RegisterMenuServiceServer(grpcS, &gRPCserver{service: service})
-	reflection.Register(grpcS)
-
-	httpS := &http.Server{
-		Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			if r.URL.Path == "/health" {
-				w.WriteHeader(http.StatusOK)
-				w.Write([]byte("OK"))
-				return
-			}
-			if r.URL.Path == "/ready" {
-				w.WriteHeader(http.StatusOK)
-				w.Write([]byte("Ready"))
-				return
-			}
-			http.NotFound(w, r)
-		}),
-	}
-
-	go grpcS.Serve(grpcL)
-	go httpS.Serve(httpL)
-
-	fmt.Printf("menu service listening on %s (gRPC and HTTP health checks)\n", port)
-	return m.Serve()
-}
-
-func (s *gRPCserver) CreateMenu(ctx context.Context, req *menuPb.CreateMenuRequest) (*menuPb.CreateMenuResponse, error) {
-	id, err := s.service.CreateMenu(ctx, req.ShopId, req.Name)
-	if err != nil {
-		return nil, err
-	}
-	return &menuPb.CreateMenuResponse{
-		Menu: &menuPb.Menu{
-			MenuId: id,
-			ShopId: req.ShopId,
-			Name:   req.Name,
-		},
-	}, nil
-}
-
-func (s *gRPCserver) GetMenus(ctx context.Context, req *menuPb.GetMenusRequest) (*menuPb.GetMenusResponse, error) {
-	pkgMenus, err := s.service.GetMenus(ctx, req.ShopId)
-	if err != nil {
-		return nil, err
-	}
-	menus := []*menuPb.Menu{}
-	for _, pkgMenu := range pkgMenus {
-		menu := menuPb.Menu{
-			MenuId: pkgMenu.MenuId,
-			ShopId: pkgMenu.ShopId,
-			Name:   pkgMenu.Name,
-		}
-		menus = append(menus, &menu)
-	}
-	return &menuPb.GetMenusResponse{
-		Menus: menus,
-	}, nil
-}
-
-func (s *gRPCserver) SetMenu(ctx context.Context, req *menuPb.SetMenuRequest) (*menuPb.SetMenuResponse, error) {
-	res, err := s.service.SetMenu(ctx, req.MenuId)
-	if err != nil {
-		return nil, err
-	}
-	return &menuPb.SetMenuResponse{
-		Success: res,
-	}, nil
-}
-
-func (s *gRPCserver) DeleteMenu(ctx context.Context, req *menuPb.DeleteMenuRequest) (*menuPb.DeleteMenuResponse, error) {
-	res, err := s.service.DeleteMenu(ctx, req.MenuId)
-	if err != nil {
-		return nil, err
-	}
-	return &menuPb.DeleteMenuResponse{
-		Success: res,
-	}, nil
-}
-
-func (s *gRPCserver) CreateItem(ctx context.Context, req *menuPb.CreateItemRequest) (*menuPb.CreateItemResponse, error) {
-	item, err := s.service.CreateItem(ctx, pkg.ItemRequest{
-		ItemId:      "",
-		ShopId:      req.ShopId,
-		Name:        req.Name,
-		Description: req.Description,
-		CategoryId:  req.CategoryId,
-		Veg:         req.Veg,
-		Price:       req.Price,
-		Image:       req.Image,
-		IsAvailable: req.IsAvailable,
-	})
-	if err != nil {
-		return nil, err
-	}
-	return &menuPb.CreateItemResponse{
-		Item: &menuPb.Item{
-			ItemId:      item.ItemId,
-			ShopId:      item.ShopId,
-			Name:        item.Name,
-			Description: item.Description,
-			Category:    item.Category,
-			Veg:         item.Veg,
-			Price:       item.Price,
-			Image:       item.Image,
-			IsAvailable: item.IsAvailable,
-		},
-	}, nil
-}
-
-func (s *gRPCserver) GetItem(ctx context.Context, req *menuPb.GetItemRequest) (*menuPb.GetItemResponse, error) {
-	item, err := s.service.GetItem(ctx, req.ItemId)
-	if err != nil {
-		return nil, err
-	}
-	return &menuPb.GetItemResponse{
-		Item: &menuPb.Item{
-			ItemId:      item.ItemId,
-			ShopId:      item.ShopId,
-			Name:        item.Name,
-			Description: item.Description,
-			Category:    item.Category,
-			Veg:         item.Veg,
-			Price:       item.Price,
-			Image:       item.Image,
-			IsAvailable: item.IsAvailable,
-		},
-	}, nil
-}
-
-func (s *gRPCserver) GetItems(ctx context.Context, req *menuPb.GetItemsRequest) (*menuPb.GetItemsResponse, error) {
-	pkgItems, err := s.service.GetItems(ctx, req.ShopId)
-	if err != nil {
-		return nil, err
-	}
-	items := []*menuPb.Item{}
-	for _, item := range pkgItems {
-		items = append(items, &menuPb.Item{
-			ItemId:      item.ItemId,
-			ShopId:      item.ShopId,
-			Name:        item.Name,
-			Description: item.Description,
-			Category:    item.Category,
-			Veg:         item.Veg,
-			Price:       item.Price,
-			Image:       item.Image,
-			IsAvailable: item.IsAvailable,
-		})
-	}
-	return &menuPb.GetItemsResponse{
-		Items: items,
-	}, nil
-}
-
-func (s *gRPCserver) GetItemsAdmin(ctx context.Context, req *menuPb.GetItemsRequest) (*menuPb.GetItemsResponse, error) {
-	pkgItems, err := s.service.GetItemsAdmin(ctx, req.ShopId)
-	if err != nil {
-		return nil, err
-	}
-	items := []*menuPb.Item{}
-	for _, item := range pkgItems {
-		items = append(items, &menuPb.Item{
-			ItemId:      item.ItemId,
-			ShopId:      item.ShopId,
-			Name:        item.Name,
-			Description: item.Description,
-			Category:    item.Category,
-			Veg:         item.Veg,
-			Price:       item.Price,
-			Image:       item.Image,
-			IsAvailable: item.IsAvailable,
-		})
-	}
-	return &menuPb.GetItemsResponse{
-		Items: items,
-	}, nil
-}
-
-func (s *gRPCserver) UpdateItem(ctx context.Context, req *menuPb.UpdateItemRequest) (*menuPb.UpdateItemResponse, error) {
-	res, err := s.service.UpdateItem(ctx, pkg.ItemRequest{
-		ItemId:      req.ItemId,
-		ShopId:      req.ShopId,
-		Name:        req.Name,
-		Description: req.Description,
-		CategoryId:  req.CategoryId,
-		Veg:         req.Veg,
-		Price:       req.Price,
-		Image:       req.Image,
-		IsAvailable: req.IsAvailable,
-	})
-	if err != nil {
-		return nil, err
-	}
-	return &menuPb.UpdateItemResponse{
-		Success: res,
-	}, nil
-}
-
-func (s *gRPCserver) UpdateItemAvailable(ctx context.Context, req *menuPb.UpdateItemAvailableRequest) (*menuPb.UpdateItemAvailableResponse, error) {
-	res, err := s.service.UpdateItemAvailable(ctx, pkg.UpdateItemAvailableRequest{
-		ItemId:      req.ItemId,
-		ShopId:      req.ShopId,
-		IsAvailable: req.IsAvailable,
-	})
-	if err != nil {
-		return nil, err
-	}
-	return &menuPb.UpdateItemAvailableResponse{
-		Success: res,
-	}, nil
-}
-
-func (s *gRPCserver) DeleteItem(ctx context.Context, req *menuPb.DeleteItemRequest) (*menuPb.DeleteItemResponse, error) {
-	res, err := s.service.DeleteItem(ctx, req.ItemId)
-	if err != nil {
-		return nil, err
-	}
-	return &menuPb.DeleteItemResponse{
-		Success: res,
-	}, nil
-}
-
-func (s *gRPCserver) CreateMenuItem(ctx context.Context, req *menuPb.CreateMenuItemRequest) (*menuPb.CreateMenuItemResponse, error) {
-	menuItem, err := s.service.CreateMenuItem(ctx, pkg.MenuItem{
-		Id:     "",
-		MenuId: req.MenuId,
-		ItemId: req.ItemId,
-	})
-	if err != nil {
-		return nil, err
-	}
-	return &menuPb.CreateMenuItemResponse{
-		MenuItem: &menuPb.MenuItem{
-			MenuItemId: menuItem.Id,
-			MenuId:     menuItem.MenuId,
-			ItemId:     menuItem.ItemId,
-		},
-	}, nil
-}
-
-func (s *gRPCserver) GetMenuItems(ctx context.Context, req *menuPb.GetMenuItemsRequest) (*menuPb.GetMenuItemsResponse, error) {
-	pkgItems, err := s.service.GetMenuItems(ctx, req.MenuId)
-	if err != nil {
-		return nil, err
-	}
-	items := []*menuPb.Item{}
-	for _, pkgItem := range pkgItems {
-		item := menuPb.Item{
-			ItemId:      pkgItem.ItemId,
-			ShopId:      pkgItem.ShopId,
-			Name:        pkgItem.Name,
-			Description: pkgItem.Description,
-			Category:    pkgItem.Category,
-			Veg:         pkgItem.Veg,
-			Price:       pkgItem.Price,
-			Image:       pkgItem.Image,
-			IsAvailable: pkgItem.IsAvailable,
-		}
-		items = append(items, &item)
-	}
-	return &menuPb.GetMenuItemsResponse{
-		Items: items,
-	}, nil
-}
-
-func (s *gRPCserver) GetMenuItemsAdmin(ctx context.Context, req *menuPb.GetMenuItemsRequest) (*menuPb.GetMenuItemsResponse, error) {
-	pkgItems, err := s.service.GetMenuItemsAdmin(ctx, req.MenuId)
-	if err != nil {
-		return nil, err
-	}
-	items := []*menuPb.Item{}
-	for _, pkgItem := range pkgItems {
-		item := menuPb.Item{
-			ItemId:      pkgItem.ItemId,
-			ShopId:      pkgItem.ShopId,
-			Name:        pkgItem.Name,
-			Description: pkgItem.Description,
-			Category:    pkgItem.Category,
-			Veg:         pkgItem.Veg,
-			Price:       pkgItem.Price,
-			Image:       pkgItem.Image,
-			IsAvailable: pkgItem.IsAvailable,
-		}
-		items = append(items, &item)
-	}
-	return &menuPb.GetMenuItemsResponse{
-		Items: items,
-	}, nil
-}
-
-func (s *gRPCserver) DeleteMenuItem(ctx context.Context, req *menuPb.DeleteMenuItemRequest) (*menuPb.DeleteMenuItemResponse, error) {
-	res, err := s.service.DeleteMenuItem(ctx, req.MenuId, req.ItemId)
-	if err != nil {
-		return nil, err
-	}
-	return &menuPb.DeleteMenuItemResponse{
-		Success: res,
-	}, nil
-}
-
-func (s *gRPCserver) DeleteMenuItems(ctx context.Context, req *menuPb.DeleteMenuItemsRequest) (*menuPb.DeleteMenuItemsResponse, error) {
-	res, err := s.service.DeleteMenuItems(ctx, req.MenuId)
-	if err != nil {
-		return nil, err
-	}
-	return &menuPb.DeleteMenuItemsResponse{
-		Success: res,
-	}, nil
-}
-
-func (s *gRPCserver) CreateCategory(ctx context.Context, req *menuPb.CreateCategoryRequest) (*menuPb.CreateCategoryResponse, error) {
-	category, err := s.service.CreateCategory(ctx, pkg.Category{
+	writeJSON(w, http.StatusOK, pkg.Menu{
+		MenuId: id,
 		ShopId: req.ShopId,
 		Name:   req.Name,
 	})
-	if err != nil {
-		return nil, err
-	}
-	return &menuPb.CreateCategoryResponse{
-		Category: &menuPb.Category{
-			Id:     category.Id,
-			ShopId: category.ShopId,
-			Name:   category.Name,
-		},
-	}, nil
 }
 
-func (s *gRPCserver) GetCategory(ctx context.Context, req *menuPb.GetCategoryRequest) (*menuPb.GetCategoryResponse, error) {
-	pkgCategories, err := s.service.GetCategories(ctx, req.ShopId)
+func (s *httpServer) GetMenus(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	shopId := vars["shopid"]
+	menus, err := s.service.GetMenus(r.Context(), shopId)
 	if err != nil {
-		return nil, err
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
-	categories := []*menuPb.Category{}
-	for _, c := range pkgCategories {
-		categories = append(categories, &menuPb.Category{
-			Id:     c.Id,
-			ShopId: c.ShopId,
-			Name:   c.Name,
-		})
-	}
-	return &menuPb.GetCategoryResponse{
-		Categories: categories,
-	}, nil
+	writeJSON(w, http.StatusOK, map[string]any{"menus": menus})
 }
 
-func (s *gRPCserver) UpdateCategory(ctx context.Context, req *menuPb.UpdateCategoryRequest) (*menuPb.UpdateCategoryResponse, error) {
-	log.Println("NAME SERVER: ", req.Name)
-	category, err := s.service.UpdateCategory(ctx, pkg.Category{
-		Id:     req.CategoryId,
-		ShopId: req.ShopId,
-		Name:   req.Name,
-	})
+func (s *httpServer) SetMenu(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	menuId := vars["menuid"]
+	success, err := s.service.SetMenu(r.Context(), menuId)
 	if err != nil {
-		return nil, err
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
-	return &menuPb.UpdateCategoryResponse{
-		Category: &menuPb.Category{
-			Id:     category.Id,
-			ShopId: category.ShopId,
-			Name:   category.Name,
-		},
-	}, nil
+	writeJSON(w, http.StatusOK, map[string]bool{"success": success})
 }
 
-func (s *gRPCserver) GetCategoryWithItems(ctx context.Context, req *menuPb.GetCategoryRequest) (*menuPb.GetCategoryWithItemsResponse, error) {
-	pkgCategories, err := s.service.GetCategoriesWithItem(ctx, req.ShopId)
+func (s *httpServer) DeleteMenu(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	menuId := vars["menuid"]
+	success, err := s.service.DeleteMenu(r.Context(), menuId)
 	if err != nil {
-		return nil, err
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
-	categories := []*menuPb.CategoryWithItems{}
-	for _, c := range pkgCategories {
-		items := []*menuPb.Item{}
-		for _, i := range c.Items {
-			items = append(items, &menuPb.Item{
-				ItemId:      i.ItemId,
-				ShopId:      i.ShopId,
-				Name:        i.Name,
-				Description: i.Description,
-				Category:    i.Category,
-				Veg:         i.Veg,
-				Price:       i.Price,
-				Image:       i.Image,
-				IsAvailable: i.IsAvailable,
-			})
+	writeJSON(w, http.StatusOK, map[string]bool{"success": success})
+}
+
+func (s *httpServer) CreateItem(w http.ResponseWriter, r *http.Request) {
+	var req pkg.ItemRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	item, err := s.service.CreateItem(r.Context(), req)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]any{"item": item})
+}
+
+func (s *httpServer) GetItem(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	itemId := vars["itemid"]
+	item, err := s.service.GetItem(r.Context(), itemId)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]any{"item": item})
+}
+
+func (s *httpServer) GetItems(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	shopId := vars["shopid"]
+	items, err := s.service.GetItems(r.Context(), shopId)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]any{"items": items})
+}
+
+func (s *httpServer) GetItemsAdmin(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	shopId := vars["shopid"]
+	items, err := s.service.GetItemsAdmin(r.Context(), shopId)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]any{"items": items})
+}
+
+func (s *httpServer) UpdateItem(w http.ResponseWriter, r *http.Request) {
+	var req pkg.ItemRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	success, err := s.service.UpdateItem(r.Context(), req)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]bool{"success": success})
+}
+
+func (s *httpServer) UpdateItemAvailable(w http.ResponseWriter, r *http.Request) {
+	var req pkg.UpdateItemAvailableRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	success, err := s.service.UpdateItemAvailable(r.Context(), req)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]bool{"success": success})
+}
+
+func (s *httpServer) DeleteItem(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	itemId := vars["itemid"]
+	success, err := s.service.DeleteItem(r.Context(), itemId)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]bool{"success": success})
+}
+
+func (s *httpServer) CreateMenuItem(w http.ResponseWriter, r *http.Request) {
+	var req pkg.MenuItem
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	menuItem, err := s.service.CreateMenuItem(r.Context(), req)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	// Warning: The service returns MenuItem, make sure to json properly
+	writeJSON(w, http.StatusOK, map[string]any{"menuItem": menuItem})
+}
+
+func (s *httpServer) GetMenuItems(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	menuId := vars["menuid"]
+	items, err := s.service.GetMenuItems(r.Context(), menuId)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]any{"items": items})
+}
+
+func (s *httpServer) GetMenuItemsAdmin(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	menuId := vars["menuid"]
+	items, err := s.service.GetMenuItemsAdmin(r.Context(), menuId)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]any{"items": items})
+}
+
+func (s *httpServer) DeleteMenuItem(w http.ResponseWriter, r *http.Request) {
+	// Attempt to get from body first (uncommon for DELETE)
+	// Or query params?
+	var req struct {
+		MenuId string `json:"menuId"`
+		ItemId string `json:"itemId"`
+	}
+	// Check query params first
+	req.MenuId = r.URL.Query().Get("menuId")
+	req.ItemId = r.URL.Query().Get("itemId")
+
+	if req.MenuId == "" || req.ItemId == "" {
+		// Try body
+		json.NewDecoder(r.Body).Decode(&req)
+	}
+
+	if req.MenuId == "" || req.ItemId == "" {
+		http.Error(w, "missing menuId or itemId", http.StatusBadRequest)
+		return
+	}
+
+	success, err := s.service.DeleteMenuItem(r.Context(), req.MenuId, req.ItemId)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]bool{"success": success})
+}
+
+func (s *httpServer) DeleteMenuItems(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	menuId := vars["menuid"]
+	success, err := s.service.DeleteMenuItems(r.Context(), menuId)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]bool{"success": success})
+}
+
+func (s *httpServer) CreateCategory(w http.ResponseWriter, r *http.Request) {
+	var req pkg.Category
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	category, err := s.service.CreateCategory(r.Context(), req)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]any{"category": category})
+}
+
+func (s *httpServer) GetCategories(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	shopId := vars["shopid"]
+	categories, err := s.service.GetCategories(r.Context(), shopId)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]any{"categories": categories})
+}
+
+func (s *httpServer) GetCategoryWithItems(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	shopId := vars["shopid"]
+	categories, err := s.service.GetCategoriesWithItem(r.Context(), shopId)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]any{"categories": categories})
+}
+
+func (s *httpServer) UpdateCategory(w http.ResponseWriter, r *http.Request) {
+	var req pkg.Category
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	category, err := s.service.UpdateCategory(r.Context(), req)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]any{"category": category})
+}
+
+func (s *httpServer) DeleteCategory(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+	// Need shopId?
+	shopId := r.URL.Query().Get("shopId")
+	// If missing, try body?
+	if shopId == "" {
+		var req struct {
+			ShopId string `json:"shopId"`
 		}
-		categories = append(categories, &menuPb.CategoryWithItems{
-			Id:     c.Id,
-			ShopId: c.ShopId,
-			Name:   c.Name,
-			Items:  items,
-		})
+		json.NewDecoder(r.Body).Decode(&req)
+		shopId = req.ShopId
 	}
-	return &menuPb.GetCategoryWithItemsResponse{
-		Categories: categories,
-	}, nil
+
+	success, err := s.service.DeleteCategory(r.Context(), id, shopId)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]bool{"success": success})
 }
 
-func (s *gRPCserver) DeleteCategory(ctx context.Context, req *menuPb.DeleteCategoryRequest) (*menuPb.DeleteCategoryResponse, error) {
-	res, err := s.service.DeleteCategory(ctx, req.Id, req.ShopId)
+func (s *httpServer) UploadImage(w http.ResponseWriter, r *http.Request) {
+	// Parse 10MB
+	r.ParseMultipartForm(10 << 20)
+
+	file, header, err := r.FormFile("image")
 	if err != nil {
-		return nil, err
+		http.Error(w, "image file required", http.StatusBadRequest)
+		return
 	}
-	return &menuPb.DeleteCategoryResponse{
-		Success: res,
-	}, nil
+	defer file.Close()
+
+	data, err := io.ReadAll(file)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	url, err := s.service.UploadImage(r.Context(), data, header.Filename)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]string{"imageUrl": url})
 }
 
-func (s *gRPCserver) UploadImage(ctx context.Context, req *menuPb.UploadImageRequest) (*menuPb.UploadImageResponse, error) {
-	imageUrl, err := s.service.UploadImage(ctx, req.ImageData, req.Filename)
-	if err != nil {
-		return nil, err
-	}
-	return &menuPb.UploadImageResponse{
-		ImageUrl: imageUrl,
-	}, nil
+func writeJSON(w http.ResponseWriter, status int, v any) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	json.NewEncoder(w).Encode(v)
 }

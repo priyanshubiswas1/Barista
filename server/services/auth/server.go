@@ -1,151 +1,195 @@
 package auth
 
 import (
-	"context"
-	"errors"
+	"encoding/json"
 	"fmt"
-	"net"
+	"log"
+	"net/http"
 
+	"github.com/gorilla/mux"
 	"github.com/priyanshubiswas1/barista/authservice/pkg"
-	auth "github.com/priyanshubiswas1/baristacontracts/gen/auth"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/reflection"
 )
 
-type grpcServer struct {
+type httpServer struct {
 	service Service
-	auth.UnimplementedAuthServiceServer
 }
 
-func ListenGRPC(s Service, port string) error {
-	lis, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%s", port))
-	if err != nil {
-		return err
+func ListenHTTP(s Service, port string) error {
+	router := mux.NewRouter()
+	server := &httpServer{service: s}
+
+	// Health checks
+	router.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("OK"))
+	}).Methods("GET")
+	router.HandleFunc("/ready", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("Ready"))
+	}).Methods("GET")
+
+	router.HandleFunc("/register", server.RegisterUser).Methods("POST")
+	router.HandleFunc("/register-owner", server.RegisterUserWithShopMenu).Methods("POST")
+	router.HandleFunc("/login", server.LoginUser).Methods("POST")
+	router.HandleFunc("/user", server.UpdateUser).Methods("PUT")
+	router.HandleFunc("/user/{id}", server.GetUser).Methods("GET")
+	router.HandleFunc("/user/{id}", server.DeleteUser).Methods("DELETE")
+
+	log.Printf("auth service listening on HTTP %s", port)
+	return http.ListenAndServe(fmt.Sprintf(":%s", port), router)
+}
+
+func (s *httpServer) RegisterUserWithShopMenu(w http.ResponseWriter, r *http.Request) {
+	var req pkg.RegisterReq
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
-	server := grpc.NewServer()
-	auth.RegisterAuthServiceServer(server, &grpcServer{service: s})
-	reflection.Register(server)
-	return server.Serve(lis)
-}
 
-func (s *grpcServer) RegisterUserWithShopMenu(ctx context.Context, req *auth.RegisterRequest) (*auth.RegisterUserWithShopMenuResponse, error) {
-	res, err := s.service.RegisterWithShopMenu(ctx, &pkg.User{
+	// Map to pkg.User. Password is in req.Password.
+	user := &pkg.User{
 		Name:     req.User.Name,
 		Email:    req.User.Email,
-		Password: req.Password,
 		Phone:    req.User.Phone,
 		Address:  req.User.Address,
-	})
+		Password: req.Password,
+	}
+
+	res, err := s.service.RegisterWithShopMenu(r.Context(), user)
 	if err != nil {
-		return nil, err
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
-	authUser := &auth.User{
-		Name:    req.User.Name,
-		Email:   req.User.Email,
-		Phone:   req.User.Phone,
-		Address: req.User.Address,
-	}
-
-	return &auth.RegisterUserWithShopMenuResponse{
-		User:   authUser,
+	// Response structure from existing code
+	response := pkg.RegisterWithShopMenuResponse{
 		Token:  res.Token,
 		ShopId: res.ShopId,
 		MenuId: res.MenuId,
-	}, nil
+	}
+	writeJSON(w, http.StatusOK, response)
 }
 
-func (s *grpcServer) RegisterUser(ctx context.Context, req *auth.RegisterRequest) (*auth.RegisterResponse, error) {
-	res, err := s.service.Register(ctx, &pkg.User{
+func (s *httpServer) RegisterUser(w http.ResponseWriter, r *http.Request) {
+	var req pkg.RegisterReq
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	user := &pkg.User{
 		Name:     req.User.Name,
 		Email:    req.User.Email,
-		Password: req.Password,
 		Phone:    req.User.Phone,
 		Address:  req.User.Address,
-	})
+		Password: req.Password,
+	}
+
+	res, err := s.service.Register(r.Context(), user)
 	if err != nil {
-		return nil, err
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
-	authUser := &auth.User{
-		Name:    req.User.Name,
-		Email:   req.User.Email,
-		Phone:   req.User.Phone,
-		Address: req.User.Address,
-	}
-
-	return &auth.RegisterResponse{
-		User:  authUser,
+	response := pkg.RegisterResponse{
 		Token: res.Token,
-	}, nil
+	}
+	writeJSON(w, http.StatusOK, response)
 }
-func (s *grpcServer) LoginUser(ctx context.Context, req *auth.LoginRequest) (*auth.LoginResponse, error) {
-	var email, phone string
-	switch id := req.Identifier.(type) {
-	case *auth.LoginRequest_Email:
-		email = id.Email
-	case *auth.LoginRequest_Phonenumber:
-		phone = id.Phonenumber
-	default:
-		return nil, errors.New("either email or phone number must be provided")
+
+func (s *httpServer) LoginUser(w http.ResponseWriter, r *http.Request) {
+	var req pkg.LoginReq
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
-	res, err := s.service.Login(ctx, email, phone, req.Password)
+
+	res, err := s.service.Login(r.Context(), req.Email, req.Phonenumber, req.Password)
 	if err != nil {
-		return nil, err
+		http.Error(w, err.Error(), http.StatusUnauthorized)
+		return
 	}
-	authUser := &auth.User{
-		Name:    res.User.Name,
-		Email:   res.User.Email,
-		Phone:   res.User.Phone,
-		Address: res.User.Address,
-	}
-	return &auth.LoginResponse{
+
+	response := pkg.LoginResponse{
 		Token:  res.Token,
-		User:   authUser,
+		User:   res.User,
 		ShopId: res.ShopId,
 		MenuId: res.MenuId,
-	}, nil
+	}
+	writeJSON(w, http.StatusOK, response)
 }
-func (s *grpcServer) UpdateUser(ctx context.Context, req *auth.UpdateRequest) (*auth.UpdateResponse, error) {
-	res, err := s.service.UpdateUser(ctx, req.Id, req.Oldpassword, &pkg.User{
+
+func (s *httpServer) UpdateUser(w http.ResponseWriter, r *http.Request) {
+	var req pkg.UpdateReq
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	user := &pkg.User{
 		Name:     req.User.Name,
 		Email:    req.User.Email,
 		Phone:    req.User.Phone,
 		Address:  req.User.Address,
-		Password: req.Password,
-	})
+		Password: req.NewPassword, // Using NewPassword as the updated password
+	}
+
+	res, err := s.service.UpdateUser(r.Context(), req.Id, req.OldPassword, user)
 	if err != nil {
-		return nil, err
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
-	authUser := &auth.User{
-		Name:    res.User.Name,
-		Email:   res.User.Email,
-		Phone:   res.User.Phone,
-		Address: res.User.Address,
+
+	// Using LoginResponse format or similar?
+	// The gRPC response had User and Token.
+	// We can reuse LoginResponse or a custom struct.
+	// Let's reuse LoginResponse for simplicity or define UpdateResponse if needed.
+	// But minimal change:
+	response := map[string]any{
+		"token": res.Token,
+		"user":  res.User,
 	}
-	return &auth.UpdateResponse{
-		User:  authUser,
-		Token: res.Token,
-	}, nil
+	writeJSON(w, http.StatusOK, response)
 }
-func (s *grpcServer) DeleteUser(ctx context.Context, req *auth.DeleteRequest) (*auth.DeleteResponse, error) {
-	if err := s.service.DeleteUser(ctx, req.Id, req.Password); err != nil {
-		return nil, err
+
+func (s *httpServer) DeleteUser(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	// We need password for deletion?
+	// Get it from body?
+	var req pkg.DeleteReq
+	// Ignore error if body is empty? but password is required by service.
+	json.NewDecoder(r.Body).Decode(&req)
+
+	if req.Password == "" {
+		// try query param
+		req.Password = r.URL.Query().Get("password")
 	}
-	return &auth.DeleteResponse{Success: true}, nil
+
+	if err := s.service.DeleteUser(r.Context(), id, req.Password); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	writeJSON(w, http.StatusOK, map[string]bool{"success": true})
 }
-func (s *grpcServer) GetUser(ctx context.Context, req *auth.GetRequest) (*auth.GetResponse, error) {
-	res, err := s.service.GetUser(ctx, req.Id)
+
+func (s *httpServer) GetUser(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	res, err := s.service.GetUser(r.Context(), id)
 	if err != nil {
-		return nil, err
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
-	authUser := &auth.User{
-		Name:    res.Name,
-		Email:   res.Email,
-		Phone:   res.Phone,
-		Address: res.Address,
-	}
-	return &auth.GetResponse{
-		User: authUser,
-	}, nil
+
+	writeJSON(w, http.StatusOK, res)
+}
+
+func writeJSON(w http.ResponseWriter, status int, v any) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	json.NewEncoder(w).Encode(v)
 }

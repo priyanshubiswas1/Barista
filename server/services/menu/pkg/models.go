@@ -6,6 +6,11 @@ type Menu struct {
 	Name   string `json:"name"`
 }
 
+type CreateMenuReq struct {
+	ShopId string `json:"shopId"`
+	Name   string `json:"name"`
+}
+
 type ItemRequest struct {
 	ItemId      string  `json:"menuItemId"`
 	ShopId      string  `json:"shopId"`
