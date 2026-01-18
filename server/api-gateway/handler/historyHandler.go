@@ -26,7 +26,7 @@ type HistoryClient struct {
 }
 
 func NewHistory(url string) (IHistoryClient, error) {
-	client, err := grpc.NewClient(url, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	client, err := grpc.NewClient(pkg.StripScheme(url), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, err
 	}

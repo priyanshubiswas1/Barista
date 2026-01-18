@@ -30,7 +30,7 @@ type SessionClient struct {
 }
 
 func NewSession(url string) (ISessionClient, error) {
-	client, err := grpc.NewClient(url, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	client, err := grpc.NewClient(pkg.StripScheme(url), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, err
 	}

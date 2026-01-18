@@ -31,7 +31,7 @@ type OrderClient struct {
 }
 
 func NewOrder(url string) (IOrderClient, error) {
-	client, err := grpc.NewClient(url, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	client, err := grpc.NewClient(pkg.StripScheme(url), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return &OrderClient{}, err
 	}

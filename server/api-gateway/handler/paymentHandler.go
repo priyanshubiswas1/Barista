@@ -24,7 +24,7 @@ type PaymentClient struct {
 }
 
 func NewPayment(url string) (IPaymentClient, error) {
-	client, err := grpc.Dial(url, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	client, err := grpc.NewClient(pkg.StripScheme(url), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return &PaymentClient{}, err
 	}

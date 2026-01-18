@@ -26,7 +26,7 @@ type TableClient struct {
 }
 
 func NewTable(url string) (ITableClient, error) {
-	client, err := grpc.NewClient(url, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	client, err := grpc.NewClient(pkg.StripScheme(url), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return &TableClient{}, err
 	}
