@@ -39,12 +39,7 @@ const OrderSubHeader = ({ onAddNewOrderClick }) => {
         </Button> */}
       </div>
       <div className="flex items-center gap-3 w-full sm:w-auto">
-        <Button
-          onClick={onAddNewOrderClick}
-          variant="primary"
-          icon={Plus}
-          className="w-full sm:w-auto"
-        >
+        <Button onClick={onAddNewOrderClick} variant="primary" icon={Plus}>
           Add New Order
         </Button>
       </div>
@@ -165,9 +160,9 @@ const TableCard = ({ session }) => {
               orderNumbers: Array.from(
                 new Set(
                   Object.values(groupedOrders).flatMap((items) =>
-                    items.map((item) => item.orderNumber)
-                  )
-                )
+                    items.map((item) => item.orderNumber),
+                  ),
+                ),
               ),
               tableId: session.tableId,
               tableNumber: session.tableNumber,
@@ -194,7 +189,9 @@ const OrderContent = () => {
     select: (data) => ({
       ...data,
       sessions: [...data.sessions].sort((a, b) =>
-        a.tableNumber.localeCompare(b.tableNumber, undefined, { numeric: true })
+        a.tableNumber.localeCompare(b.tableNumber, undefined, {
+          numeric: true,
+        }),
       ),
     }),
   });

@@ -25,20 +25,11 @@ const MenuSubHeader = ({ onAddItemClick, onManageCategoryClick }) => {
       </div>
       <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto">
         {/* <Button variant="outline">Preview</Button> */}
-        <Button 
-          onClick={onManageCategoryClick} 
-          variant="outline"
-          className="flex-1 sm:flex-initial text-sm sm:text-base"
-        >
+        <Button onClick={onManageCategoryClick} variant="outline">
           <span className="hidden sm:inline">Manage Categories</span>
           <span className="sm:hidden">Categories</span>
         </Button>
-        <Button 
-          onClick={onAddItemClick} 
-          variant="primary" 
-          icon={Plus}
-          className="flex-1 sm:flex-initial text-sm sm:text-base"
-        >
+        <Button onClick={onAddItemClick} variant="primary" icon={Plus}>
           <span className="hidden sm:inline">Add New Items</span>
           <span className="sm:hidden">Add Item</span>
         </Button>
@@ -50,11 +41,11 @@ const MenuSubHeader = ({ onAddItemClick, onManageCategoryClick }) => {
 const Menu = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  
+
   const toggleSidebar = () => {
     setIsSidebarCollapsed((prev) => !prev);
   };
-  
+
   const { setOverlay } = useOverlay();
 
   const { data, isLoading, error } = useQuery({
@@ -91,16 +82,16 @@ const Menu = () => {
 
   return (
     <div className="flex h-screen">
-      <LeftSidebar 
-        collapsed={isSidebarCollapsed} 
-        tab={Tabs.MENU} 
+      <LeftSidebar
+        collapsed={isSidebarCollapsed}
+        tab={Tabs.MENU}
         mobileOpen={mobileMenuOpen}
         onMobileClose={() => setMobileMenuOpen(false)}
       />
       <div className="flex flex-col w-full overflow-hidden">
         <div className="px-4 sm:px-6 pt-4 sm:pt-6">
-          <TabHeader 
-            toggleSidebar={toggleSidebar} 
+          <TabHeader
+            toggleSidebar={toggleSidebar}
             tab={Tabs.MENU}
             onMobileMenuClick={() => setMobileMenuOpen(true)}
           />

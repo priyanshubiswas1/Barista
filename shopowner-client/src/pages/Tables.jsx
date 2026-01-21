@@ -132,12 +132,7 @@ const TableSubHeader = ({ onAddNewTableClick }) => {
         </Button> */}
       </div>
       <div className="flex items-center gap-5 w-full sm:w-auto">
-        <Button
-          onClick={onAddNewTableClick}
-          variant="primary"
-          icon={FaPlus}
-          className="w-full sm:w-auto"
-        >
+        <Button onClick={onAddNewTableClick} variant="primary" icon={FaPlus}>
           Add New Table
         </Button>
       </div>
