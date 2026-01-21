@@ -72,11 +72,11 @@ const Register = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gradient-to-br from-gray-50 via-indigo-50/30 to-gray-100">
-      <div className="h-screen w-screen flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden relative">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-indigo-50/30 to-gray-100 flex items-center justify-center px-4 py-6">
+      <div className="w-full max-w-lg">
+        <div className="bg-white rounded-2xl shadow-2xl overflow-hidden relative max-h-[calc(100vh-2rem)] sm:max-h-none flex flex-col">
           {/* Header with gradient */}
-          <div className="bg-gradient-to-br from-indigo-600 to-indigo-700 text-white p-6 relative overflow-hidden">
+          <div className="bg-gradient-to-br from-indigo-600 to-indigo-700 text-white p-6 relative overflow-hidden flex-shrink-0">
             <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16" />
             <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full -ml-12 -mb-12" />
 
@@ -92,8 +92,8 @@ const Register = () => {
           </div>
 
           {/* Form Section */}
-          <div className="p-6 bg-gradient-to-b from-gray-50 to-white">
-            <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+          <div className="p-6 bg-gradient-to-b from-gray-50 to-white flex-1 overflow-y-auto">
+            <form onSubmit={handleSubmit} className="flex flex-col gap-3 pb-2">
               <Input
                 label="Name"
                 type="text"

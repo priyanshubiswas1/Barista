@@ -16,20 +16,31 @@ import CircleLoading from "../components/CircleLoading";
 
 const MenuSubHeader = ({ onAddItemClick, onManageCategoryClick }) => {
   return (
-    <div className="w-[100%] flex justify-between items-center pt-2 pb-6">
+    <div className="w-full flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pt-2 pb-4 sm:pb-6">
       <div className="flex items-center gap-3">
         {/* <Searchbar />
         <Button variant="outline" icon={IoFilter}>
           Filter
         </Button> */}
       </div>
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto">
         {/* <Button variant="outline">Preview</Button> */}
-        <Button onClick={onManageCategoryClick} variant="outline">
-          Manage Categories
+        <Button 
+          onClick={onManageCategoryClick} 
+          variant="outline"
+          className="flex-1 sm:flex-initial text-sm sm:text-base"
+        >
+          <span className="hidden sm:inline">Manage Categories</span>
+          <span className="sm:hidden">Categories</span>
         </Button>
-        <Button onClick={onAddItemClick} variant="primary" icon={Plus}>
-          Add New Items
+        <Button 
+          onClick={onAddItemClick} 
+          variant="primary" 
+          icon={Plus}
+          className="flex-1 sm:flex-initial text-sm sm:text-base"
+        >
+          <span className="hidden sm:inline">Add New Items</span>
+          <span className="sm:hidden">Add Item</span>
         </Button>
       </div>
     </div>
@@ -37,10 +48,13 @@ const MenuSubHeader = ({ onAddItemClick, onManageCategoryClick }) => {
 };
 
 const Menu = () => {
-  const [isSidebarCollapesed, setisSidebarCollapesed] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  
   const toggleSidebar = () => {
-    setisSidebarCollapesed((prev) => !prev);
+    setIsSidebarCollapsed((prev) => !prev);
   };
+  
   const { setOverlay } = useOverlay();
 
   const { data, isLoading, error } = useQuery({
@@ -77,17 +91,26 @@ const Menu = () => {
 
   return (
     <div className="flex h-screen">
-      <LeftSidebar collapsed={isSidebarCollapesed} tab={Tabs.MENU} />
+      <LeftSidebar 
+        collapsed={isSidebarCollapsed} 
+        tab={Tabs.MENU} 
+        mobileOpen={mobileMenuOpen}
+        onMobileClose={() => setMobileMenuOpen(false)}
+      />
       <div className="flex flex-col w-full overflow-hidden">
-        <div className="px-6 pt-6">
-          <TabHeader toggleSidebar={toggleSidebar} tab={Tabs.MENU} />
+        <div className="px-4 sm:px-6 pt-4 sm:pt-6">
+          <TabHeader 
+            toggleSidebar={toggleSidebar} 
+            tab={Tabs.MENU}
+            onMobileMenuClick={() => setMobileMenuOpen(true)}
+          />
           <MenuSubHeader
             onAddItemClick={() => setOverlay(Overlays.ADDITEM)}
             onManageCategoryClick={() => setOverlay(Overlays.MANAGECAT)}
           />
         </div>
         {items.length > 0 ? (
-          <div className="px-6 pb-6 pt-2 flex-grow flex flex-col gap-4 overflow-y-auto">
+          <div className="px-4 sm:px-6 pb-4 sm:pb-6 pt-2 flex-grow flex flex-col gap-3 sm:gap-4 overflow-y-auto">
             {sortedCategoryEntries.map(([category, categoryItems]) => (
               <MenuContent
                 key={category}
@@ -97,7 +120,7 @@ const Menu = () => {
             ))}
           </div>
         ) : (
-          <div className="px-6 pb-6 pt-5 flex-grow overflow-y-auto">
+          <div className="px-4 sm:px-6 pb-4 sm:pb-6 pt-5 flex-grow overflow-y-auto">
             <MenuNoItems />
           </div>
         )}

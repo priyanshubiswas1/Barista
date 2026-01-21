@@ -124,15 +124,20 @@ const TablesContent = ({ table, onViewQR }) => {
 
 const TableSubHeader = ({ onAddNewTableClick }) => {
   return (
-    <div className="w-[100%] flex justify-between items-center pt-2 pb-6 flex-shrink-0">
+    <div className="w-full flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pt-2 pb-4 sm:pb-6 flex-shrink-0">
       <div className="flex items-center gap-5">
         {/* <Searchbar />
         <Button variant="outline" icon={IoFilter}>
           Filter
         </Button> */}
       </div>
-      <div className="flex items-center gap-5">
-        <Button onClick={onAddNewTableClick} variant="primary" icon={FaPlus}>
+      <div className="flex items-center gap-5 w-full sm:w-auto">
+        <Button
+          onClick={onAddNewTableClick}
+          variant="primary"
+          icon={FaPlus}
+          className="w-full sm:w-auto"
+        >
           Add New Table
         </Button>
       </div>
@@ -142,6 +147,7 @@ const TableSubHeader = ({ onAddNewTableClick }) => {
 
 const Tables = () => {
   const [isSidebarCollapesed, setisSidebarCollapesed] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { setOverlay } = useOverlay();
   const [selectedTable, setSelectedTable] = useState(null);
 
@@ -169,15 +175,24 @@ const Tables = () => {
 
   return (
     <div className="flex h-screen">
-      <LeftSidebar collapsed={isSidebarCollapesed} tab={Tabs.TABLES} />
-      <div className="p-6 flex flex-col flex-1 overflow-hidden">
+      <LeftSidebar
+        collapsed={isSidebarCollapesed}
+        tab={Tabs.TABLES}
+        mobileOpen={mobileMenuOpen}
+        onMobileClose={() => setMobileMenuOpen(false)}
+      />
+      <div className="px-4 sm:px-6 pt-4 sm:pt-6 flex flex-col flex-1 overflow-hidden">
         <div className="flex-shrink-0">
-          <TabHeader toggleSidebar={toggleSidebar} tab={Tabs.TABLES} />
+          <TabHeader
+            toggleSidebar={toggleSidebar}
+            tab={Tabs.TABLES}
+            onMobileMenuClick={() => setMobileMenuOpen(true)}
+          />
         </div>
         <TableSubHeader
           onAddNewTableClick={() => setOverlay(Overlays.CREATETABLE)}
         />
-        <div className="px-4 pb-6 pt-2 flex-grow grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6 overflow-y-auto content-start min-h-0">
+        <div className="pb-4 sm:pb-6 pt-2 flex-grow grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 sm:gap-6 overflow-y-auto content-start min-h-0">
           {tables.map((table) => (
             <TablesContent
               key={table.tableId}

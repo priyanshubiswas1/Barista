@@ -34,13 +34,13 @@ const OverlayComponent = () => {
       return <UpdateItem header={header} item={overlayData} />;
     case Overlays.CREATETABLE:
       return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
           <AddTable header={header} />
         </div>
       );
     case Overlays.UPDATETABLE:
       return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
           <UpdateTable header={header} table={overlayData} />
         </div>
       );
@@ -72,10 +72,13 @@ export const OverlaySidebar = () => {
         />
       )}
       
-      {/* Sidebar */}
+      {/* Sidebar - Full width on mobile, 35% on desktop */}
       <div
         className={`fixed top-0 right-0 h-screen bg-white shadow-2xl transition-all duration-300 ease-in-out z-50 
-          ${overlay ? "translate-x-0 w-[35%] min-w-[500px]" : "translate-x-full w-0"}
+          ${overlay 
+            ? "translate-x-0 w-full sm:w-[85%] md:w-[60%] lg:w-[45%] xl:w-[35%] sm:min-w-[400px] lg:min-w-[500px]" 
+            : "translate-x-full w-0"
+          }
         `}
       >
         <OverlayComponent />

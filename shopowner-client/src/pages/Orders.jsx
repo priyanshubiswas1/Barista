@@ -31,15 +31,20 @@ const getStatusClasses = (status) => {
 
 const OrderSubHeader = ({ onAddNewOrderClick }) => {
   return (
-    <div className="w-[100%] flex justify-between items-center pt-2 flex-shrink-0">
+    <div className="w-full flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pt-2 pb-4 sm:pb-6 flex-shrink-0">
       <div className="flex items-center gap-3">
         {/* <Searchbar />
         <Button variant="outline" icon={IoFilter}>
           Filter
         </Button> */}
       </div>
-      <div className="flex items-center gap-3">
-        <Button onClick={onAddNewOrderClick} variant="primary" icon={Plus}>
+      <div className="flex items-center gap-3 w-full sm:w-auto">
+        <Button
+          onClick={onAddNewOrderClick}
+          variant="primary"
+          icon={Plus}
+          className="w-full sm:w-auto"
+        >
           Add New Order
         </Button>
       </div>
@@ -129,7 +134,7 @@ const TableCard = ({ session }) => {
   };
 
   return (
-    <div className="bg-white w-[25%] min-w-[300px] h-full overflow-hidden p-4 border-2 border-gray-200 hover:border-gray-300 rounded-xl flex flex-col shadow-sm hover:shadow-md transition-all duration-200">
+    <div className="bg-white w-full sm:w-[25%] sm:min-w-[300px] h-auto sm:h-full overflow-hidden p-4 border-2 border-gray-200 hover:border-gray-300 rounded-xl flex flex-col shadow-sm hover:shadow-md transition-all duration-200 min-w-0">
       <h1 className="text-gray-600 text-xl px-3 font-bold">
         Table {session.tableNumber}
       </h1>
@@ -241,7 +246,7 @@ const OrderContent = () => {
 
   const sessions = data.sessions;
   return (
-    <div className="bg-gray-100 w-full h-full flex overflow-x-auto gap-6 pb-4 pr-6">
+    <div className="bg-gray-100 w-full h-full flex flex-col sm:flex-row sm:overflow-x-auto overflow-y-auto sm:overflow-y-hidden gap-4 sm:gap-6 pb-4 sm:pr-6">
       {sessions.map((session) => (
         <TableCard session={session} key={session.sessionId} />
       ))}
@@ -251,21 +256,31 @@ const OrderContent = () => {
 
 const Orders = () => {
   const [isSidebarCollapesed, setisSidebarCollapesed] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const toggleSidebar = () => {
     setisSidebarCollapesed((prev) => !prev);
   };
   const { setOverlay } = useOverlay();
   return (
     <div className="flex h-screen">
-      <LeftSidebar collapsed={isSidebarCollapesed} tab={Tabs.ORDERS} />
-      <div className="p-6 flex flex-col flex-1 overflow-hidden">
+      <LeftSidebar
+        collapsed={isSidebarCollapesed}
+        tab={Tabs.ORDERS}
+        mobileOpen={mobileMenuOpen}
+        onMobileClose={() => setMobileMenuOpen(false)}
+      />
+      <div className="px-4 sm:px-6 pt-4 sm:pt-6 flex flex-col flex-1 overflow-hidden">
         <div className="flex-shrink-0">
-          <TabHeader toggleSidebar={toggleSidebar} tab={Tabs.ORDERS} />
+          <TabHeader
+            toggleSidebar={toggleSidebar}
+            tab={Tabs.ORDERS}
+            onMobileMenuClick={() => setMobileMenuOpen(true)}
+          />
         </div>
         <OrderSubHeader
           onAddNewOrderClick={() => setOverlay(Overlays.CREATEORDER)}
         />
-        <div className="pt-5 flex-grow min-w-0 overflow-hidden min-h-0">
+        <div className="pt-2 flex-grow min-w-0 overflow-hidden min-h-0">
           <OrderContent />
         </div>
       </div>

@@ -5,14 +5,27 @@ import LeftSidebar from "../components/LeftSidebar";
 
 const Community = () => {
   const [isSidebarCollapesed, setisSidebarCollapesed] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const toggleSidebar = () => {
     setisSidebarCollapesed((prev) => !prev);
   };
   return (
     <div className="flex h-screen">
-      <LeftSidebar collapsed={isSidebarCollapesed} tab={Tabs.COMMUNITY} />
-      <div className="p-6 flex flex-col w-full">
-        <TabHeader toggleSidebar={toggleSidebar} tab={Tabs.COMMUNITY} />
+      <LeftSidebar
+        collapsed={isSidebarCollapesed}
+        tab={Tabs.COMMUNITY}
+        mobileOpen={mobileMenuOpen}
+        onMobileClose={() => setMobileMenuOpen(false)}
+      />
+      <div className="px-4 sm:px-6 pt-4 sm:pt-6 flex flex-col flex-1 overflow-hidden">
+        <TabHeader
+          toggleSidebar={toggleSidebar}
+          tab={Tabs.COMMUNITY}
+          onMobileMenuClick={() => setMobileMenuOpen(true)}
+        />
+        <div className="mt-2 sm:mt-4 text-gray-600 text-sm">
+          Community page (responsive shell wired).
+        </div>
       </div>
     </div>
   );

@@ -34,7 +34,7 @@ const HistorySubHeader = ({ selectedFilter, setSelectedFilter }) => {
   }, []);
 
   return (
-    <div className="w-[100%] flex justify-between items-center pt-2">
+    <div className="w-full flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pt-2 pb-4 sm:pb-6">
       <div className="flex items-center gap-3">
         {/* <Searchbar />
         <Button variant="outline" icon={IoFilter}>
@@ -42,14 +42,14 @@ const HistorySubHeader = ({ selectedFilter, setSelectedFilter }) => {
         </Button> */}
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 w-full sm:w-auto">
         <div className="relative" ref={dropdownRef}>
           <button
             type="button"
             onClick={toggleDropdown}
             className="rounded-md shadow-xs disabled:shadow-none text-sm font-medium cursor-pointer disabled:cursor-not-allowed transition-colors duration-120 ease-in-out
                  bg-gray-200 text-gray-500 hover:text-gray-700 disabled:bg-gray-100 disabled:text-gray-200
-                 w-48 h-8 flex items-center gap-2 justify-center"
+                 w-full sm:w-48 h-10 sm:h-8 flex items-center gap-2 justify-center"
           >
             <IoCalendarClearOutline size={16} color="currentColor" />
             {selectedFilter}
@@ -57,7 +57,7 @@ const HistorySubHeader = ({ selectedFilter, setSelectedFilter }) => {
           </button>
 
           {isDropdownOpen && (
-            <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-md z-10">
+            <div className="absolute right-0 mt-2 w-full sm:w-48 bg-white border border-gray-200 rounded-md shadow-md z-10">
               {["Today", "Last Week", "Last Month", "Last 3 Months"].map(
                 (option) => (
                   <button
@@ -85,7 +85,7 @@ const HistorySubHeader = ({ selectedFilter, setSelectedFilter }) => {
 
 const SalesSummaryCard = ({ filter, totalAmount }) => {
   return (
-    <div className="bg-white border-2 p-4 border-gray-200 hover:border-gray-300 rounded-xl flex flex-col gap-y-4 w-65 shadow-sm hover:shadow-md transition-all duration-200">
+    <div className="bg-white border-2 p-4 border-gray-200 hover:border-gray-300 rounded-xl flex flex-col gap-y-4 w-full sm:w-64 shadow-sm hover:shadow-md transition-all duration-200">
       <div className="flex justify-between gap-10 text-xs font-semibold items-center">
         <h2 className="text-gray-600">Total Sales</h2>
         <h2 className="bg-indigo-100 border-indigo-200 rounded-lg px-3 py-1 text-indigo-700">
@@ -102,7 +102,7 @@ const SalesSummaryCard = ({ filter, totalAmount }) => {
 };
 const SessionsSummaryCard = ({ filter, totalSessions }) => {
   return (
-    <div className="bg-white border-2 p-4 border-gray-200 hover:border-gray-300 rounded-xl flex flex-col gap-y-4 w-65 shadow-sm hover:shadow-md transition-all duration-200">
+    <div className="bg-white border-2 p-4 border-gray-200 hover:border-gray-300 rounded-xl flex flex-col gap-y-4 w-full sm:w-64 shadow-sm hover:shadow-md transition-all duration-200">
       <div className="flex justify-between gap-10 text-xs font-semibold items-center">
         <h2 className="text-gray-600">Total Sessions</h2>
         <h2 className="bg-indigo-100 border-indigo-200 rounded-lg px-3 py-1 text-indigo-700">
@@ -140,34 +140,48 @@ const HistoryContent = ({
   };
 
   return (
-    <div className="flex flex-col p-2 flex-1 overflow-hidden">
-      <div className="flex bg-gray-100 p-2 text-sm font-medium text-gray-600 flex-shrink-0">
-        <div className="flex-2">Order ID</div>
+    <div className="flex flex-col flex-1 overflow-hidden">
+      <div className="hidden sm:flex bg-gray-100 p-2 text-sm font-medium text-gray-600 flex-shrink-0 rounded-md">
+        <div className="flex-[2]">Order ID</div>
         <div className="flex-1">Items</div>
         <div className="flex-1">Session</div>
-        <div className="flex-1">Amount</div>
+        <div className="flex-1 text-right">Amount</div>
       </div>
       <div className="w-full flex-1 overflow-y-auto min-h-0 flex flex-col gap-2">
         {sessionSummaries.map((session, index) => (
           <div
             key={index}
-            className="flex bg-white p-2 text-sm text-gray-700 border-b border-gray-200 rounded-md"
+            className="flex flex-col sm:flex-row bg-white p-3 sm:p-2 text-sm text-gray-700 border border-gray-200 rounded-xl sm:rounded-md"
           >
-            <div className="flex-2">{session.sessionNumber}</div>
-            <div className="flex-1">{session.orderedItems.length}</div>
-            <div className="flex-1">
-              {calculateSessionTime(session.createdAt, session.updatedAt)}
+            <div className="flex items-center justify-between sm:contents gap-2">
+              <div className="sm:flex-[2] font-semibold text-gray-900">
+                {session.sessionNumber}
+              </div>
+              <div className="sm:hidden text-gray-500 text-xs">
+                {calculateSessionTime(session.createdAt, session.updatedAt)}
+              </div>
             </div>
-            <div className="flex-1">₹{session.totalAmount.toFixed(2)}</div>
+            <div className="mt-2 sm:mt-0 flex items-center justify-between sm:contents gap-2">
+              <div className="sm:flex-1 text-gray-600">
+                <span className="sm:hidden text-gray-500">Items: </span>
+                {session.orderedItems.length}
+              </div>
+              <div className="hidden sm:block sm:flex-1">
+                {calculateSessionTime(session.createdAt, session.updatedAt)}
+              </div>
+              <div className="sm:flex-1 sm:text-right font-semibold text-gray-900">
+                ₹{session.totalAmount.toFixed(2)}
+              </div>
+            </div>
           </div>
         ))}
       </div>
       {totalPages > 1 && (
-        <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-200 flex-shrink-0">
+        <div className="flex flex-col sm:flex-row justify-between items-center mt-4 pt-4 border-t border-gray-200 flex-shrink-0 gap-3">
           <button
             onClick={() => onPageChange(currentPage - 1)}
             disabled={currentPage === 1}
-            className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium ${
+            className={`w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 rounded-md text-sm font-medium ${
               currentPage === 1
                 ? "bg-gray-100 text-gray-400 cursor-not-allowed"
                 : "bg-gray-200 text-gray-700 hover:bg-gray-300"
@@ -182,7 +196,7 @@ const HistoryContent = ({
           <button
             onClick={() => onPageChange(currentPage + 1)}
             disabled={currentPage >= totalPages}
-            className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium ${
+            className={`w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 rounded-md text-sm font-medium ${
               currentPage >= totalPages
                 ? "bg-gray-100 text-gray-400 cursor-not-allowed"
                 : "bg-gray-200 text-gray-700 hover:bg-gray-300"
@@ -199,6 +213,7 @@ const HistoryContent = ({
 
 const History = () => {
   const [isSidebarCollapesed, setIsSidebarCollapsed] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState("Today");
   const [currentPage, setCurrentPage] = useState(1);
   const limit = 5;
@@ -246,10 +261,19 @@ const History = () => {
 
   return (
     <div className="flex h-screen">
-      <LeftSidebar collapsed={isSidebarCollapesed} tab={Tabs.HISTORY} />
-      <div className="p-6 flex flex-col flex-1 overflow-hidden">
+      <LeftSidebar
+        collapsed={isSidebarCollapesed}
+        tab={Tabs.HISTORY}
+        mobileOpen={mobileMenuOpen}
+        onMobileClose={() => setMobileMenuOpen(false)}
+      />
+      <div className="px-4 sm:px-6 pt-4 sm:pt-6 flex flex-col flex-1 overflow-hidden">
         <div className="flex-shrink-0">
-          <TabHeader toggleSidebar={toggleSidebar} tab={Tabs.HISTORY} />
+          <TabHeader
+            toggleSidebar={toggleSidebar}
+            tab={Tabs.HISTORY}
+            onMobileMenuClick={() => setMobileMenuOpen(true)}
+          />
         </div>
         <div className="flex-shrink-0">
           <HistorySubHeader
@@ -257,7 +281,7 @@ const History = () => {
             setSelectedFilter={handleFilterChange}
           />
         </div>
-        <div className="flex gap-3 py-3 flex-shrink-0">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pb-4 flex-shrink-0">
           <SalesSummaryCard
             filter={selectedFilter}
             totalAmount={data?.totalAmount || 0}
