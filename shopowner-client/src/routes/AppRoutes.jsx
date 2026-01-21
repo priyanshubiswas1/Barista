@@ -9,6 +9,7 @@ import Community from "../pages/Community.jsx";
 import Help from "../pages/Help.jsx";
 import Login from "../pages/Login.jsx";
 import Register from "../pages/Register.jsx";
+import Home from "../pages/Home.jsx";
 import { useQuery } from "@tanstack/react-query";
 import { verifyUser } from "../api/api.js";
 import { useAuthStore } from "../store/authStore.js";
@@ -96,7 +97,8 @@ function AppRoutes() {
             </Protected>
           }
         />
-        <Route path="/*" element={<Navigate to="/menu" />} />
+        <Route path="/" element={<Home />} />
+        <Route path="/*" element={<Navigate to="/" />} />
         <Route path="/test" element={<Test />} />
       </Routes>
     </BrowserRouter>
