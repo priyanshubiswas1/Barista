@@ -92,6 +92,7 @@ type Item struct {
 	Price         float32                `protobuf:"fixed32,7,opt,name=price,proto3" json:"price,omitempty"`
 	Image         string                 `protobuf:"bytes,8,opt,name=image,proto3" json:"image,omitempty"`
 	IsAvailable   bool                   `protobuf:"varint,9,opt,name=isAvailable,proto3" json:"isAvailable,omitempty"`
+	Scan3DUrl     string                 `protobuf:"bytes,10,opt,name=scan3dUrl,proto3" json:"scan3dUrl,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -187,6 +188,13 @@ func (x *Item) GetIsAvailable() bool {
 		return x.IsAvailable
 	}
 	return false
+}
+
+func (x *Item) GetScan3DUrl() string {
+	if x != nil {
+		return x.Scan3DUrl
+	}
+	return ""
 }
 
 type MenuItem struct {
@@ -2307,7 +2315,7 @@ const file_menu_proto_rawDesc = "" +
 	"\x04Menu\x12\x16\n" +
 	"\x06menuId\x18\x01 \x01(\tR\x06menuId\x12\x16\n" +
 	"\x06shopId\x18\x02 \x01(\tR\x06shopId\x12\x12\n" +
-	"\x04name\x18\x03 \x01(\tR\x04name\"\xe8\x01\n" +
+	"\x04name\x18\x03 \x01(\tR\x04name\"\x86\x02\n" +
 	"\x04Item\x12\x16\n" +
 	"\x06itemId\x18\x01 \x01(\tR\x06itemId\x12\x16\n" +
 	"\x06shopId\x18\x02 \x01(\tR\x06shopId\x12\x12\n" +
@@ -2317,7 +2325,9 @@ const file_menu_proto_rawDesc = "" +
 	"\x03veg\x18\x06 \x01(\bR\x03veg\x12\x14\n" +
 	"\x05price\x18\a \x01(\x02R\x05price\x12\x14\n" +
 	"\x05image\x18\b \x01(\tR\x05image\x12 \n" +
-	"\visAvailable\x18\t \x01(\bR\visAvailable\"Z\n" +
+	"\visAvailable\x18\t \x01(\bR\visAvailable\x12\x1c\n" +
+	"\tscan3dUrl\x18\n" +
+	" \x01(\tR\tscan3dUrl\"Z\n" +
 	"\bMenuItem\x12\x1e\n" +
 	"\n" +
 	"menuItemId\x18\x01 \x01(\tR\n" +

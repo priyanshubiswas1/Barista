@@ -13,6 +13,7 @@ import { useAuthStore } from "../store/authStore";
 import { useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import CircleLoading from "../components/CircleLoading";
+import ARModelModal from "../components/ARModelModal";
 
 const VegNonVegSelect = ({ value, onChange }) => (
   <div className="flex gap-2 pt-4 pb-4 justify-center">
@@ -70,6 +71,7 @@ const Category = ({
   toggleCategory,
   orderItems,
   setOrderItems,
+  onOpenAR,
 }) => (
   <div className="bg-white rounded-2xl border border-gray-200 shadow-md hover:shadow-lg transition-shadow duration-200 overflow-hidden">
     <div
@@ -95,6 +97,7 @@ const Category = ({
             item={item}
             orderItems={orderItems}
             setOrderItems={setOrderItems}
+            onOpenAR={onOpenAR}
           />
         ))}
       </div>
@@ -102,7 +105,7 @@ const Category = ({
   </div>
 );
 
-const Item = ({ item, orderItems, setOrderItems }) => {
+const Item = ({ item, orderItems, setOrderItems, onOpenAR }) => {
   const currentItem = orderItems.find((i) => i.itemId === item.itemId);
   const count = currentItem ? currentItem.quantity : 0;
 
@@ -161,6 +164,15 @@ const Item = ({ item, orderItems, setOrderItems }) => {
             backgroundImage: `url(${item.image})`,
           }}
         />
+        {item.scan3dUrl && (
+          <button
+            type="button"
+            onClick={() => onOpenAR?.(item)}
+            className="absolute top-2 right-2 bg-black/70 text-white text-[11px] font-bold px-2 py-1 rounded-lg shadow hover:bg-black/80 active:scale-95 transition"
+          >
+            AR
+          </button>
+        )}
         <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-24">
           {count === 0 ? (
             <button
@@ -205,6 +217,7 @@ const Menu = () => {
 
   const [expandedCategories, setExpandedCategories] = useState({});
   const [foodType, setFoodType] = useState("all");
+  const [arItem, setArItem] = useState(null);
 
   const { orderItems, setOrderItems } = useAuthStore();
 
@@ -302,6 +315,7 @@ const Menu = () => {
               toggleCategory={() => toggleCategory(category)}
               orderItems={orderItems}
               setOrderItems={setOrderItems}
+              onOpenAR={(item) => setArItem(item)}
             />
           ))}
           
@@ -334,6 +348,13 @@ const Menu = () => {
           </div>
         </div>
       )}
+
+      <ARModelModal
+        open={!!arItem}
+        title={arItem?.itemName}
+        src={arItem ? `/api/item/${arItem.itemId}/scan3d` : ""}
+        onClose={() => setArItem(null)}
+      />
     </div>
   );
 };

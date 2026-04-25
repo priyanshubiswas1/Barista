@@ -107,6 +107,7 @@ func (s *gRPCserver) CreateItem(ctx context.Context, req *menuPb.CreateItemReque
 			Price:       item.Price,
 			Image:       item.Image,
 			IsAvailable: item.IsAvailable,
+			Scan3DUrl:   item.Scan3DUrl,
 		},
 	}, nil
 }
@@ -127,6 +128,7 @@ func (s *gRPCserver) GetItem(ctx context.Context, req *menuPb.GetItemRequest) (*
 			Price:       item.Price,
 			Image:       item.Image,
 			IsAvailable: item.IsAvailable,
+			Scan3DUrl:   item.Scan3DUrl,
 		},
 	}, nil
 }
@@ -148,6 +150,7 @@ func (s *gRPCserver) GetItems(ctx context.Context, req *menuPb.GetItemsRequest) 
 			Price:       item.Price,
 			Image:       item.Image,
 			IsAvailable: item.IsAvailable,
+			Scan3DUrl:   item.Scan3DUrl,
 		})
 	}
 	return &menuPb.GetItemsResponse{
@@ -172,6 +175,7 @@ func (s *gRPCserver) GetItemsAdmin(ctx context.Context, req *menuPb.GetItemsRequ
 			Price:       item.Price,
 			Image:       item.Image,
 			IsAvailable: item.IsAvailable,
+			Scan3DUrl:   item.Scan3DUrl,
 		})
 	}
 	return &menuPb.GetItemsResponse{
@@ -258,6 +262,7 @@ func (s *gRPCserver) GetMenuItems(ctx context.Context, req *menuPb.GetMenuItemsR
 			Price:       pkgItem.Price,
 			Image:       pkgItem.Image,
 			IsAvailable: pkgItem.IsAvailable,
+			Scan3DUrl:   pkgItem.Scan3DUrl,
 		}
 		items = append(items, &item)
 	}
@@ -283,6 +288,7 @@ func (s *gRPCserver) GetMenuItemsAdmin(ctx context.Context, req *menuPb.GetMenuI
 			Price:       pkgItem.Price,
 			Image:       pkgItem.Image,
 			IsAvailable: pkgItem.IsAvailable,
+			Scan3DUrl:   pkgItem.Scan3DUrl,
 		}
 		items = append(items, &item)
 	}
@@ -384,6 +390,7 @@ func (s *gRPCserver) GetCategoryWithItems(ctx context.Context, req *menuPb.GetCa
 				Price:       i.Price,
 				Image:       i.Image,
 				IsAvailable: i.IsAvailable,
+				Scan3DUrl:   i.Scan3DUrl,
 			})
 		}
 		categories = append(categories, &menuPb.CategoryWithItems{

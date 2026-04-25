@@ -23,6 +23,7 @@ CREATE TABLE item (
     veg BOOLEAN,
     price NUMERIC(10, 2) NOT NULL,
     image VARCHAR(255),
+    scan3d_url TEXT,
     is_available BOOLEAN DEFAULT TRUE,
     active BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),

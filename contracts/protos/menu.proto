@@ -19,6 +19,7 @@ message Item {
     float price = 7;
     string image = 8;
     bool isAvailable = 9;
+    string scan3dUrl = 10;
 }
 
 message MenuItem {

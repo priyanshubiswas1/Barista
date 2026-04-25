@@ -112,6 +112,7 @@ func (s *APIServer) ListenServer(port string) error {
 
 	// unprotected SESSION paths
 	router.HandleFunc("/api/items/{shopid}", makeHttpHandleFunc(menuClient.GetItems)).Methods("GET")
+	router.HandleFunc("/api/item/{itemid}/scan3d", makeHttpHandleFunc(menuClient.GetItemScan3D)).Methods("GET")
 	router.HandleFunc("/api/sessions", makeHttpHandleFunc(sessionClient.GetActiveSession)).Methods("GET").Queries("shopid", "{shopid}", "tableid", "{tableid}")
 	router.HandleFunc("/api/sessions/send-otp", makeHttpHandleFunc(sessionClient.SendSessionOTP)).Methods("POST")
 	router.HandleFunc("/api/sessions", makeHttpHandleFunc(sessionClient.CreateSession)).Methods("POST")

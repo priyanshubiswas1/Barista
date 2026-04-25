@@ -16,6 +16,7 @@ rabbitmqctl add_vhost barista
 rabbitmqctl set_permissions -p barista admin ".*" ".*" ".*"
 
 rabbitmqadmin declare exchange --vhost=barista name=gen_qr_event type=direct -u admin -p 7866 durable=true
+rabbitmqadmin declare exchange --vhost=barista name=photogrammetry_event type=direct -u admin -p 7866 durable=true
 
 rabbitmq-plugins enable rabbitmq_management
 

@@ -6,8 +6,14 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"strconv"
+	"strings"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/credentials"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/gorilla/mux"
 	"github.com/priyanshubiswas1/barista/apigateway/pkg"
 	menu "github.com/priyanshubiswas1/baristacontracts/gen/menu"
@@ -30,6 +36,7 @@ type IMenuClient interface {
 	UpdateItem(ctx context.Context, w http.ResponseWriter, r *http.Request) error
 	UpdateItemAvailable(ctx context.Context, w http.ResponseWriter, r *http.Request) error
 	DeleteItem(ctx context.Context, w http.ResponseWriter, r *http.Request) error
+	GetItemScan3D(ctx context.Context, w http.ResponseWriter, r *http.Request) error
 
 	//MENU-ITEMS
 	CreateMenuItem(ctx context.Context, w http.ResponseWriter, r *http.Request) error
@@ -249,6 +256,7 @@ func (c *MenuClient) CreateItem(ctx context.Context, w http.ResponseWriter, r *h
 			Veg:         res.Item.Veg,
 			Price:       res.Item.Price,
 			Image:       res.Item.Image,
+			Scan3DUrl:   res.Item.Scan3DUrl,
 			Available:   res.Item.IsAvailable,
 		},
 	})
@@ -274,6 +282,7 @@ func (c *MenuClient) GetItem(ctx context.Context, w http.ResponseWriter, r *http
 			Veg:         res.Item.Veg,
 			Price:       res.Item.Price,
 			Image:       res.Item.Image,
+			Scan3DUrl:   res.Item.Scan3DUrl,
 			Available:   res.Item.IsAvailable,
 		},
 	})
@@ -300,6 +309,7 @@ func (c *MenuClient) GetItems(ctx context.Context, w http.ResponseWriter, r *htt
 			Veg:         it.Veg,
 			Price:       it.Price,
 			Image:       it.Image,
+			Scan3DUrl:   it.Scan3DUrl,
 			Available:   it.IsAvailable,
 		}
 		items = append(items, item)
@@ -330,6 +340,7 @@ func (c *MenuClient) GetItemsAdmin(ctx context.Context, w http.ResponseWriter, r
 			Veg:         it.Veg,
 			Price:       it.Price,
 			Image:       it.Image,
+			Scan3DUrl:   it.Scan3DUrl,
 			Available:   it.IsAvailable,
 		}
 		items = append(items, item)
@@ -440,6 +451,7 @@ func (c *MenuClient) GetMenuItems(ctx context.Context, w http.ResponseWriter, r 
 			Veg:         i.Veg,
 			Price:       i.Price,
 			Image:       i.Image,
+			Scan3DUrl:   i.Scan3DUrl,
 			Available:   i.IsAvailable,
 		}
 		items = append(items, item)
@@ -470,6 +482,7 @@ func (c *MenuClient) GetMenuItemsAdmin(ctx context.Context, w http.ResponseWrite
 			Veg:         i.Veg,
 			Price:       i.Price,
 			Image:       i.Image,
+			Scan3DUrl:   i.Scan3DUrl,
 			Available:   i.IsAvailable,
 		}
 		items = append(items, item)
@@ -601,6 +614,7 @@ func (c *MenuClient) GetCategoriesWithItems(ctx context.Context, w http.Response
 				Veg:         i.Veg,
 				Price:       i.Price,
 				Image:       i.Image,
+				Scan3DUrl:   i.Scan3DUrl,
 				Available:   i.IsAvailable,
 			})
 		}
@@ -672,4 +686,73 @@ func (c *MenuClient) UploadImage(ctx context.Context, w http.ResponseWriter, r *
 	return pkg.WriteJSON(w, http.StatusOK, pkg.UploadImageResponse{
 		ImageUrl: res.ImageUrl,
 	})
+}
+
+func (c *MenuClient) GetItemScan3D(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+	vars := mux.Vars(r)
+	itemId := vars["itemid"]
+
+	res, err := c.service.GetItem(ctx, &menu.GetItemRequest{ItemId: itemId})
+	if err != nil {
+		return err
+	}
+	scanURL := strings.TrimSpace(res.GetItem().GetScan3DUrl())
+	if scanURL == "" {
+		w.WriteHeader(http.StatusNotFound)
+		_, _ = w.Write([]byte("3d scan not available"))
+		return nil
+	}
+	if !strings.HasPrefix(scanURL, "s3://") {
+		return fmt.Errorf("unsupported scan3d url: %s", scanURL)
+	}
+	trimmed := strings.TrimPrefix(scanURL, "s3://")
+	parts := strings.SplitN(trimmed, "/", 2)
+	if len(parts) != 2 {
+		return fmt.Errorf("invalid s3 url: %s", scanURL)
+	}
+	bucket := parts[0]
+	key := parts[1]
+
+	endpoint := os.Getenv("GARAGE_ENDPOINT")
+	region := os.Getenv("GARAGE_REGION")
+	accessKey := os.Getenv("GARAGE_ACCESS_KEY")
+	secretKey := os.Getenv("GARAGE_SECRET_KEY")
+	if endpoint == "" || region == "" || accessKey == "" || secretKey == "" {
+		return fmt.Errorf("garage env not configured in api-gateway")
+	}
+
+	awsCfg, err := config.LoadDefaultConfig(
+		ctx,
+		config.WithRegion(region),
+		config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(accessKey, secretKey, "")),
+		config.WithEndpointResolverWithOptions(aws.EndpointResolverWithOptionsFunc(
+			func(service, region string, _ ...interface{}) (aws.Endpoint, error) {
+				if service == s3.ServiceID {
+					return aws.Endpoint{URL: endpoint, HostnameImmutable: true}, nil
+				}
+				return aws.Endpoint{}, &aws.EndpointNotFoundError{}
+			},
+		)),
+	)
+	if err != nil {
+		return err
+	}
+
+	s3Client := s3.NewFromConfig(awsCfg, func(o *s3.Options) {
+		o.UsePathStyle = true
+	})
+	obj, err := s3Client.GetObject(ctx, &s3.GetObjectInput{
+		Bucket: &bucket,
+		Key:    &key,
+	})
+	if err != nil {
+		return err
+	}
+	defer obj.Body.Close()
+
+	w.Header().Set("Content-Type", "model/gltf-binary")
+	w.Header().Set("Content-Disposition", "inline; filename=\"model.glb\"")
+	w.WriteHeader(http.StatusOK)
+	_, err = io.Copy(w, obj.Body)
+	return err
 }

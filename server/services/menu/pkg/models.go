@@ -15,6 +15,7 @@ type ItemRequest struct {
 	Veg         bool    `json:"veg"`
 	Price       float32 `json:"price"`
 	Image       string  `json:"image"`
+	Scan3DUrl   string  `json:"3dScanUrl"`
 	IsAvailable bool    `json:"isAvailable"`
 }
 
@@ -33,6 +34,7 @@ type Item struct {
 	Veg         bool    `json:"veg"`
 	Price       float32 `json:"price"`
 	Image       string  `json:"image"`
+	Scan3DUrl   string  `json:"3dScanUrl"`
 	IsAvailable bool    `json:"isAvailable"`
 }
 

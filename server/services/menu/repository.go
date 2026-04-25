@@ -23,6 +23,7 @@ type IRepository interface {
 	GetItemsAdmin(ctx context.Context, menuId string) ([]pkg.Item, error)
 	UpdateItem(ctx context.Context, itemId, shopId, name, description, categoryId string, veg bool, price float32, image string, isAvailable bool, updatedAt time.Time) (bool, error)
 	UpdateItemAvailable(ctx context.Context, itemId, shopId string, isAvailable bool, updatedAt time.Time) (bool, error)
+	SetItemScan3DURL(ctx context.Context, itemId, shopId, scan3dURL string, updatedAt time.Time) (bool, error)
 	DeleteItem(ctx context.Context, itemId string) (bool, error)
 	CreateMenuItem(ctx context.Context, id, menuId, itemId string) (pkg.MenuItem, error)
 	GetMenuItems(ctx context.Context, menuId string) ([]pkg.Item, error)
@@ -142,10 +143,10 @@ func (r *postgresRepository) DeleteMenu(ctx context.Context, menuId string) (boo
 
 func (r *postgresRepository) CreateItem(ctx context.Context, itemId, shopId, name, description, categoryId string, veg bool, price float32, image string, isAvailable, active bool, createdAt time.Time) error {
 	query := `INSERT INTO item
-			(id,shop_id,name,description,category_id,veg,price,image,is_available,active,created_at,updated_at)
-			VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
+			(id,shop_id,name,description,category_id,veg,price,image,scan3d_url,is_available,active,created_at,updated_at)
+			VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
 			`
-	res, err := r.db.ExecContext(ctx, query, itemId, shopId, name, description, categoryId, veg, price, image, isAvailable, active, createdAt, createdAt)
+	res, err := r.db.ExecContext(ctx, query, itemId, shopId, name, description, categoryId, veg, price, image, nil, isAvailable, active, createdAt, createdAt)
 	if err != nil {
 		return err
 	}
@@ -169,6 +170,7 @@ func (r *postgresRepository) GetItem(ctx context.Context, itemId string) (pkg.It
 				item.veg,
 				item.price,
 				item.image,
+				COALESCE(item.scan3d_url, '') AS scan3d_url,
 				item.is_available
 			FROM 
 				item
@@ -179,7 +181,7 @@ func (r *postgresRepository) GetItem(ctx context.Context, itemId string) (pkg.It
 			`
 	res := r.db.QueryRowContext(ctx, query, itemId)
 	item := pkg.Item{}
-	if err := res.Scan(&item.ItemId, &item.ShopId, &item.Name, &item.Description, &item.Category, &item.Veg, &item.Price, &item.Image, &item.IsAvailable); err != nil {
+	if err := res.Scan(&item.ItemId, &item.ShopId, &item.Name, &item.Description, &item.Category, &item.Veg, &item.Price, &item.Image, &item.Scan3DUrl, &item.IsAvailable); err != nil {
 		if err == sql.ErrNoRows {
 			return pkg.Item{}, errors.New("menu item not found")
 		}
@@ -198,6 +200,7 @@ func (r *postgresRepository) GetItems(ctx context.Context, shopId string) ([]pkg
 				item.veg,
 				item.price,
 				item.image,
+				COALESCE(item.scan3d_url, '') AS scan3d_url,
 				item.is_available
 			FROM 
 				item
@@ -216,7 +219,7 @@ func (r *postgresRepository) GetItems(ctx context.Context, shopId string) ([]pkg
 	items := []pkg.Item{}
 	for rows.Next() {
 		item := pkg.Item{}
-		if err := rows.Scan(&item.ItemId, &item.ShopId, &item.Name, &item.Description, &item.Category, &item.Veg, &item.Price, &item.Image, &item.IsAvailable); err != nil {
+		if err := rows.Scan(&item.ItemId, &item.ShopId, &item.Name, &item.Description, &item.Category, &item.Veg, &item.Price, &item.Image, &item.Scan3DUrl, &item.IsAvailable); err != nil {
 			return nil, err
 		}
 		items = append(items, item)
@@ -237,6 +240,7 @@ func (r *postgresRepository) GetItemsAdmin(ctx context.Context, shopId string) (
 				item.veg,
 				item.price,
 				item.image,
+				COALESCE(item.scan3d_url, '') AS scan3d_url,
 				item.is_available
 			FROM 
 				item
@@ -254,7 +258,7 @@ func (r *postgresRepository) GetItemsAdmin(ctx context.Context, shopId string) (
 	items := []pkg.Item{}
 	for rows.Next() {
 		item := pkg.Item{}
-		if err := rows.Scan(&item.ItemId, &item.ShopId, &item.Name, &item.Description, &item.Category, &item.Veg, &item.Price, &item.Image, &item.IsAvailable); err != nil {
+		if err := rows.Scan(&item.ItemId, &item.ShopId, &item.Name, &item.Description, &item.Category, &item.Veg, &item.Price, &item.Image, &item.Scan3DUrl, &item.IsAvailable); err != nil {
 			return nil, err
 		}
 		items = append(items, item)
@@ -357,6 +361,7 @@ func (r *postgresRepository) GetMenuItems(ctx context.Context, menuId string) ([
 				i.veg,
 				i.price, 
 				i.image, 
+				COALESCE(i.scan3d_url, '') AS scan3d_url,
 				i.is_available
 			FROM 
 				item i
@@ -386,6 +391,7 @@ func (r *postgresRepository) GetMenuItems(ctx context.Context, menuId string) ([
 			&item.Veg,
 			&item.Price,
 			&item.Image,
+			&item.Scan3DUrl,
 			&item.IsAvailable,
 		)
 		if err != nil {
@@ -409,6 +415,7 @@ func (r *postgresRepository) GetMenuItemsAdmin(ctx context.Context, menuId strin
 				i.veg,
 				i.price, 
 				i.image, 
+				COALESCE(i.scan3d_url, '') AS scan3d_url,
 				i.is_available
 			FROM 
 				item i
@@ -437,6 +444,7 @@ func (r *postgresRepository) GetMenuItemsAdmin(ctx context.Context, menuId strin
 			&item.Veg,
 			&item.Price,
 			&item.Image,
+			&item.Scan3DUrl,
 			&item.IsAvailable,
 		)
 		if err != nil {
@@ -587,6 +595,7 @@ func (r *postgresRepository) GetCategoriesWithItem(ctx context.Context, shopId s
 						'veg', i.veg,
 						'price', i.price,
 						'image', i.image,
+						'scan3dUrl', COALESCE(i.scan3d_url, ''),
 						'isAvailable', i.is_available
 					)
 				) FILTER (WHERE i.id IS NOT NULL),
@@ -628,6 +637,27 @@ func (r *postgresRepository) GetCategoriesWithItem(ctx context.Context, shopId s
 		return nil, err
 	}
 	return categories, nil
+}
+
+func (r *postgresRepository) SetItemScan3DURL(ctx context.Context, itemId, shopId, scan3dURL string, updatedAt time.Time) (bool, error) {
+	if itemId == "" || shopId == "" {
+		return false, errors.New("itemId and shopId are required")
+	}
+	query := `UPDATE item
+			SET scan3d_url=$1, updated_at=$2
+			WHERE id=$3 AND shop_id=$4`
+	res, err := r.db.ExecContext(ctx, query, scan3dURL, updatedAt, itemId, shopId)
+	if err != nil {
+		return false, err
+	}
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		return false, err
+	}
+	if rowsAffected == 0 {
+		return false, errors.New("failed to update scan3d_url")
+	}
+	return true, nil
 }
 
 func (r *postgresRepository) DeleteCategory(ctx context.Context, id, shopId string) (bool, error) {

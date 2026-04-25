@@ -16,6 +16,12 @@ type Config struct {
 	HistoryClient  string `envconfig:"HISTORY_CLIENT"`
 	JwtKey         string `envconfig:"JWT_KEY"`
 	AllowedOrigins string `envconfig:"ALLOWED_ORIGINS"`
+
+	// Garage (S3) for 3D scan downloads
+	GarageEndpoint  string `envconfig:"GARAGE_ENDPOINT"`
+	GarageRegion    string `envconfig:"GARAGE_REGION"`
+	GarageAccessKey string `envconfig:"GARAGE_ACCESS_KEY"`
+	GarageSecretKey string `envconfig:"GARAGE_SECRET_KEY"`
 }
 
 func GetConfig() (*Config, error) {

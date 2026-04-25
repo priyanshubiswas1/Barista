@@ -110,6 +110,7 @@ type Item struct {
 	Veg         bool    `json:"veg"`
 	Price       float32 `json:"price"`
 	Image       string  `json:"image"`
+	Scan3DUrl   string  `json:"scan3dUrl"`
 	Available   bool    `json:"available"`
 }
 type MenuItem struct {

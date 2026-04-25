@@ -1,3 +1,5 @@
+tree /A | findstr /V "\."
+
 docker-compose up --build
 docker compose up -d --build authservice apigateway               
 
@@ -31,3 +33,39 @@ useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+
+python .\extract_frames.py ../input/sample_video.mp4 ../frames/ --interval 0.4 --blur-threshold 80 --motion-threshold 0.31
+
+# 1. Extract image features
+docker run --rm --gpus all -v "D:\Git_Rep\Barista\Barista\server\services\photogrammetry:/workspace" colmap/colmap colmap feature_extractor --database_path /workspace/colmap/database.db --image_path /workspace/frames
+
+# 2. Match features across images
+docker run --rm --gpus all -v "D:\Git_Rep\Barista\Barista\server\services\photogrammetry:/workspace" colmap/colmap colmap exhaustive_matcher --database_path /workspace/colmap/database.db
+
+# 3. Sparse reconstruction (SfM)
+docker run --rm --gpus all -v "D:\Git_Rep\Barista\Barista\server\services\photogrammetry:/workspace" colmap/colmap colmap mapper --database_path /workspace/colmap/database.db --image_path /workspace/frames --output_path /workspace/colmap/sparse
+
+# 4. Undistort images
+docker run --rm --gpus all -v "D:\Git_Rep\Barista\Barista\server\services\photogrammetry:/workspace" colmap/colmap colmap image_undistorter --image_path /workspace/frames --input_path /workspace/colmap/sparse/0 --output_path /workspace/colmap/dense
+
+# 5. Dense reconstruction (MVS) — GPU heavy
+docker run --rm --gpus all -v "D:\Git_Rep\Barista\Barista\server\services\photogrammetry:/workspace" colmap/colmap colmap patch_match_stereo --workspace_path /workspace/colmap/dense
+
+# 6. Fuse depth maps into point cloud
+docker run --rm --gpus all -v "D:\Git_Rep\Barista\Barista\server\services\photogrammetry:/workspace" colmap/colmap colmap stereo_fusion --workspace_path /workspace/colmap/dense --output_path /workspace/colmap/dense/fused.ply
+
+
+In WSL2, Windows drives are mounted under /mnt/. So your path translates to:
+/mnt/d/Git_Rep/Barista/Barista/server/services/photogrammetry
+
+docker run --rm --gpus all -v /mnt/d/Git_Rep/Barista/Barista/server/services/photogrammetry:/workspace colmap/colmap colmap -h
+
+$env:AWS_ACCESS_KEY_ID="barista-local"
+$env:AWS_SECRET_ACCESS_KEY="barista-local-secret"
+$env:AWS_DEFAULT_REGION="garage"
+aws --endpoint-url http://localhost:3900 s3api get-object `
+  --bucket glb `
+  --key "hunyuan/16768b54-bd2e-48b9-9f8d-836cb1b49f21/7a41e29c-4378-442a-881e-16422bd7005a/model.glb" `
+  --checksum-mode DISABLED `
+  .\model.glb

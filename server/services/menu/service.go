@@ -38,12 +38,14 @@ type IService interface {
 type service struct {
 	repository      IRepository
 	cloudinaryService *pkg.CloudinaryService
+	scanPublisher   *ScanPublisher
 }
 
-func NewService(repository IRepository, cloudinaryService *pkg.CloudinaryService) IService {
+func NewService(repository IRepository, cloudinaryService *pkg.CloudinaryService, scanPublisher *ScanPublisher) IService {
 	return &service{
 		repository:       repository,
 		cloudinaryService: cloudinaryService,
+		scanPublisher:    scanPublisher,
 	}
 }
 
@@ -95,6 +97,23 @@ func (s *service) CreateItem(ctx context.Context, item pkg.ItemRequest) (pkg.Ite
 		item.CategoryId, item.Veg, item.Price, item.Image, item.IsAvailable, true, time.Now()); err != nil {
 		return pkg.Item{}, err
 	}
+
+	// Fire-and-forget 3D scan generation if an image URL is present.
+	if s.scanPublisher != nil && item.Image != "" {
+		go func(shopId, itemId, imageURL string) {
+			log.Println("enqueueing 3d scan job", "shopId", shopId, "itemId", itemId)
+			if err := s.scanPublisher.Enqueue(context.Background(), ScanJob{
+				ShopID:   shopId,
+				ItemID:   itemId,
+				ImageURL: imageURL,
+			}); err != nil {
+				log.Println("failed to enqueue 3d scan job:", err)
+				return
+			}
+			log.Println("enqueued 3d scan job", "shopId", shopId, "itemId", itemId)
+		}(item.ShopId, item.ItemId, item.Image)
+	}
+
 	return pkg.Item{
 		ItemId:      item.ItemId,
 		ShopId:      item.ShopId,
@@ -104,6 +123,7 @@ func (s *service) CreateItem(ctx context.Context, item pkg.ItemRequest) (pkg.Ite
 		Veg:         item.Veg,
 		Price:       item.Price,
 		Image:       item.Image,
+		Scan3DUrl:   "",
 		IsAvailable: item.IsAvailable,
 	}, nil
 }
@@ -152,7 +172,28 @@ func (s *service) UpdateItem(ctx context.Context, item pkg.ItemRequest) (bool, e
 	if _, err := s.repository.GetCategoryName(ctx, item.CategoryId, item.ShopId); err != nil {
 		return false, err
 	}
-	return s.repository.UpdateItem(ctx, item.ItemId, item.ShopId, item.Name, item.Description, item.CategoryId, item.Veg, item.Price, item.Image, item.IsAvailable, time.Now())
+	ok, err := s.repository.UpdateItem(ctx, item.ItemId, item.ShopId, item.Name, item.Description, item.CategoryId, item.Veg, item.Price, item.Image, item.IsAvailable, time.Now())
+	if err != nil {
+		return false, err
+	}
+
+	// Fire-and-forget 3D scan regeneration if an image URL is present.
+	if s.scanPublisher != nil && item.Image != "" {
+		go func(shopId, itemId, imageURL string) {
+			log.Println("enqueueing 3d scan job", "shopId", shopId, "itemId", itemId)
+			if err := s.scanPublisher.Enqueue(context.Background(), ScanJob{
+				ShopID:   shopId,
+				ItemID:   itemId,
+				ImageURL: imageURL,
+			}); err != nil {
+				log.Println("failed to enqueue 3d scan job:", err)
+				return
+			}
+			log.Println("enqueued 3d scan job", "shopId", shopId, "itemId", itemId)
+		}(item.ShopId, item.ItemId, item.Image)
+	}
+
+	return ok, nil
 }
 
 func (s *service) UpdateItemAvailable(ctx context.Context, item pkg.UpdateItemAvailableRequest) (bool, error) {
