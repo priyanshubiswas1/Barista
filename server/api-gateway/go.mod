@@ -16,8 +16,6 @@ require (
 	google.golang.org/grpc v1.75.0
 )
 
-replace github.com/priyanshubiswas1/baristacontracts => ../../contracts
-
 require (
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.7.9 // indirect
 	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.18.22 // indirect
