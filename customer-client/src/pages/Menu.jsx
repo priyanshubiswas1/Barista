@@ -15,6 +15,13 @@ import { useQuery } from "@tanstack/react-query";
 import CircleLoading from "../components/CircleLoading";
 import ARModelModal from "../components/ARModelModal";
 
+const API_BASE_URL = (
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/api"
+).replace(/\/+$/, "");
+
+const getScan3DViewUrl = (itemId) =>
+  `${API_BASE_URL}/item/${encodeURIComponent(itemId)}/scan3d`;
+
 const VegNonVegSelect = ({ value, onChange }) => (
   <div className="flex gap-2 pt-4 pb-4 justify-center">
     {[
@@ -352,7 +359,7 @@ const Menu = () => {
       <ARModelModal
         open={!!arItem}
         title={arItem?.itemName}
-        src={arItem ? `/api/item/${arItem.itemId}/scan3d` : ""}
+        src={arItem ? getScan3DViewUrl(arItem.itemId) : ""}
         onClose={() => setArItem(null)}
       />
     </div>
