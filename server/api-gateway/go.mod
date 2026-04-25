@@ -11,7 +11,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/mux v1.8.1
 	github.com/kelseyhightower/envconfig v1.4.0
-	github.com/priyanshubiswas1/baristacontracts v1.6.6
+	github.com/priyanshubiswas1/baristacontracts v1.7.0
 	github.com/rs/cors v1.11.1
 	google.golang.org/grpc v1.75.0
 )

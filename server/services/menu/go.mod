@@ -33,7 +33,7 @@ require (
 )
 
 require (
-	github.com/priyanshubiswas1/baristacontracts v1.6.6
+	github.com/priyanshubiswas1/baristacontracts v1.7.0
 	golang.org/x/net v0.41.0 // indirect
 	golang.org/x/sys v0.33.0 // indirect
 	golang.org/x/text v0.26.0 // indirect
